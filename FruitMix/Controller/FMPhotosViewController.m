@@ -23,6 +23,7 @@
 #import "UIViewController+JYControllerTools.h"
 
 #import "VCFloatingActionButton.h"
+#import "JYProcessView.h"
 
 #import "FMPhotoDataSource.h"
 
@@ -45,6 +46,8 @@
 @property (strong, nonatomic) VCFloatingActionButton * addButton;
 
 @property (nonatomic ,weak ) FMPhotoDataSource * photoDataSource;
+
+@property (nonatomic) JYProcessView * pv;
 
 @end
 
@@ -253,7 +256,7 @@
                 [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
             }else{
                 //downLoading...
-                
+                [self clickDownload];
             }
         }
             break;
@@ -285,6 +288,41 @@
 }
 
 -(void)clickDownload{
+    NSArray * chooseItems = [self.choosePhotos copy];
+    _pv = [JYProcessView processViewWithType:ProcessTypeLine];
+    _pv.descLb.text = @"正在下载文件";
+    _pv.subDescLb.text = [NSString stringWithFormat:@"%lu个项目 ",(unsigned long)chooseItems.count];
+    [_pv show];
+    [self downloadItems:chooseItems];
+    [self leftBtnClick:_leftBtn];
+}
+
+-(void)downloadItems:(NSArray *)items{
+    
+    
+}
+
+-(void)downloadItem:(id<IDMPhoto>)item withCompleteBlock:(void(^)(BOOL isSuccess))block{
+    if ([item isKindOfClass:[FMNASPhoto class]]) {
+        [FMGetImage getFullScreenImageWithPhotoHash:[item getPhotoHash]
+                                   andCompleteBlock:^(UIImage *image, NSString *tag)
+         {
+            block(image?YES:NO);
+        }];
+    }else{
+        FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
+        PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[(FMPhotoAsset *)item localId]];
+        if (asset) {
+            [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
+                if (filePath) {
+                    block(YES);
+                }else
+                    block(NO);
+            }];
+        }else
+            block(NO);
+        
+    }
     
 }
 

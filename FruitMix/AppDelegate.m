@@ -30,16 +30,22 @@
 #import <CoreTelephony/CTCellularData.h>
 #import "UIApplication+JYTopVC.h"
 
+#import <CocoaLumberjack/CocoaLumberjack.h>
+
+// Log levels: off, error, warn, info, verbose
+//static const DDLogLevel ddLogLevel = DDLogLevelVerbose;
+
 @interface AppDelegate ()<UIAlertViewDelegate,FMLeftMenuDelegate>
 
 @end
+
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [[RRFPSBar sharedInstance]setHidden:YES];
-    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+//    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     //配置侧拉
     [self initLeftMenu];
     //配置app的模式
@@ -81,7 +87,6 @@
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
-    NSLog(@"app handleEventsForBackgroundURLSession ----- ");
     self.backgroundSessionCompletionHandler = completionHandler;
 }
 
@@ -110,6 +115,17 @@
     }
     [[UIApplication sharedApplication]setStatusBarStyle:UIStatusBarStyleLightContent];
 }
+
+// CocoaLumberjack
+//-(void)configAppLog{
+//    [DDLog addLogger:[DDASLLogger sharedInstance]];
+//    [DDLog addLogger:[DDTTYLogger sharedInstance]];
+//    DDFileLogger * fileLogger = [[DDFileLogger alloc] init];
+//    fileLogger.rollingFrequency = 60 * 60 * 24*7; // 24 hour rolling
+//    fileLogger.logFileManager.maximumNumberOfLogFiles = 7;
+//    [DDLog addLogger:fileLogger];
+//}
+
 
 //配置app的模式
 -(void)configAppMode{

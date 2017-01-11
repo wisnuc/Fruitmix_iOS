@@ -617,6 +617,7 @@
 		C1FFC86A1D51931200AD4D15 /* RSNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8631D51931200AD4D15 /* RSNetworkManager.m */; };
 		C1FFC86B1D51931200AD4D15 /* RSUploadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8671D51931200AD4D15 /* RSUploadManager.m */; };
 		C1FFC88C1D51C74200AD4D15 /* BackgroundHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */; };
+		F62A06151E25F62C00DBD7E9 /* JYProcessView.m in Sources */ = {isa = PBXBuildFile; fileRef = F62A06141E25F62C00DBD7E9 /* JYProcessView.m */; };
 		F65931421C97DE1800AD10D1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F65931411C97DE1800AD10D1 /* main.m */; };
 		F65931451C97DE1800AD10D1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F65931441C97DE1800AD10D1 /* AppDelegate.m */; };
 		F659314B1C97DE1900AD10D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F65931491C97DE1900AD10D1 /* Main.storyboard */; };
@@ -1569,6 +1570,8 @@
 		C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundHelper.m; sourceTree = "<group>"; };
 		D8F9EC1FC30A48A47556F08A /* Pods-FruitMix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FruitMix.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix.debug.xcconfig"; sourceTree = "<group>"; };
 		ECF19DD5C75ACC1FF3304B45 /* Pods-FruitMix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FruitMix.release.xcconfig"; path = "Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix.release.xcconfig"; sourceTree = "<group>"; };
+		F62A06131E25F62C00DBD7E9 /* JYProcessView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JYProcessView.h; sourceTree = "<group>"; };
+		F62A06141E25F62C00DBD7E9 /* JYProcessView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JYProcessView.m; sourceTree = "<group>"; };
 		F659313D1C97DE1800AD10D1 /* FruitMix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FruitMix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65931411C97DE1800AD10D1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F65931431C97DE1800AD10D1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
@@ -3945,6 +3948,23 @@
 			path = UploadManager;
 			sourceTree = "<group>";
 		};
+		F62A06111E25F5FE00DBD7E9 /* public */ = {
+			isa = PBXGroup;
+			children = (
+				F62A06121E25F60A00DBD7E9 /* progressView */,
+			);
+			name = public;
+			sourceTree = "<group>";
+		};
+		F62A06121E25F60A00DBD7E9 /* progressView */ = {
+			isa = PBXGroup;
+			children = (
+				F62A06131E25F62C00DBD7E9 /* JYProcessView.h */,
+				F62A06141E25F62C00DBD7E9 /* JYProcessView.m */,
+			);
+			name = progressView;
+			sourceTree = "<group>";
+		};
 		F65931341C97DE1800AD10D1 = {
 			isa = PBXGroup;
 			children = (
@@ -4086,6 +4106,7 @@
 		F65931791C97DF4900AD10D1 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F62A06111E25F5FE00DBD7E9 /* public */,
 				C15C9B911D76C42400CD8225 /* Files */,
 				C15C9B901D76C40F00CD8225 /* FruitMix */,
 			);
@@ -4754,6 +4775,7 @@
 				C1F44A421D12A88000A8FD34 /* RATableView.m in Sources */,
 				C1A95A401CBCD648007A1DC9 /* FMSlideMenuController.m in Sources */,
 				C1880E921D1FAFC4001CB99D /* FMNeedUploadComments.m in Sources */,
+				F62A06151E25F62C00DBD7E9 /* JYProcessView.m in Sources */,
 				C1991E4D1DE43F8500F63EBE /* TYDownLoadModel.m in Sources */,
 				C11A270D1D2BA1D00033764F /* UIColor+FM_UserHeadImage.m in Sources */,
 				C1F44A981D13F3C000A8FD34 /* MFTextField.m in Sources */,

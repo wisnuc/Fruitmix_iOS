@@ -84,6 +84,15 @@ NSString * JY_UUID() {
     return result;
 }
 
+-(void)saveImage:(UIImage *)image andCompleteBlock:(void(^)(BOOL isSuccess))block{
+    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+        //写入 相册
+        [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+    } completionHandler:^(BOOL success, NSError * _Nullable error) {
+        block(success);
+    }];
+}
+
 //- (void)saveResult:(PHFetchResult *)result {
 //
 //    // 2.归档模型对象

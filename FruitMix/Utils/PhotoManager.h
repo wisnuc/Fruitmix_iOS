@@ -43,7 +43,7 @@ typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
 //getAll Image Assets
 -(void)getAllPHAssetAndCompleteBlock:(AssetsArrayBlock)block;
 
-
+-(void)saveImage:(UIImage *)image andCompleteBlock:(void(^)(BOOL isSuccess))block;
 + (void)getImageFromPHAsset:(PHAsset *)asset Complete:(Result)result;
 + (void)getVideoFromPHAsset:(PHAsset *)asset Complete:(Result)result;
 

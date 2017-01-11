@@ -66,16 +66,6 @@
 #pragma mark - UITextFieldDelegate
 - (void)textFieldDidBeginEditing: (UITextField *)textField {
     self.nameLb.textColor = [UIColor orangeColor];
-    CABasicAnimation *basic = [CABasicAnimation animationWithKeyPath: @"transform.scale.x"];
-    [self.progressLine.layer setAnchorPoint: CGPointMake(0, 0.5)];
-    basic.duration = 0.3;
-    basic.repeatCount = 1;
-    basic.removedOnCompletion = NO;
-    basic.fromValue = [NSNumber numberWithFloat: 1];
-    basic.toValue = [NSNumber numberWithFloat: 280];
-    basic.fillMode = kCAFillModeForwards;
-    basic.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseIn];
-    [self.progressLine.layer addAnimation: basic forKey: nil];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField{
