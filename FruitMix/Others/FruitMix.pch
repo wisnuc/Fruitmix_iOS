@@ -1,0 +1,134 @@
+//
+//  FruitMix.pch
+//  FruitMix
+//
+//  Created by JackYang on 16/3/15.
+//  Copyright © 2016年 WinSun. All rights reserved.
+//
+
+#ifndef FruitMix_pch
+#define FruitMix_pch
+
+#ifdef __OBJC__
+#import "AppDelegate.h"
+
+//第三方库
+#import "AFNetworking.h"
+#import "YYModel.h"
+#import "YYWebImage.h"
+#import "YYImage.h"
+#import "YYCache.h"
+#import "YYText.h"
+#import "YYKeyboardManager.h"
+#import "YYDispatchQueuePool.h"
+#import "CWStatusBarNotification.h"
+
+#import "Base64.h"
+#import "CocoaSecurity.h"
+#import "JHChainableAnimations.h"
+#import "CHTCollectionViewWaterfallLayout.h"
+#import "IDMPhotoBrowser.h"
+#import "MSWeakTimer.h"
+#import "Masonry.h"
+#import <CocoaLumberjack/CocoaLumberjack.h>
+
+//leftMenu
+#import "UIViewController+JYControllerTools.h"
+
+//Utils
+#import "FruitMixDefine.h"
+#import "UIView+JYExtension.h"
+#import "FruitMixBlockDefine.h"
+#import "FMColors.h"
+#import "FMNotify.h"
+#import "FMCheckManager.h"
+#import "UIView+JY_ExtendTouchRect.h"
+#import "UIButton+Badge.h"
+
+#import "SXLoadingView.h"
+#import "JYNetworkerHeader.h"
+#import "PhotoManager.h"
+#import "BRPlaceholderTextView.h"
+#import "NSDate+JYDate.h"
+#import "FileHash.h"
+#import "NavViewController.h"
+#import "FMUtil.h"
+#import "FMUpdateShareTool.h"
+#import "UIImage+GKContact.h" // 生成头像
+#import "FMConfiguation.h"
+#import "MenuView.h"
+#import "FMLeftMenu.h"
+#import "RSNetworkKitConstants.h"
+
+
+//View
+#import "FMNotifyView.h"
+
+//ViewController
+#import "RDVTabBarController.h"
+#import "FMPhotosViewController.h"
+#import "FMAlbumsViewController.h"
+#import "FMShareViewController.h"
+#import "NavViewController.h"
+#import "FABaseVC.h"
+
+//model
+#import "UserModel.h"
+#import "RequestIP.h"
+#import "UserInfo.h"
+
+
+//Model
+#import "FMPhoto.h"
+#import "FMPhotoAsset.h"
+#import "FMLocalPhoto.h"
+#import "FMShareAlbumItem.h"
+#import "FMSerachService.h"//发现设备
+
+
+//ViewController
+
+//API
+#import "FMGetJWTAPI.h"
+#import "FMGetUsersAPI.h"
+#import "FMMediaAPI.h"
+#import "FMGetImage.h"
+#import "FMGetShareAPI.h"
+//#import "FMGetShareDetailAPI.h"
+
+#import "FMCreateShareAPI.h" //创建新的share
+#import "FMUpdateSharesAPI.h" //更新Share
+#import "FMDeleteShareAPI.h" //删除Share
+
+#import "FMPostNewShareAPI.h"
+#import "FMPostCommentAPI.h"
+#import "FMGetUUIDAPI.h"//获取设备uuid api
+#import "FMGetCommentsAPI.h"//拿去评论的api
+#import "FMMediaPatchAPI.h"//修改mediashare
+#import "FMGetShareKeyAPI.h"//只拿key
+#import "FMOwnerSetAPI.h"//属于自己的
+#import "FMGetAfterShareAPI.h"//时间点之后的share数据
+#import "FMAsyncUsersAPI.h"
+
+
+//DB
+#import "FMDBSet.h"
+
+#import "FMLocalPhoto.h"
+#import "FMNASPhoto.h"
+#import "FMComment.h"
+
+#import "FMMediaShare.h"
+#import "FMUsers.h"
+#import "FMNeedQuickUploadPhoto.h"
+#import "FMNeedUploadMediaShare.h"
+#import "FMNeedUploadComments.h"
+#import "FMNeedUploadPatch.h"
+
+#import "FMDBControl.h"
+
+
+#endif
+
+
+#endif /* FruitMix_pch */

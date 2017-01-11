@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FMChangePwdVC">
+            <connections>
+                <outlet property="pwdTF" destination="t2w-OU-Ugf" id="oCw-8L-eCG"/>
+                <outlet property="rePwdTF" destination="8OE-5L-r51" id="kRi-gV-4kN"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_lock_outline.png" translatesAutoresizingMaskIntoConstraints="NO" id="g7X-xe-wZU">
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="G2j-S3-W4P"/>
+                        <constraint firstAttribute="width" constant="24" id="ngx-WA-liy"/>
+                    </constraints>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BoK-1W-pi3">
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="SJY-g1-7p3"/>
+                    </constraints>
+                </view>
+                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入密码" textAlignment="natural" clearsOnBeginEditing="YES" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="t2w-OU-Ugf">
+                    <constraints>
+                        <constraint firstAttribute="height" constant="25" id="kUl-58-xci"/>
+                    </constraints>
+                    <nil key="textColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                </textField>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xKv-9s-4Um">
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="确认密码" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8OE-5L-r51">
+                    <constraints>
+                        <constraint firstAttribute="height" constant="25" id="pEf-AN-Hq0"/>
+                    </constraints>
+                    <nil key="textColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                </textField>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_https.png" translatesAutoresizingMaskIntoConstraints="NO" id="2cC-Sp-q48">
+                    <constraints>
+                        <constraint firstAttribute="width" constant="24" id="I9g-6b-ULQ"/>
+                        <constraint firstAttribute="width" constant="24" id="PoM-4r-JY6"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="8OE-5L-r51" firstAttribute="leading" secondItem="xKv-9s-4Um" secondAttribute="leading" id="2L6-2r-zfX"/>
+                <constraint firstItem="g7X-xe-wZU" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="16" id="3VY-pw-DAf"/>
+                <constraint firstItem="g7X-xe-wZU" firstAttribute="centerY" secondItem="t2w-OU-Ugf" secondAttribute="centerY" id="6CR-Vb-hmf"/>
+                <constraint firstItem="BoK-1W-pi3" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="72" id="6vV-Nx-ZQk"/>
+                <constraint firstItem="2cC-Sp-q48" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="16" id="9Xt-4I-kUZ"/>
+                <constraint firstItem="xKv-9s-4Um" firstAttribute="top" secondItem="8OE-5L-r51" secondAttribute="bottom" constant="8" id="AD1-hp-9OG"/>
+                <constraint firstItem="8OE-5L-r51" firstAttribute="width" secondItem="xKv-9s-4Um" secondAttribute="width" id="Fuz-Hy-6BD"/>
+                <constraint firstItem="xKv-9s-4Um" firstAttribute="top" secondItem="BoK-1W-pi3" secondAttribute="bottom" constant="64" id="Jv0-rS-elc"/>
+                <constraint firstItem="xKv-9s-4Um" firstAttribute="height" secondItem="BoK-1W-pi3" secondAttribute="height" id="PIA-og-dix"/>
+                <constraint firstItem="t2w-OU-Ugf" firstAttribute="width" secondItem="BoK-1W-pi3" secondAttribute="width" id="QKM-47-Rts"/>
+                <constraint firstItem="2cC-Sp-q48" firstAttribute="top" secondItem="8OE-5L-r51" secondAttribute="top" id="aYF-Fo-Eim"/>
+                <constraint firstAttribute="trailing" secondItem="BoK-1W-pi3" secondAttribute="trailing" id="edL-IO-e7B"/>
+                <constraint firstItem="BoK-1W-pi3" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="80" id="lum-9F-bws"/>
+                <constraint firstItem="t2w-OU-Ugf" firstAttribute="centerX" secondItem="BoK-1W-pi3" secondAttribute="centerX" id="msH-i2-Rye"/>
+                <constraint firstItem="BoK-1W-pi3" firstAttribute="top" secondItem="t2w-OU-Ugf" secondAttribute="bottom" constant="8" id="oWf-FS-zn9"/>
+                <constraint firstItem="xKv-9s-4Um" firstAttribute="leading" secondItem="BoK-1W-pi3" secondAttribute="leading" id="oh9-fU-TGO"/>
+                <constraint firstItem="xKv-9s-4Um" firstAttribute="width" secondItem="BoK-1W-pi3" secondAttribute="width" id="olZ-If-QAa"/>
+                <constraint firstItem="2cC-Sp-q48" firstAttribute="centerY" secondItem="8OE-5L-r51" secondAttribute="centerY" id="wKQ-w5-fsz"/>
+            </constraints>
+            <point key="canvasLocation" x="24.5" y="51.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="ic_https.png" width="24" height="24"/>
+        <image name="ic_lock_outline.png" width="24" height="24"/>
+    </resources>
+</document>
