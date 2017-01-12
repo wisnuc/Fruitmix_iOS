@@ -10,7 +10,7 @@
 #import "FMPhotoDataSource.h"
 
 @implementation FMPhotoDataSource{
-    NSMutableArray * _photosLocalIds;
+    NSMutableSet * _photosLocalIds;
     NSMutableArray * _localphotoDigest;
 }
 
@@ -31,7 +31,7 @@
         self.imageArr = [NSMutableArray arrayWithCapacity:0];
         self.timeArr = [NSMutableArray arrayWithCapacity:0];
         self.dataSource = [NSMutableArray arrayWithCapacity:0];
-        _photosLocalIds = [NSMutableArray arrayWithCapacity:0];
+        _photosLocalIds = [NSMutableSet set];
         _localphotoDigest = [NSMutableArray arrayWithCapacity:0];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibruaryChange) name:PHOTO_LIBRUARY_CHANGE_NOTIFY object:nil];
         [self initPhotos];
@@ -40,7 +40,9 @@
 }
 
 -(void)handleLibruaryChange{
-    [self initPhotosIsRefrash];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [self initPhotosIsRefrash];
+    });
 }
 
 -(void)initPhotos{
@@ -103,22 +105,31 @@
 }
 
 -(void)initPhotosIsRefrash{
-    @weakify(self);
-    [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-        NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
-        for (FMLocalPhoto * photo in result) {
-            if(![_photosLocalIds containsObject:photo.localIdentifier]){
-                [_photosLocalIds addObject:photo.localIdentifier];//记录本地图的ids
-                FMPhotoAsset * asset = [FMPhotoAsset new];
-                asset.localId = photo.localIdentifier;
-                asset.degist = photo.degist;
-                asset.createtime = photo.createDate;
-                [arr addObject:asset];
+    @synchronized (self) {
+        @weakify(self);
+        NSCondition *condition = [[NSCondition alloc] init];
+        [condition lock];
+        NSLog(@"来了");
+        [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+            NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
+            for (FMLocalPhoto * photo in result) {
+                if(![_photosLocalIds containsObject:photo.localIdentifier]){
+                    [_photosLocalIds addObject:photo.localIdentifier];
+                    FMPhotoAsset * asset = [FMPhotoAsset new];
+                    asset.localId = photo.localIdentifier;
+                    asset.degist = photo.degist;
+                    asset.createtime = photo.createDate;
+                    [arr addObject:asset];
+                }
             }
-        }
-        [weak_self.imageArr addObjectsFromArray: arr];
-        [weak_self sequencePhotosAndCompleteBlock:nil];
-    }];
+            [condition signal];
+            [weak_self.imageArr addObjectsFromArray: arr];
+            [weak_self sequencePhotosAndCompleteBlock:nil];
+            NSLog(@"走了");
+        }];
+        [condition wait];
+        [condition unlock];
+    }
 }
 
 -(void)sequencePhotosAndCompleteBlock:(void(^)())block{
@@ -140,9 +151,9 @@
                 _dataSource = pGroup;
                 //
                 _isFinishLoading = YES;
-                NSLog(@"\n\n*******************排序完成 ********************\n\n");
-                NSLog(@"%@",_dataSource);
-                NSLog(@"***********************打印结束**************************\n\n");
+//                NSLog(@"\n\n*******************排序完成 ********************\n\n");
+//                NSLog(@"%@",_dataSource);
+//                NSLog(@"***********************打印结束**************************\n\n");
                 [[NSNotificationCenter defaultCenter]postNotificationName:FMPhotoDatasourceLoadFinishNotify object:nil];
                 if (block) block();
                 if (_delegate && [_delegate respondsToSelector:@selector(dataSourceFinishToLoadPhotos)]) {

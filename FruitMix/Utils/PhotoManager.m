@@ -120,26 +120,28 @@ NSString * JY_UUID() {
 - (void)photoLibraryDidChange:(PHChange *)changeInstance{
     PHFetchResultChangeDetails * detail = [changeInstance changeDetailsForFetchResult:_lastResult];
     if(detail){
-         NSLog(@"删除%ld张照片，增加%ld张照片",(unsigned long)detail.removedObjects.count,(unsigned long)detail.insertedObjects.count);
-         if (detail.removedObjects.count || detail.insertedObjects.count) {
-             FMDBSet * dbSet = [FMDBSet shared];
-             if(detail.removedObjects.count){
-                 NSMutableArray * removeArr = [NSMutableArray arrayWithCapacity:0];
-                 for (PHObject * obj in detail.removedObjects) {
-                     [removeArr addObject:obj.localIdentifier];
-                 }
-                 FMDTDeleteCommand * dcmd = FMDT_DELETE(dbSet.photo);
-                 [dcmd where:@"localIdentifier" containedIn:removeArr];
-                 [dcmd saveChangesInBackground:nil];
-             }
-             [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
-                 if (detail.removedObjects.count || detail.insertedObjects.count) {
-                     dispatch_async(dispatch_get_main_queue(), ^{
-                         [[NSNotificationCenter defaultCenter]postNotificationName:PHOTO_LIBRUARY_CHANGE_NOTIFY object:nil];
-                     });
-                 }
-             }];
-         }
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//            NSLog(@"删除%ld张照片，增加%ld张照片",(unsigned long)detail.removedObjects.count,(unsigned long)detail.insertedObjects.count);
+            if (detail.removedObjects.count || detail.insertedObjects.count) {
+                FMDBSet * dbSet = [FMDBSet shared];
+                if(detail.removedObjects.count){
+                    NSMutableArray * removeArr = [NSMutableArray arrayWithCapacity:0];
+                    for (PHObject * obj in detail.removedObjects) {
+                        [removeArr addObject:obj.localIdentifier];
+                    }
+                    FMDTDeleteCommand * dcmd = FMDT_DELETE(dbSet.photo);
+                    [dcmd where:@"localIdentifier" containedIn:removeArr];
+                    [dcmd saveChangesInBackground:nil];
+                }
+                [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
+                    if (detail.removedObjects.count || detail.insertedObjects.count) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [[NSNotificationCenter defaultCenter]postNotificationName:PHOTO_LIBRUARY_CHANGE_NOTIFY object:nil];
+                        });
+                    }
+                }];
+            }
+        });
     }
 }
 
@@ -163,7 +165,6 @@ NSString * JY_UUID() {
             NSMutableDictionary * tempDic = [NSMutableDictionary dictionaryWithCapacity:0];
             PHFetchResult<PHAssetCollection *> *collectionResult = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
             for (PHAssetCollection * c in collectionResult) {
-                NSLog(@"%@",c.localizedTitle);
                 if(IsEquallString(c.localizedTitle, @"我的照片流") || IsEquallString(@"My Photo Stream",c.localizedTitle))//屏蔽 我的照片流
                     continue;
                 for (PHAsset * asset in [self searchAllImagesInCollection:c]) {
@@ -207,7 +208,6 @@ NSString * JY_UUID() {
             PHFetchResult<PHAssetCollection *> *collectionResult1 = [PHAssetCollection fetchAssetCollectionsWithType:type subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
             PHAssetCollection * cameraColl = collectionResult1.lastObject;
             if (cameraColl) {
-                NSLog(@"%@",cameraColl.localizedTitle);
                 PHFetchResult * result =   [self searchAllImagesInCollection:cameraColl];
                 _lastResult = result;
                 if(block){
@@ -846,9 +846,9 @@ BOOL shouldUpload = NO;
                     [array addObject:digest];
                 }
                 currentIndex++;
-                NSLog(@"已计算%ld张,还需要计算%ld张",(unsigned long)currentIndex,(unsigned long)photosArr.count-currentIndex);
+//                NSLog(@"已计算%ld张,还需要计算%ld张",(unsigned long)currentIndex,(unsigned long)photosArr.count-currentIndex);
                 if (currentIndex >= [photosArr count] ) {
-                    NSLog(@"计算完成");
+//                    NSLog(@"计算完成");
                     return;
                 }
                 else {

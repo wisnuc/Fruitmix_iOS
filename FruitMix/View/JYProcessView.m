@@ -36,7 +36,9 @@
 }
 
 -(void)setValueForProcess:(CGFloat)process{
-    [self.processView setProgress:process animated:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.processView setProgress:process animated:NO];
+    });
 }
 
 -(void)setUp{
@@ -79,7 +81,8 @@
 }
 
 -(void)cancleBtnClick{
-    
+    if (_cancleBlock)
+        _cancleBlock();
     [self dismiss];
 }
 

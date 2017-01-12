@@ -41,7 +41,7 @@
         }
         block(arr);
     } failure:^(__kindof JYBaseRequest *request) {
-        NSLog(@"GET_Share_Error : %@",request.error);
+//        NSLog(@"GET_Share_Error : %@",request.error);
         block([NSMutableArray new]);
     }];
 }

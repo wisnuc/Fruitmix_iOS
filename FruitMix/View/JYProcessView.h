@@ -22,6 +22,8 @@ typedef enum : NSUInteger {
 
 @property (nonatomic) UILabel * subDescLb;
 
+@property (nonatomic) void (^cancleBlock)(void);
+
 +(JYProcessView *)processViewWithType:(ProcessType)type;
 -(void)setValueForProcess:(CGFloat)process;
 -(void)show;

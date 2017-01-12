@@ -49,6 +49,8 @@
 
 @property (nonatomic) JYProcessView * pv;
 
+@property (nonatomic) BOOL shouldDownload;
+
 @end
 
 @implementation FMPhotosViewController{
@@ -289,39 +291,76 @@
 
 -(void)clickDownload{
     NSArray * chooseItems = [self.choosePhotos copy];
-    _pv = [JYProcessView processViewWithType:ProcessTypeLine];
+    if (!_pv)
+        _pv = [JYProcessView processViewWithType:ProcessTypeLine];
     _pv.descLb.text = @"正在下载文件";
     _pv.subDescLb.text = [NSString stringWithFormat:@"%lu个项目 ",(unsigned long)chooseItems.count];
     [_pv show];
+    _shouldDownload = YES;
+    _pv.cancleBlock = ^(){
+        _shouldDownload = NO;
+    };
     [self downloadItems:chooseItems];
     [self leftBtnClick:_leftBtn];
 }
 
 -(void)downloadItems:(NSArray *)items{
-    
-    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __block float complete = 0.f;
+        __block int success = 0;
+        __block NSUInteger allCount = items.count;
+        for (IDMPhoto * item in items) {
+            if (!_shouldDownload)
+                break;
+            NSCondition *condition = [[NSCondition alloc] init];
+            [condition lock];
+            [self downloadItem:item withCompleteBlock:^(BOOL isSuccess) {
+                complete ++;
+                if (isSuccess) success++;
+                [condition signal];
+                CGFloat progress =  complete/allCount;
+                [self.pv setValueForProcess:progress];
+            }];
+            [condition wait];
+            [condition unlock];
+        }
+        _shouldDownload = NO;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.pv dismiss];
+        });
+    });
 }
 
 -(void)downloadItem:(id<IDMPhoto>)item withCompleteBlock:(void(^)(BOOL isSuccess))block{
+    static int abc = 0;
     if ([item isKindOfClass:[FMNASPhoto class]]) {
         [FMGetImage getFullScreenImageWithPhotoHash:[item getPhotoHash]
                                    andCompleteBlock:^(UIImage *image, NSString *tag)
          {
-            block(image?YES:NO);
+             if (image) {
+                 [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
+                     block(isSuccess);
+                 }];
+             }else
+                 block(NO);
         }];
     }else{
         FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
         PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[(FMPhotoAsset *)item localId]];
         if (asset) {
             [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
-                if (filePath) {
-                    block(YES);
+                UIImage * image;
+                if (filePath && (image = [UIImage imageWithContentsOfFile:filePath])) {
+                    [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
+                        NSLog(@"来了%d 多少次",abc++);
+                        [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];//删除image
+                        block(isSuccess);
+                    }];
                 }else
                     block(NO);
             }];
         }else
             block(NO);
-        
     }
     
 }
@@ -697,9 +736,20 @@
 }
 
 #pragma DataSouce delegate
-
+static BOOL waitingForReload = NO;
 -(void)dataSourceFinishToLoadPhotos{
-    [self.collectionView reloadData];
+    if (!_shouldDownload) {
+        waitingForReload = NO;
+        [self.collectionView reloadData];
+    }else{
+        if (waitingForReload)
+            return;
+        waitingForReload = YES;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            waitingForReload = NO;
+            [self dataSourceFinishToLoadPhotos];
+        });
+    }
 }
 
 @end

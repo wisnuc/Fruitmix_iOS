@@ -48,9 +48,8 @@ int const i = 2;//cell 距离
     _fmCollectionViewLayout.scrollDirection=UICollectionViewScrollDirectionVertical;
     _fmCollectionViewLayout.sectionInset = UIEdgeInsetsMake(0, 0, 20, 0);
     _fmCollectionViewLayout.minimumLineSpacing = i;
-//    if(kSystemVersion >= 9.0){
-//        _fmCollectionViewLayout.sectionHeadersPinToVisibleBounds = YES;
-//    }
+    if(kSystemVersion >= 9.0)
+        _fmCollectionViewLayout.sectionHeadersPinToVisibleBounds = YES;
     _fmCollectionViewLayout.minimumInteritemSpacing = i;
     _fmCollectionViewLayout.itemSize = CGSizeMake((__kWidth- i*(_multiple-1))/_multiple, (__kWidth- i*(_multiple-1))/_multiple);
     if(self = [super initWithFrame:frame collectionViewLayout:_fmCollectionViewLayout]){
@@ -91,9 +90,8 @@ int const i = 2;//cell 距离
     layout.sectionInset = UIEdgeInsetsMake(0, 0, 20, 0);
     layout.minimumLineSpacing = i;
     layout.minimumInteritemSpacing = i;
-//    if(kSystemVersion >= 9.0){
-//        layout.sectionHeadersPinToVisibleBounds = YES;
-//    }
+    if(kSystemVersion >= 9.0)
+        layout.sectionHeadersPinToVisibleBounds = YES;
     if (isSmall) {
         _multiple = _multiple + 1;
     }
