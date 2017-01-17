@@ -101,6 +101,10 @@
 }
 
 -(void)rightBtnClick:(id)sender{
+    if (self.albumNameTF.text.length >= 20) {
+        [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称过长!" forDuration:1];
+        return;
+    }
     
     [SXLoadingView showProgressHUD:@"正在准备照片"];
     

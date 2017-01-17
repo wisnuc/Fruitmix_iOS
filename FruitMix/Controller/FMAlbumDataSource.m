@@ -31,7 +31,7 @@
 }
 
 -(void)_getAlbumDataWithShares:(NSMutableArray *)arr{
-    if (arr.count) {
+    if (arr) {
         NSMutableArray * tempAlbums = [NSMutableArray arrayWithCapacity:0];
         for (FMStatusLayout * layout in arr) {
             if ([layout.status.isAlbum boolValue]) {

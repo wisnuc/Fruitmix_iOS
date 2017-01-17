@@ -200,37 +200,44 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
 
 //全屏图
 -(void)getOriginalImageWithAsset:(PHAsset *)asset andCompleteBlock:(getImageComplete)block{
-        CGFloat pW = __kWidth*[UIScreen mainScreen].scale;
-        CGFloat pH = asset.pixelHeight * (pW/asset.pixelWidth);
-        CGSize targetSize = CGSizeMake(pW, pH);
-        PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
-        imageRequestOptions.synchronous = YES;
-        [[PHCachingImageManager defaultManager] requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:imageRequestOptions resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
-            if (result) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (block) {
-                        block(result,nil);
-                    }
-                });
-            }
-        }];
-}
-
--(void)getCoverImageWithAsset:(PHAsset *)asset andCompleteBlock:(getImageComplete)block{
-    NSInteger retinaScale = [UIScreen mainScreen].scale;
-    CGFloat thumbW = asset.pixelWidth*retinaScale>400*retinaScale?400*retinaScale:asset.pixelWidth*retinaScale;
-    CGFloat thumbH = thumbW*(asset.pixelHeight/asset.pixelWidth);
-    CGSize retinaSquare = CGSizeMake(thumbW, thumbH);
-    PHImageRequestOptions *cropToSquare = [[PHImageRequestOptions alloc] init];
-    cropToSquare.resizeMode = PHImageRequestOptionsResizeModeExact;
+    CGFloat pW = __kWidth*[UIScreen mainScreen].scale;
+    CGFloat pH = asset.pixelHeight * (pW/asset.pixelWidth);
+    CGSize targetSize = CGSizeMake(pW, pH);
+    PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
+    imageRequestOptions.resizeMode = PHImageRequestOptionsResizeModeExact;
     CGRect square = CGRectMake(0, 0, asset.pixelWidth, asset.pixelHeight);
     CGRect cropRect = CGRectApplyAffineTransform(square,
                                                  CGAffineTransformMakeScale(1.0 / asset.pixelWidth,
                                                                             1.0 / asset.pixelHeight));
-    cropToSquare.normalizedCropRect = cropRect;
-    cropToSquare.synchronous = YES;
+    imageRequestOptions.normalizedCropRect = cropRect;
+    imageRequestOptions.synchronous = YES;
+    [[PHCachingImageManager defaultManager] requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:imageRequestOptions resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        if (result) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (block) {
+                    block(result,nil);
+                }
+            });
+        }
+    }];
+}
+
+-(void)getCoverImageWithAsset:(PHAsset *)asset andCompleteBlock:(getImageComplete)block{
+    @autoreleasepool {
+        NSInteger retinaScale = [UIScreen mainScreen].scale;
+        CGFloat thumbW = asset.pixelWidth*retinaScale>400*retinaScale?400*retinaScale:asset.pixelWidth*retinaScale;
+        CGFloat thumbH = thumbW*(asset.pixelHeight/asset.pixelWidth);
+        CGSize retinaSquare = CGSizeMake(thumbW, thumbH);
+        PHImageRequestOptions *cropToSquare = [[PHImageRequestOptions alloc] init];
+        cropToSquare.resizeMode = PHImageRequestOptionsResizeModeExact;
+        CGRect square = CGRectMake(0, 0, asset.pixelWidth, asset.pixelHeight);
+        CGRect cropRect = CGRectApplyAffineTransform(square,
+                                                     CGAffineTransformMakeScale(1.0 / asset.pixelWidth,
+                                                                                1.0 / asset.pixelHeight));
+        cropToSquare.normalizedCropRect = cropRect;
+        cropToSquare.synchronous = YES;
     
-//    @autoreleasepool {
+    
         [[PHCachingImageManager defaultManager]
          requestImageForAsset:asset
          targetSize:retinaSquare
@@ -241,7 +248,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
                  if(block) block(result,nil);
              });
          }];
-//    }
+    }
 }
 
 -(void)getOriginalImageWithLocalhash:(NSString *)hash andCompleteBlock:(getImageComplete)block andIsCover:(BOOL)isCover{
@@ -299,7 +306,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
                     [[FMGetImage defaultGetImage] getOriginalImageWithLocalhash:hash andCompleteBlock:^(UIImage *image, NSString *tag) {
                         if (isCover)//封面大图 需要缓存
                             [self cacheCoverImage:image andKey:hashKey];
-                        if(block) block(image,tag);
+                        if(block) block(image,hash);
                     } andIsCover:isCover];
                 
                 else{

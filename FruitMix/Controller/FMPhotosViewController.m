@@ -28,6 +28,9 @@
 #import "FMPhotoDataSource.h"
 
 #import "LCActionSheet.h"
+#import "JYAlertView.h"
+#import "FMPersonsCell.h"
+#import "FMPersonCell.h"
 
 @interface FMPhotoDownloadHelper : NSObject
 
@@ -51,7 +54,7 @@
 @end
 
 
-@interface FMPhotosViewController ()<FMPhotoCollectionViewDelegate,FMPhotosCollectionViewCellDelegate,FMHeadViewDelegate,IDMPhotoBrowserDelegate,floatMenuDelegate,FMPhotoDataSourceDelegate,LCActionSheetDelegate>
+@interface FMPhotosViewController ()<FMPhotoCollectionViewDelegate,FMPhotosCollectionViewCellDelegate,FMHeadViewDelegate,IDMPhotoBrowserDelegate,floatMenuDelegate,FMPhotoDataSourceDelegate,LCActionSheetDelegate,UITableViewDataSource,UITableViewDelegate>
 
 @property (nonatomic) FMPhotoCollectionView * collectionView;
 
@@ -73,7 +76,7 @@
 
 @property (nonatomic) BOOL shouldDownload;
 
-
+@property (nonatomic) JYAlertView * shareView;
 
 @end
 
@@ -388,15 +391,16 @@
                     UIImage * image;
                     if (filePath && (image = [UIImage imageWithContentsOfFile:filePath])) {
                         [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
-                                [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];//删除image
-                                block(isSuccess,image);
+                            [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];//删除image
+                            block(isSuccess,image);
                         }];
                     }else block(NO,nil);
                 }];
             }else{
-                [PhotoManager getImageFromPHAsset:asset Complete:^(NSData *fileData, NSString *fileName) {
-                    block(YES,[UIImage imageWithData:[fileData copy]]);
+                [[FMGetImage defaultGetImage] getOriginalImageWithAsset:asset andCompleteBlock:^(UIImage *image, NSString *tag) {
+                    block(YES,image);
                 }];
+                
             }
         }else block(NO,nil);
     }
@@ -419,17 +423,21 @@
 //创建分享
 -(void)clickShareBtn{
     if (self.choosePhotos.count>0) {
-        LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
-                                                        cancelButtonTitle:@"取消"
-                                                                  clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
-                                                                      if(buttonIndex == 1) [self shareToLocalUser];
-                                                                      else if(buttonIndex == 2) [self shareToOtherApp];
-                                                                  }
-                                                        otherButtonTitles:@"分享给所有人",@"分享到第三方应用", nil];
-        actionSheet.scrolling          = YES;
-        actionSheet.buttonHeight       = 60.0f;
-        actionSheet.visibleButtonCount = 3.6f;
-        [actionSheet show];
+        
+        _shareView = [JYAlertView jy_AlertViewCreateWithDelegate:self andDataSource:self];
+        [_shareView show];
+        
+//        LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
+//                                                        cancelButtonTitle:@"取消"
+//                                                                  clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+//                                                                      if(buttonIndex == 1) [self shareToLocalUser];
+//                                                                      else if(buttonIndex == 2) [self shareToOtherApp];
+//                                                                  }
+//                                                        otherButtonTitles:@"分享给所有人",@"分享到第三方应用", nil];
+//        actionSheet.scrolling          = YES;
+//        actionSheet.buttonHeight       = 60.0f;
+//        actionSheet.visibleButtonCount = 3.6f;
+//        [actionSheet show];
     }
     else
         [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
@@ -835,5 +843,55 @@ static BOOL waitingForReload = NO;
         });
     }
 }
+
+#pragma UITableViewdelegate
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 2;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    FMPersonsCell * cell = [[FMPersonsCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:NSStringFromClass([FMPersonsCell class]) Count:1 getCellsBlock:^UICollectionViewCell *(NSIndexPath *indexP, UICollectionViewCell *ce) {
+        FMPersonCell * personcell = (FMPersonCell *)ce;
+        if(indexPath.row == 0){
+            personcell.groupImage.image = [UIImage imageNamed:@"all"];
+            personcell.nameLab.text = @"所有人";
+        }else{
+            personcell.groupImage.image = [UIImage imageNamed:@"open_in"];
+            personcell.nameLab.text = @"其他应用";
+        }
+        return personcell;
+    }];
+    @weakify(self);
+    cell.selectItemBlock = ^(NSInteger index){
+        [weak_self checkItemWithIndexPath:[NSIndexPath indexPathForRow:index inSection:indexPath.row]];
+    };
+    return cell;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return 110;
+}
+
+-(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
+    return @"请选择分享方式";
+}
+
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.row == 1) {
+        
+    }
+}
+
+-(void)checkItemWithIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.section == 0) {
+        [self shareToLocalUser];
+    }else{
+        [self shareToOtherApp];
+    }
+    [_shareView dismiss];
+}
+
 
 @end

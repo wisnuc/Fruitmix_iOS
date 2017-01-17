@@ -102,12 +102,16 @@ CGFloat buttonToScreenHeight;
     _bgView.alpha = 0;
     _bgView.userInteractionEnabled = YES;
     UITapGestureRecognizer *buttonTap2 = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(handleTap:)];
-
+    
     buttonTap2.cancelsTouchesInView = NO;
     modeView.frame = _bgView.bounds;
     _bgView = modeView;
     [_bgView addGestureRecognizer:buttonTap2];
     
+    UIView * blackView = [[UIView alloc]initWithFrame:_bgView.bounds];
+    blackView.backgroundColor = [UIColor blackColor];
+    blackView.alpha = 0.5;
+    [_bgView addSubview:blackView];
     
     _normalImageView = [[UIImageView alloc]initWithFrame:self.bounds];
     _normalImageView.userInteractionEnabled = YES;

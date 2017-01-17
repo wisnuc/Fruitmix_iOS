@@ -62,14 +62,14 @@
 
 - (IBAction)loginBtnClick:(UIButton *)sender {
     
-    if (IsNilString(_passWordTF.text)) {
-        [SXLoadingView showAlertHUD:@"请输入密码" duration:1];
-        return;
-    }
+//    if (IsNilString(_passWordTF.text)) {
+//        [SXLoadingView showAlertHUD:@"请输入密码" duration:1];
+//        return;
+//    }
     sender.userInteractionEnabled = NO;
     [SXLoadingView showProgressHUD:@"正在登陆"];
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
-    NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,_passWordTF.text];
+    NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_passWordTF.text)?@"":_passWordTF.text];
     NSString * Basic = [UUID base64EncodedString];
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

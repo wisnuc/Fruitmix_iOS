@@ -204,6 +204,72 @@
 
 #pragma mark - Setup
 
+//- (void)setMaxMinZoomScalesForCurrentBounds {
+//    // Reset
+//    self.maximumZoomScale = 1;
+//    self.minimumZoomScale = 1;
+//    self.zoomScale = 1;
+//    
+//    // Bail
+//    if (_photoImageView.image == nil) return;
+//    
+//    // Sizes
+//    CGSize boundsSize = self.bounds.size;
+//    boundsSize.width -= 0.1;
+//    boundsSize.height -= 0.1;
+//    
+//    CGSize imageSize = _photoImageView.frame.size;
+//    
+//    // Calculate Min
+//    CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
+//    CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
+//    CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
+//    
+//    _doubleScale = MAX(xScale, yScale);
+//    
+//    // If image is smaller than the screen then ensure we show it at
+//    // min scale of 1
+//    if (xScale > 1 && yScale > 1) {
+//        //minScale = 1.0;
+//    }
+//    
+//    // Calculate Max
+//    CGFloat maxScale = 4.0; // Allow double scale
+//    // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
+//    // maximum zoom scale to 0.5.
+//    if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
+//        maxScale = maxScale / [[UIScreen mainScreen] scale];
+//        
+//        if (maxScale < minScale) {
+//            maxScale = minScale * 2;
+//        }
+//    }
+//    
+//    // Calculate Max Scale Of Double Tap
+//    CGFloat maxDoubleTapZoomScale = 4.0 * minScale; // Allow double scale
+//    // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
+//    // maximum zoom scale to 0.5.
+//    if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
+//        maxDoubleTapZoomScale = maxDoubleTapZoomScale / [[UIScreen mainScreen] scale];
+//        
+//        if (maxDoubleTapZoomScale < minScale) {
+//            maxDoubleTapZoomScale = minScale * 2;
+//        }
+//    }
+//    
+//    // Set
+//    self.maximumZoomScale = maxScale;
+//    self.minimumZoomScale = minScale;
+//    self.zoomScale = minScale;
+//    self.maximumDoubleTapZoomScale = maxDoubleTapZoomScale;
+//    
+//    // Reset position
+//    _photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
+//    [self setNeedsLayout];    
+//}
+
+
+#pragma mark - JY Change For Feng
 - (void)setMaxMinZoomScalesForCurrentBounds {
     // Reset
     self.maximumZoomScale = 1;
@@ -224,8 +290,7 @@
     CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
     CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
     CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
-    
-    _doubleScale = MAX(xScale, yScale);
+    CGFloat maxFullScale = MAX(xScale, yScale);
     
     // If image is smaller than the screen then ensure we show it at
     // min scale of 1
@@ -243,6 +308,11 @@
         if (maxScale < minScale) {
             maxScale = minScale * 2;
         }
+        
+        if (maxScale < maxFullScale) {
+            maxScale = maxFullScale;
+        }
+        
     }
     
     // Calculate Max Scale Of Double Tap
@@ -254,6 +324,12 @@
         
         if (maxDoubleTapZoomScale < minScale) {
             maxDoubleTapZoomScale = minScale * 2;
+        }
+        if(maxDoubleTapZoomScale >maxScale){
+            maxDoubleTapZoomScale = maxScale;
+        }
+        if (maxDoubleTapZoomScale < maxFullScale) {
+            maxDoubleTapZoomScale = maxFullScale;
         }
     }
     
@@ -267,58 +343,6 @@
     _photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
     [self setNeedsLayout];    
 }
-
-
-#pragma mark - JY Change For Feng
-//- (void)setMaxMinZoomScalesForCurrentBounds {
-//	// Reset
-//	self.maximumZoomScale = 1;
-//	self.minimumZoomScale = 1;
-//	self.zoomScale = 1;
-//    
-//	// Bail
-//	if (_photoImageView.image == nil) return;
-//    
-//	// Sizes
-//	CGSize boundsSize = self.bounds.size;
-//	boundsSize.width -= 0.1;
-//	boundsSize.height -= 0.1;
-//	
-//    CGSize imageSize = _photoImageView.frame.size;
-//    
-//    // Calculate Min
-//    CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
-//    CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
-//    CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
-//    
-////    minScale = 0.5;
-//	// If image is smaller than the screen then ensure we show it at
-//	// min scale of 1
-//	if (xScale > 1 && yScale > 1) {
-//		//minScale = 1.0;
-//	}
-//    
-//	// Calculate Max
-//	CGFloat maxScale = 0; // Allow double scale
-//    // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
-//    // maximum zoom scale to 0.5.
-//	if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
-//		maxScale = maxScale / [[UIScreen mainScreen] scale];
-//		
-//		if (maxScale < minScale) {
-//			maxScale = minScale * 2;
-//		}
-//	}
-//    
-//	// Set
-//	self.maximumZoomScale = maxScale;
-//	self.minimumZoomScale = minScale;
-//	self.zoomScale = minScale;
-//    
-//	// Reset position
-//	_photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
-//	[self setNeedsLayout];
-//}
 
 #pragma mark - Layout
 
@@ -387,22 +411,19 @@
     // Cancel any single tap handling
     [NSObject cancelPreviousPerformRequestsWithTarget:_photoBrowser];
     
-    
     // Zoom
-    if (self.zoomScale == self.maximumZoomScale || self.zoomScale == self.doubleScale) {
+    if (self.zoomScale != self.minimumZoomScale) {
+        
         // Zoom out
         [self setZoomScale:self.minimumZoomScale animated:YES];
         
     } else {
-        if(_doubleScale > _maximumDoubleTapZoomScale){
-            [self setZoomScale:_doubleScale animated:YES];
-        }else{
-            // Zoom in
-            CGSize targetSize = CGSizeMake(self.frame.size.width / self.maximumDoubleTapZoomScale, self.frame.size.height / self.maximumDoubleTapZoomScale);
-            CGPoint targetPoint = CGPointMake(touchPoint.x - targetSize.width / 2, touchPoint.y - targetSize.height / 2);
-            
-            [self zoomToRect:CGRectMake(touchPoint.x, touchPoint.y, 1, 1) animated:YES];
-        }
+        
+        // Zoom in
+        CGSize targetSize = CGSizeMake(self.frame.size.width / self.maximumDoubleTapZoomScale, self.frame.size.height / self.maximumDoubleTapZoomScale);
+        CGPoint targetPoint = CGPointMake(touchPoint.x - targetSize.width / 2, touchPoint.y - targetSize.height / 2);
+        
+        [self zoomToRect:CGRectMake(targetPoint.x, targetPoint.y, targetSize.width, targetSize.height) animated:YES];
     }
     
     // Delay controls

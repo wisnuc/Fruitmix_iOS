@@ -48,15 +48,19 @@
 
 - (IBAction)addBtnClick:(id)sender {
 
-    if (self.passwordTF.text.length<=5 || self.userNameTF.text.length<=0)
-        [MyAppDelegate.notification displayNotificationWithMessage:@"用户名或密码过短!" forDuration:1];
+    if (self.userNameTF.text.length<=0)
+        [MyAppDelegate.notification displayNotificationWithMessage:@"用户名过短!" forDuration:1];
+    else if(self.userNameTF.text.length >=20)
+        [MyAppDelegate.notification displayNotificationWithMessage:@"用户名过长!" forDuration:1];
+    else if(self.passwordTF.text.length >= 40)
+         [MyAppDelegate.notification displayNotificationWithMessage:@"密码过长!" forDuration:1];
     else if(!IsEquallString(self.passwordTF.text, self.doubleCheckTF.text))
-       [MyAppDelegate.notification displayNotificationWithMessage:@"两次密码不一致！" forDuration:1];
+        [MyAppDelegate.notification displayNotificationWithMessage:@"两次密码不一致！" forDuration:1];
     else{
         FMCreateUserAPI * api = [FMCreateUserAPI new];
         NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
         [dic setObject:self.userNameTF.text forKey:@"username"];
-        [dic setObject:self.passwordTF.text forKey:@"password"];
+        [dic setObject:IsNilString(self.passwordTF.text)?@"":self.passwordTF.text forKey:@"password"];
         api.param = dic;
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
             [MyAppDelegate.notification displayNotificationWithMessage:@"创建用户成功" forDuration:1];

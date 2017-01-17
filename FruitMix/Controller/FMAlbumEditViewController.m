@@ -102,6 +102,10 @@
 
 
 -(void)rightBtnClick:(id)sender{
+    if (self.albumNameTF.text.length >= 20) {
+        [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称过长!" forDuration:1];
+        return;
+    }
     NSMutableDictionary * album = [NSMutableDictionary dictionaryWithCapacity:0];
     [album setObject:self.albumNameTF.text?self.albumNameTF.text:(self.albumNameTF.placeholder?self.albumNameTF.placeholder:@"") forKey:@"title"];
     [album setObject:self.albumDescTV.text?self.albumDescTV.text:@"" forKey:@"text"];
