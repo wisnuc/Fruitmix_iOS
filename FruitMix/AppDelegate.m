@@ -95,6 +95,10 @@
 /********************* Some Config *************************/
 /***********************************************************/
 
+-(void)configUMengShare{
+    
+}
+
 -(void)configRootWindow{
     if (!IsNilString(DEF_Token)) {
         NSLog(@"UserToken : %@",DEF_Token);

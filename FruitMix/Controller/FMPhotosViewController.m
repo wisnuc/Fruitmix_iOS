@@ -29,6 +29,28 @@
 
 #import "LCActionSheet.h"
 
+@interface FMPhotoDownloadHelper : NSObject
+
++(instancetype)defaultHelper;
+
+@property (nonatomic ,copy) void (^downloadCompleteBlock)(BOOL success,UIImage * image);
+
+@end
+
+@implementation FMPhotoDownloadHelper
+
++(instancetype)defaultHelper{
+    static FMPhotoDownloadHelper * helper;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        helper = [FMPhotoDownloadHelper new];
+    });
+    return helper;
+}
+
+@end
+
+
 @interface FMPhotosViewController ()<FMPhotoCollectionViewDelegate,FMPhotosCollectionViewCellDelegate,FMHeadViewDelegate,IDMPhotoBrowserDelegate,floatMenuDelegate,FMPhotoDataSourceDelegate,LCActionSheetDelegate>
 
 @property (nonatomic) FMPhotoCollectionView * collectionView;
@@ -50,6 +72,8 @@
 @property (nonatomic) JYProcessView * pv;
 
 @property (nonatomic) BOOL shouldDownload;
+
+
 
 @end
 
@@ -253,12 +277,12 @@
 -(void)didSelectMenuOptionAtIndex:(NSInteger)row{
     switch (row) {
         case 0:{
-            //创建图集
+            //下载
             if (self.choosePhotos.count == 0) {
                 [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
             }else{
                 //downLoading...
-                [self clickDownload];
+                [self clickDownloadWithShare:NO andCompleteBlock:nil];
             }
         }
             break;
@@ -267,7 +291,6 @@
             if (self.choosePhotos.count == 0) {
                 [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
             }else{
-                
                 LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
                                                                          delegate:self
                                                                 cancelButtonTitle:@"取消"
@@ -289,80 +312,94 @@
     }
 }
 
--(void)clickDownload{
+-(void)clickDownloadWithShare:(BOOL)share andCompleteBlock:(void(^)(NSArray * images))block{
     NSArray * chooseItems = [self.choosePhotos copy];
     if (!_pv)
         _pv = [JYProcessView processViewWithType:ProcessTypeLine];
-    _pv.descLb.text = @"正在下载文件";
+    _pv.descLb.text = share?@"正在准备照片":@"正在下载文件";
     _pv.subDescLb.text = [NSString stringWithFormat:@"%lu个项目 ",(unsigned long)chooseItems.count];
     [_pv show];
     _shouldDownload = YES;
     _pv.cancleBlock = ^(){
         _shouldDownload = NO;
     };
-    [self downloadItems:chooseItems];
+    [self downloadItems:chooseItems withShare:share andCompleteBlock:block];
     [self leftBtnClick:_leftBtn];
 }
 
--(void)downloadItems:(NSArray *)items{
+-(void)downloadItems:(NSArray *)items withShare:(BOOL)isShare andCompleteBlock:(void(^)(NSArray * images))block{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __block float complete = 0.f;
-        __block int success = 0;
-        __block NSUInteger allCount = items.count;
-        for (IDMPhoto * item in items) {
-            if (!_shouldDownload)
-                break;
-            NSCondition *condition = [[NSCondition alloc] init];
-            [condition lock];
-            [self downloadItem:item withCompleteBlock:^(BOOL isSuccess) {
-                complete ++;
-                if (isSuccess) success++;
-                [condition signal];
+        @autoreleasepool {
+            __block float complete = 0.f;
+            __block int successCount = 0;
+            __block int finish = 0;
+            FMPhotoDownloadHelper  * helper = [FMPhotoDownloadHelper defaultHelper];
+            __weak typeof(helper) weakHelper = helper;
+            __block NSUInteger allCount = items.count;
+            @weakify(self);
+            NSMutableArray * tempDownArr = [NSMutableArray arrayWithCapacity:0];
+            helper.downloadCompleteBlock = ^(BOOL success ,UIImage *image){
+                complete ++;finish ++;
+                if (successCount) successCount++;
                 CGFloat progress =  complete/allCount;
-                [self.pv setValueForProcess:progress];
-            }];
-            [condition wait];
-            [condition unlock];
+                if (image && isShare) [tempDownArr addObject:image];
+                [weak_self.pv setValueForProcess:progress];
+                if (items.count > complete) {
+                    [weak_self downloadItem:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+                }else{
+                    _shouldDownload = NO;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weak_self.pv dismiss];
+                        if (block) block([tempDownArr copy]);
+                    });
+                }
+            };
+            [self downloadItem:items[0] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
         }
-        _shouldDownload = NO;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.pv dismiss];
-        });
     });
 }
 
--(void)downloadItem:(id<IDMPhoto>)item withCompleteBlock:(void(^)(BOOL isSuccess))block{
-    static int abc = 0;
+-(void)downloadItem:(id<IDMPhoto>)item withShare:(BOOL)share withCompleteBlock:(void(^)(BOOL isSuccess,UIImage * image))block{
     if ([item isKindOfClass:[FMNASPhoto class]]) {
         [FMGetImage getFullScreenImageWithPhotoHash:[item getPhotoHash]
                                    andCompleteBlock:^(UIImage *image, NSString *tag)
          {
              if (image) {
-                 [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
-                     block(isSuccess);
-                 }];
+                 if(!share){
+                     [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
+                         block(isSuccess,image);
+                     }];
+                 }else{
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         block(YES,image);
+                     });
+                 }
              }else
-                 block(NO);
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                     block(NO,nil);
+                 });
         }];
     }else{
         FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
         PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[(FMPhotoAsset *)item localId]];
         if (asset) {
-            [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
-                UIImage * image;
-                if (filePath && (image = [UIImage imageWithContentsOfFile:filePath])) {
-                    [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
-                        NSLog(@"来了%d 多少次",abc++);
-                        [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];//删除image
-                        block(isSuccess);
-                    }];
-                }else
-                    block(NO);
-            }];
-        }else
-            block(NO);
+            if (!share) {
+                [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
+                    UIImage * image;
+                    if (filePath && (image = [UIImage imageWithContentsOfFile:filePath])) {
+                        [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
+                                [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];//删除image
+                                block(isSuccess,image);
+                        }];
+                    }else block(NO,nil);
+                }];
+            }else{
+                [PhotoManager getImageFromPHAsset:asset Complete:^(NSData *fileData, NSString *fileName) {
+                    block(YES,[UIImage imageWithData:[fileData copy]]);
+                }];
+            }
+        }else block(NO,nil);
     }
-    
 }
 
 //LC delegate
@@ -382,34 +419,81 @@
 //创建分享
 -(void)clickShareBtn{
     if (self.choosePhotos.count>0) {
-        [SXLoadingView showProgressHUD:@"正在准备照片数据"];
-        NSMutableArray * contents = [NSMutableArray arrayWithCapacity:0];
-        for (id<IDMPhoto> photo in self.choosePhotos) {
-            NSString * digest = [photo getPhotoHash];
-            if (IsNilString(digest) && [photo isKindOfClass:[FMPhotoAsset class]]) {
-                digest = [(FMPhotoAsset *)photo getPhotoHashSync];
-            }
-            [contents addObject:digest];
-        }
-        
-        [SXLoadingView hideProgressHUD];
-        
-        FMCreateShareAPI * api = [FMCreateShareAPI shareCreateWithMaintainers:[FMDBControl getAllUsersUUID] Viewers:[FMDBControl getAllUsersUUID] Contents:contents IsAlbum:nil];
-        [MyAppDelegate.notification displayNotificationWithView:[FMNotifyView notifyViewWithMessage:@"发送中..."] completion:^{}];
-        [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-            [SXLoadingView showAlertHUD:@"分享成功" duration:1];
-        } failure:^(__kindof JYBaseRequest *request) {
-            [SXLoadingView showAlertHUD:@"分享失败" duration:1];
-        }];
-        
-        [self leftBtnClick:_leftBtn];
-        //                [FMUpdateDocumentTool mediaShareNeedUpdate];//需要刷新mediaShare
-        [[NSNotificationCenter defaultCenter] postNotificationName:FM_NEED_UPDATE_UI_NOTIFY object:nil];
-        [self.rdv_tabBarController setSelectedIndex:0];
+        LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
+                                                        cancelButtonTitle:@"取消"
+                                                                  clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                                                                      if(buttonIndex == 1) [self shareToLocalUser];
+                                                                      else if(buttonIndex == 2) [self shareToOtherApp];
+                                                                  }
+                                                        otherButtonTitles:@"分享给所有人",@"分享到第三方应用", nil];
+        actionSheet.scrolling          = YES;
+        actionSheet.buttonHeight       = 60.0f;
+        actionSheet.visibleButtonCount = 3.6f;
+        [actionSheet show];
     }
     else
         [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
 }
+
+//本地分享
+-(void)shareToLocalUser{
+    [SXLoadingView showProgressHUD:@"正在准备照片数据"];
+    NSMutableArray * contents = [NSMutableArray arrayWithCapacity:0];
+    for (id<IDMPhoto> photo in self.choosePhotos) {
+        NSString * digest = [photo getPhotoHash];
+        if (IsNilString(digest) && [photo isKindOfClass:[FMPhotoAsset class]]) {
+            digest = [(FMPhotoAsset *)photo getPhotoHashSync];
+        }
+        [contents addObject:digest];
+    }
+    
+    [SXLoadingView hideProgressHUD];
+    
+    FMCreateShareAPI * api = [FMCreateShareAPI shareCreateWithMaintainers:[FMDBControl getAllUsersUUID] Viewers:[FMDBControl getAllUsersUUID] Contents:contents IsAlbum:nil];
+    [MyAppDelegate.notification displayNotificationWithView:[FMNotifyView notifyViewWithMessage:@"发送中..."] completion:^{}];
+    [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        [SXLoadingView showAlertHUD:@"分享成功" duration:1];
+    } failure:^(__kindof JYBaseRequest *request) {
+        [SXLoadingView showAlertHUD:@"分享失败" duration:1];
+    }];
+    
+    [self leftBtnClick:_leftBtn];
+    //                [FMUpdateDocumentTool mediaShareNeedUpdate];//需要刷新mediaShare
+    [[NSNotificationCenter defaultCenter] postNotificationName:FM_NEED_UPDATE_UI_NOTIFY object:nil];
+    [self.rdv_tabBarController setSelectedIndex:0];
+}
+
+//其他分享
+-(void)shareToOtherApp{
+    //准备照片
+    @weakify(self);
+    [self clickDownloadWithShare:YES andCompleteBlock:^(NSArray *images) {
+        UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:images applicationActivities:nil];
+        //初始化回调方法
+        UIActivityViewControllerCompletionWithItemsHandler myBlock = ^(NSString *activityType,BOOL completed,NSArray *returnedItems,NSError *activityError)
+        {
+            NSLog(@"activityType :%@", activityType);
+            if (completed)
+            {
+                NSLog(@"share completed");
+            }
+            else
+            {
+                NSLog(@"share cancel");
+            }
+            
+        };
+        
+        // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
+        activityVC.completionWithItemsHandler = myBlock;
+        
+        //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop
+        activityVC.excludedActivityTypes = @[];
+        
+        [weak_self presentViewController:activityVC animated:YES completion:nil];
+    }];
+}
+
 
 //捏合响应
 -(void)handlePinch:(UIPinchGestureRecognizer *)pin{
