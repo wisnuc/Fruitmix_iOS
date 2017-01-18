@@ -90,7 +90,7 @@
                 [photoArr addObject:nasPhoto];
         }
         NSLog(@"******************     网络来图      *****************************");
-        NSLog(@"%@",photoArr);
+//        NSLog(@"%@",photoArr);
         NSLog(@"******************  网络来图打印完成  *****************************");
         if (photoArr.count) {
             self.netphotoArr = [photoArr copy];

@@ -24,7 +24,7 @@
 #import "FMAlbumDataSource.h"
 #import "FMBalloon.h"
 #import "LCActionSheet.h"
-
+#import "UIScrollView+JYEmptyView.h"
 @interface FMAlbumsViewController ()<UITableViewDelegate,UITableViewDataSource,MGSwipeTableCellDelegate,FMAlbumDataSourceDelegate>
 @property (nonatomic) UITableView * tableView;
 @property (nonatomic) UIButton * controlBtn;
@@ -65,6 +65,7 @@
 
 -(void)albumDataSourceDidChange{
     [self.tableView reloadData];
+    [self.tableView displayWithMsg:@"暂无相册数据" withRowCount:self.albumDataSource.dataSource.count andIsNoData:YES andTouchBlock:nil];
 }
 
 #pragma mark - View Life Circle and SubViews
@@ -95,7 +96,11 @@
         [_controlBtn setImage:[UIImage imageNamed:@"add_album"] forState:UIControlStateNormal];
         _controlBtn.frame = CGRectMake(self.view.jy_Width-80 , self.view.jy_Height - 64 - 88 -56, 56, 56);
         _controlBtn.layer.cornerRadius = 28;
-        _controlBtn.layer.masksToBounds = YES;
+        _controlBtn.layer.shadowColor = [UIColor blackColor].CGColor;
+        _controlBtn.layer.shadowRadius = 2.f;
+        _controlBtn.layer.shadowOffset = CGSizeMake(0, 3);
+        _controlBtn.layer.shadowOpacity = 0.4f;
+        
         [_controlBtn addTarget:self action:@selector(_controlBtnChick:) forControlEvents:UIControlEventTouchUpInside];
         [self.view addSubview:_controlBtn];
     }

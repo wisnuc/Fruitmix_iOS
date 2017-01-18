@@ -117,21 +117,21 @@ CGFloat buttonToScreenHeight;
     _normalImageView.userInteractionEnabled = YES;
     _normalImageView.layer.cornerRadius = self.jy_Width/2;
     _normalImageView.contentMode = UIViewContentModeScaleAspectFit;
-//    _normalImageView.layer.shadowColor = [UIColor blackColor].CGColor;
-//    _normalImageView.layer.shadowRadius = 2.f;
-//    _normalImageView.layer.shadowOffset = CGSizeMake(0, 2);
-//    _normalImageView.layer.shadowOpacity = 0.4f;
+    _normalImageView.layer.shadowColor = [UIColor blackColor].CGColor;
+    _normalImageView.layer.shadowRadius = 2.f;
+    _normalImageView.layer.shadowOffset = CGSizeMake(0, 3);
+    _normalImageView.layer.shadowOpacity = 0.4f;
+    
 
     _pressedImageView  = [[UIImageView alloc]initWithFrame:self.bounds];
     
     _pressedImageView.contentMode = UIViewContentModeScaleAspectFit;
     _pressedImageView.userInteractionEnabled = YES;
     _pressedImageView.layer.cornerRadius = self.jy_Width/2;
-//    _pressedImageView.layer.shadowColor = [UIColor blackColor].CGColor;
-//    _pressedImageView.layer.shadowRadius = 2.f;
-//    _pressedImageView.layer.shadowOffset = CGSizeMake(0, 2);
-//    _pressedImageView.layer.shadowOpacity = 0.4f;
-    
+    _pressedImageView.layer.shadowColor = [UIColor blackColor].CGColor;
+    _pressedImageView.layer.shadowRadius = 2.f;
+    _pressedImageView.layer.shadowOffset = CGSizeMake(0, 3);
+    _pressedImageView.layer.shadowOpacity = 0.4f;
     
     _normalImageView.image = _normalImage;
     _pressedImageView.image = _pressedImage;
@@ -183,7 +183,8 @@ CGFloat buttonToScreenHeight;
 
 -(void) showMenu:(id)sender
 {
-    
+    self.pressedImageView.layer.shadowOpacity = 0;
+    self.normalImageView.layer.shadowOpacity = 0;
     self.pressedImageView.transform = CGAffineTransformMakeRotation(M_PI);
     self.pressedImageView.alpha = 0.0; //0.3
     [UIView animateWithDuration:animationTime/2 animations:^
@@ -201,6 +202,9 @@ CGFloat buttonToScreenHeight;
      }
          completion:^(BOOL finished)
      {
+         self.normalImageView.alpha = 0;
+         self.pressedImageView.layer.shadowOpacity = 0.4;
+         self.normalImageView.layer.shadowOpacity = 0.4;
      }];
 
 }
@@ -208,6 +212,10 @@ CGFloat buttonToScreenHeight;
 -(void) dismissMenu:(id) sender
 
 {
+    self.pressedImageView.layer.shadowOpacity = 0;
+    self.normalImageView.layer.shadowOpacity = 0;
+    
+    self.normalImageView.alpha = 1;
     [UIView animateWithDuration:animationTime/2 animations:^
      {
          self.bgView.alpha = 0;
@@ -217,6 +225,9 @@ CGFloat buttonToScreenHeight;
          self.normalImageView.alpha = 1.f;
      } completion:^(BOOL finished)
      {
+         self.pressedImageView.layer.shadowOpacity = 0.4;
+         self.normalImageView.layer.shadowOpacity = 0.4;
+         
          noOfRows = 0;
          [_bgView removeFromSuperview];
          [windowView removeFromSuperview];

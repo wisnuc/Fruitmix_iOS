@@ -24,6 +24,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     self.userNameTF.returnKeyType = UIReturnKeyDone;
+    self.userNameTF.delegate = self;
     self.passwordTF.returnKeyType = UIReturnKeyDone;
     self.doubleCheckTF.returnKeyType = UIReturnKeyDone;
 }
@@ -74,6 +75,18 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
      [textField resignFirstResponder];
+    return YES;
+}
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    if (textField == _userNameTF) {
+        if (string.length == 0) {
+            return YES;
+        }
+        else if (textField.text.length + string.length >20 ) {
+            [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称不能大于20!" forDuration:1];
+            return NO;
+        }
+    }
     return YES;
 }
 

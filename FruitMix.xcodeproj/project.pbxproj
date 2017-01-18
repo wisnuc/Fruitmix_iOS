@@ -631,6 +631,12 @@
 		F65931ED1C9B9F8E00AD10D1 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65931EC1C9B9F8E00AD10D1 /* ImageIO.framework */; };
 		F65931F11C9B9FB700AD10D1 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F65931F01C9B9FB700AD10D1 /* libsqlite3.tbd */; };
 		F65931F31C9B9FC400AD10D1 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65931F21C9B9FC400AD10D1 /* MessageUI.framework */; };
+		F66703231E2F3EF1004BFD05 /* photo_plus_close.png in Resources */ = {isa = PBXBuildFile; fileRef = F667031D1E2F3EF1004BFD05 /* photo_plus_close.png */; };
+		F66703241E2F3EF1004BFD05 /* photo_plus_close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F667031E1E2F3EF1004BFD05 /* photo_plus_close@2x.png */; };
+		F66703251E2F3EF1004BFD05 /* photo_plus_close@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = F667031F1E2F3EF1004BFD05 /* photo_plus_close@3x.png */; };
+		F66703261E2F3EF1004BFD05 /* photo_plus_open.png in Resources */ = {isa = PBXBuildFile; fileRef = F66703201E2F3EF1004BFD05 /* photo_plus_open.png */; };
+		F66703271E2F3EF1004BFD05 /* photo_plus_open@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F66703211E2F3EF1004BFD05 /* photo_plus_open@2x.png */; };
+		F66703281E2F3EF1004BFD05 /* photo_plus_open@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = F66703221E2F3EF1004BFD05 /* photo_plus_open@3x.png */; };
 		F6F259131E2DC0690074F521 /* JYAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = F6F259121E2DC0690074F521 /* JYAlertView.m */; };
 		F6F2591D1E2DC3F20074F521 /* FMPersonsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F6F259161E2DC3F20074F521 /* FMPersonsCell.m */; };
 		F6F2591E1E2DC3F20074F521 /* FMPersonsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F6F259171E2DC3F20074F521 /* FMPersonsCell.xib */; };
@@ -1610,6 +1616,12 @@
 		F65931EC1C9B9F8E00AD10D1 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		F65931F01C9B9FB700AD10D1 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		F65931F21C9B9FC400AD10D1 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		F667031D1E2F3EF1004BFD05 /* photo_plus_close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photo_plus_close.png; sourceTree = "<group>"; };
+		F667031E1E2F3EF1004BFD05 /* photo_plus_close@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo_plus_close@2x.png"; sourceTree = "<group>"; };
+		F667031F1E2F3EF1004BFD05 /* photo_plus_close@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo_plus_close@3x.png"; sourceTree = "<group>"; };
+		F66703201E2F3EF1004BFD05 /* photo_plus_open.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photo_plus_open.png; sourceTree = "<group>"; };
+		F66703211E2F3EF1004BFD05 /* photo_plus_open@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo_plus_open@2x.png"; sourceTree = "<group>"; };
+		F66703221E2F3EF1004BFD05 /* photo_plus_open@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo_plus_open@3x.png"; sourceTree = "<group>"; };
 		F6F259111E2DC0690074F521 /* JYAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JYAlertView.h; sourceTree = "<group>"; };
 		F6F259121E2DC0690074F521 /* JYAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JYAlertView.m; sourceTree = "<group>"; };
 		F6F259151E2DC3F20074F521 /* FMPersonsCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMPersonsCell.h; sourceTree = "<group>"; };
@@ -3080,6 +3092,12 @@
 		C1A959081CB7C46C007A1DC9 /* Photos */ = {
 			isa = PBXGroup;
 			children = (
+				F667031D1E2F3EF1004BFD05 /* photo_plus_close.png */,
+				F667031E1E2F3EF1004BFD05 /* photo_plus_close@2x.png */,
+				F667031F1E2F3EF1004BFD05 /* photo_plus_close@3x.png */,
+				F66703201E2F3EF1004BFD05 /* photo_plus_open.png */,
+				F66703211E2F3EF1004BFD05 /* photo_plus_open@2x.png */,
+				F66703221E2F3EF1004BFD05 /* photo_plus_open@3x.png */,
 				F6F259221E2DC7260074F521 /* all@2x.png */,
 				F6F259231E2DC7260074F521 /* all@3x.png */,
 				F6F259241E2DC7260074F521 /* all.png */,
@@ -4406,6 +4424,7 @@
 				C11A27191D2D0B410033764F /* transparency_bg@3x.png in Resources */,
 				C11FE9301DEED2DF008F73D8 /* share_select.png in Resources */,
 				C19E8B5B1DDDBF7A00DB3CBE /* files.png in Resources */,
+				F66703281E2F3EF1004BFD05 /* photo_plus_open@3x.png in Resources */,
 				C190907F1D9E4D0E00FF9886 /* FMNotifyView.xib in Resources */,
 				C1A959CA1CBB7F96007A1DC9 /* share_red_select@2x.png in Resources */,
 				C11A272C1D2DF8D90033764F /* PLUS.png in Resources */,
@@ -4423,6 +4442,7 @@
 				C1B98C4A1E24AFAE00CF7762 /* small_3@2x.png in Resources */,
 				C11A27411D2E87100033764F /* album_share@3x.png in Resources */,
 				C11FE93F1DEED338008F73D8 /* local.png in Resources */,
+				F66703271E2F3EF1004BFD05 /* photo_plus_open@2x.png in Resources */,
 				C16A2BDD1CC4F3C000AB4A7C /* dot@3x.png in Resources */,
 				C1F44A741D12B2EB00A8FD34 /* info_user.png in Resources */,
 				C1009B4F1DFE8BB6006ADA84 /* ic_lock_outline.png in Resources */,
@@ -4451,6 +4471,7 @@
 				C17615B91D07E23B00FDFE1B /* share_photo@2x.png in Resources */,
 				C11A27221D2D0E410033764F /* comment_share@3x.png in Resources */,
 				C17615D81D0D2A8200FDFE1B /* check-box_select.png in Resources */,
+				F66703261E2F3EF1004BFD05 /* photo_plus_open.png in Resources */,
 				C1A959491CBB3F9D007A1DC9 /* good_red.png in Resources */,
 				C16A2BE81CC4F3C000AB4A7C /* MORE@2x.png in Resources */,
 				C158C49E1DDE97430073A342 /* help.png in Resources */,
@@ -4514,6 +4535,7 @@
 				C179703B1CD372F0002B7EAA /* circle@2x.png in Resources */,
 				C1F44A571D12B1E900A8FD34 /* FMDeviceCell.xib in Resources */,
 				C17615A41D06940D00FDFE1B /* icon_del@3x.png in Resources */,
+				F66703241E2F3EF1004BFD05 /* photo_plus_close@2x.png in Resources */,
 				C11FE89E1DED7105008F73D8 /* menu@2x.png in Resources */,
 				C11FE9351DEED2DF008F73D8 /* share@3x.png in Resources */,
 				C19E8B5F1DDDBF7A00DB3CBE /* photos@3x.png in Resources */,
@@ -4623,12 +4645,14 @@
 				C11FE9251DEED298008F73D8 /* photo-album_select@2x.png in Resources */,
 				C11A27171D2D0B410033764F /* transparency_bg.png in Resources */,
 				C1A95A151CBCC0C1007A1DC9 /* FMSetting.xib in Resources */,
+				F66703231E2F3EF1004BFD05 /* photo_plus_close.png in Resources */,
 				C11FE94B1DEED38C008F73D8 /* hard.png in Resources */,
 				C17615BA1D07E23B00FDFE1B /* share_photo@3x.png in Resources */,
 				C1BB70F21CE038EA00AEBADA /* select@2x.png in Resources */,
 				F6F259501E2E02D20074F521 /* open_in.png in Resources */,
 				C1A9593A1CB7C47F007A1DC9 /* unselected@2x.png in Resources */,
 				C11FE94A1DEED38C008F73D8 /* hard_select@3x.png in Resources */,
+				F66703251E2F3EF1004BFD05 /* photo_plus_close@3x.png in Resources */,
 				C17970541CD372F0002B7EAA /* send@3x.png in Resources */,
 				C158C4931DDE94890073A342 /* set@2x.png in Resources */,
 				C1F44A641D12B27800A8FD34 /* Arrow@3x.png in Resources */,

@@ -36,8 +36,8 @@
 
 @property (nonatomic) NSMutableDictionary * completionHandlerDictionary;
 
-@property (nonatomic) CWStatusBarNotification *notification;
-@property (nonatomic) CWStatusBarNotification *statusBarNotification;
+@property (nonatomic) CWStatusBarNotification *notification;//nav notify
+@property (nonatomic) CWStatusBarNotification *statusBarNotification; //statusbar notify
 
 @property (nonatomic) FMPhotoDataSource * photoDatasource;
 @property (nonatomic) FMMediaShareDataSource * mediaDataSource;

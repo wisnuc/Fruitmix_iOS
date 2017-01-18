@@ -9,7 +9,7 @@
 #import "FMAlbumNamedController.h"
 #import "FMAlbumDataSource.h"
 
-@interface FMAlbumNamedController ()<UITextViewDelegate>
+@interface FMAlbumNamedController ()<UITextViewDelegate,UITextFieldDelegate>
 @property (nonatomic) UIButton * rightBtn;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *descLayoutH;
 @property (weak, nonatomic) IBOutlet UIButton *boxBtn;
@@ -44,6 +44,7 @@
 
 -(void)configureView{
     self.albumNameTF.placeholder = [NSString stringWithFormat:@"未命名 %@",[NSDate getDateStringWithPhoto:[NSDate getFormatDateWithDate:[NSDate date]]]];
+    self.albumNameTF.delegate = self;
     self.albumDescTV.delegate = self;
     self.rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, 40, 20)];
     if (!IsNilString(_albumName)) {
@@ -82,6 +83,16 @@
     }
 }
 
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    if (string.length == 0) {
+        return YES;
+    }
+    else if (textField.text.length + string.length >20 ) {
+        [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称不能大于20个字符" forDuration:1];
+        return NO;
+    }
+    return YES;
+}
 -(void)textViewDidChange:(UITextView *)textView{
     CGFloat maxH = 80;
     CGRect frame = textView.frame;
@@ -101,8 +112,8 @@
 }
 
 -(void)rightBtnClick:(id)sender{
-    if (self.albumNameTF.text.length >= 20) {
-        [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称过长!" forDuration:1];
+    if (self.albumNameTF.text.length > 20) {
+        [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称过长" forDuration:1];
         return;
     }
     

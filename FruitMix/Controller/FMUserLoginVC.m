@@ -84,7 +84,8 @@
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [SXLoadingView hideProgressHUD];
-        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",error.code] duration:1];
+        NSHTTPURLResponse * res = (NSHTTPURLResponse *)task.response;
+        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",res.statusCode] duration:1];
         sender.userInteractionEnabled = YES;
     }];
 }

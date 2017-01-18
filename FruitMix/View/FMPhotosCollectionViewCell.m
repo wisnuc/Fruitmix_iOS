@@ -41,8 +41,10 @@
     self.fmPhotoImageView.contentMode = UIViewContentModeScaleAspectFill;
     self.fmPhotoImageView.userInteractionEnabled = YES;
     self.chooseBtn.hidden = YES;
-
+    
+    
 }
+
 
 -(void)handleTapGesture:(UITapGestureRecognizer *)tap{
     if (self.fmDelegate) {
@@ -85,7 +87,7 @@
     NSString * hash = [asset getPhotoHash];
     [self setBtnHiddenWithAsset:asset];
     @weakify(self);
-    self.fmPhotoImageView.image = [UIImage imageNamed:@"photo_placeholder"];
+//    self.fmPhotoImageView.image = [UIImage imageNamed:@"photo_placeholder"];
     FMGetThumbImageCompleteBlock _block = ^(UIImage *image, NSString * tag) {
         if (IsEquallString(tag, weak_self.imageTag)) {
             weak_self.fmPhotoImageView.image = image;
@@ -102,7 +104,7 @@
     self.chooseBtn.hidden = !isChoose;
     if (isChoose) {
 //        [self.chooseBtn.layer addAnimation:GetBtnStatusChangedAnimation() forKey:nil];
-        self.fmPhotoImageView.transform = CGAffineTransformMakeScale(0.7, 0.7);
+        self.fmPhotoImageView.transform = CGAffineTransformMakeScale(0.8, 0.8);
     }else{
         self.fmPhotoImageView.transform = CGAffineTransformIdentity;
     }
@@ -113,7 +115,7 @@
     self.chooseBtn.hidden = !isChoose;
     if (isChoose) {
         [self.chooseBtn.layer addAnimation:GetBtnStatusChangedAnimation() forKey:nil];
-        self.fmPhotoImageView.transform = CGAffineTransformMakeScale(0.7, 0.7);
+        self.fmPhotoImageView.transform = CGAffineTransformMakeScale(0.8, 0.8);
     }else{
         self.fmPhotoImageView.transform = CGAffineTransformIdentity;
     }

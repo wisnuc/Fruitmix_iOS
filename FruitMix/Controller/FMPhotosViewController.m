@@ -270,9 +270,9 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self tabBarAnimationWithHidden:NO];
     });
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.collectionView reloadData];
-    });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [self.collectionView reloadData];
+//    });
 }
 
 #pragma mark - floatMenuDelegate
@@ -353,6 +353,8 @@
                     _shouldDownload = NO;
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [weak_self.pv dismiss];
+                        if (!isShare)
+                            [MyAppDelegate.notification displayNotificationWithMessage:@"下载完成" forDuration:0.5f];
                         if (block) block([tempDownArr copy]);
                     });
                 }
@@ -370,7 +372,9 @@
              if (image) {
                  if(!share){
                      [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
-                         block(isSuccess,image);
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                            block(isSuccess,image);
+                         });
                      }];
                  }else{
                      dispatch_async(dispatch_get_main_queue(), ^{
@@ -873,15 +877,13 @@ static BOOL waitingForReload = NO;
     return 110;
 }
 
--(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
-    return @"请选择分享方式";
-}
 
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.row == 1) {
-        
-    }
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, __kWidth, 40)];
+    label.font = [UIFont systemFontOfSize:14.0f];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.text = @"请选择分享方式";
+    return label;
 }
 
 -(void)checkItemWithIndexPath:(NSIndexPath *)indexPath{
