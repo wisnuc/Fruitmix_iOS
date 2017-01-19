@@ -10,6 +10,7 @@
 #import "FMLeftMenuCell.h"
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UILabel *versionLb;
 
 
 @end
@@ -26,6 +27,13 @@
     _settingTabelView.tableFooterView = [UIView new];
     self.userHeaderIV.userInteractionEnabled = YES;
     [self.userHeaderIV addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapHeader:)]];
+    
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    // app名称
+//    NSString *app_Name = [infoDictionary objectForKey:@"CFBundleName"];
+    // app版本
+    NSString *app_Version = [infoDictionary objectForKey:@"CFBundleVersion"];
+    self.versionLb.text = [NSString stringWithFormat:@"WISNUC %@",app_Version];
 }
 - (void)tapHeader:(id)sender {
 //    if(self.delegate){

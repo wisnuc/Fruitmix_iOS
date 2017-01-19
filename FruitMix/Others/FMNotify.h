@@ -30,8 +30,6 @@
 
 #define FM_CALCULATE_HASH_SUCCESS_NOTIFY @"FM_CALCULATE_HASH_SUCCESS_NOTIFY"
 
-
-#define FM_PHOTO_COLLECTION_STATUS_CHANGE @"FM_PHOTO_COLLECTION_STATUS_CHANGE" //照片页面的状态改变（可选，不可选）
 /******************************************************************/
 
 //key for mediaShare
