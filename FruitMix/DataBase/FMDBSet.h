@@ -20,6 +20,7 @@
 #import "FMNeedUploadComments.h"
 #import "FMNeedUploadPatch.h"
 #import "FMUserInfo.h"
+#import "FMSyncLogs.h"
 
 
 @interface FMDBSet : FMDTManager
@@ -47,5 +48,7 @@
 @property (nonatomic) FMDTContext * needUploadComments;
 
 @property (nonatomic) FMDTContext * userInfo;
+
+@property (nonatomic) FMDTContext * syncLogs; //上传记录
 
 @end

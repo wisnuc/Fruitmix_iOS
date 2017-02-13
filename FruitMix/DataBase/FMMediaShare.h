@@ -11,7 +11,6 @@
 
 @interface FMMediaShare : FMDTObject<FMMediaShareProtocol>
 
-
 @property (nonatomic) NSString * digest;
 
 @property (nonatomic) NSString * doctype;

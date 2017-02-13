@@ -131,17 +131,23 @@ caption = _caption;
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 PHAsset * asset = [[FMLocalPhotoStore shareStore]checkPhotoIsLocalWithLocalId:_localId];
                 if (asset) {
-                    CGFloat pW = __kWidth*[UIScreen mainScreen].scale;
-                    CGFloat pH = asset.pixelHeight * (pW/asset.pixelWidth);
-                    CGSize targetSize = CGSizeMake(pW, pH);
-                    PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
-                    imageRequestOptions.synchronous = YES;
-                    [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeDefault options:imageRequestOptions resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
-                        if (result) {
-                                weak_self.underlyingImage = result;
+                    [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
+                        if (filePath) {
+                            weak_self.underlyingImage = [YYImage imageWithContentsOfFile:filePath];
                             [weak_self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
-                        }
+                         }
                     }];
+//                    CGFloat pW = __kWidth*[UIScreen mainScreen].scale;
+//                    CGFloat pH = asset.pixelHeight * (pW/asset.pixelWidth);
+//                    CGSize targetSize = CGSizeMake(pW, pH);
+//                    PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
+//                    imageRequestOptions.synchronous = YES;
+//                    [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeDefault options:imageRequestOptions resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+//                        if (result) {
+//                            weak_self.underlyingImage = result;
+//                            [weak_self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
+//                        }
+//                    }];
                     }
             });
         }else {

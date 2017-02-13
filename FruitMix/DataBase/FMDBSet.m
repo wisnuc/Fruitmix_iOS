@@ -62,4 +62,8 @@
     return [self cacheWithClass:[FMUserInfo class]];
 }
 
+-(FMDTContext *)syncLogs{
+    return [self cacheWithClass:[FMSyncLogs class]];
+}
+
 @end
