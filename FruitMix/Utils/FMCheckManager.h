@@ -14,6 +14,7 @@
 
 - (void) beginSearchingWithBlock:(void (^)(NSArray * discoveredServers))block;
 
+// 从Service 翻译出ip
 +(NSString *)serverIPFormService:(NSNetService *)service;
 
 //测试服务器上 当前用户是否状态正常

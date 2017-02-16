@@ -1,2 +1,2 @@
 # Wisnuc
-iOS FruitMix for Wisnuc OS
+FruitMix for Wisnuc OS
