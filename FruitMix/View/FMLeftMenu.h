@@ -10,9 +10,13 @@
 
 #define DIDSELECT_NOTIFY @"didselectnotify"
 
+@class FMUserLoginInfo;
+
 @protocol FMLeftMenuDelegate <NSObject>
 
--(void)LeftMenuViewClick:(NSInteger)tag andTitle:(NSString *)title;
+-(void)LeftMenuViewClickSettingTable:(NSInteger)tag andTitle:(NSString *)title;
+
+-(void)LeftMenuViewClickUserTable:(FMUserLoginInfo *)info;
 
 @end
 
@@ -20,11 +24,16 @@
 
 @property (nonatomic) id<FMLeftMenuDelegate> delegate;
 
+@property (nonatomic) BOOL isUserTableViewShow;
+
 @property (retain, nonatomic) NSMutableArray *menus;
 @property (retain, nonatomic) NSMutableArray *imageNames;
+@property (weak, nonatomic) IBOutlet UIButton *dropDownBtn;
 
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *userHeaderIV;
 @property (weak, nonatomic) IBOutlet UITableView *settingTabelView;
+@property (weak, nonatomic) IBOutlet UITableView *usersTableView;
 
+@property (nonatomic) NSMutableArray * usersDatasource;
 @end

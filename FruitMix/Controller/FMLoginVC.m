@@ -67,15 +67,15 @@
         FMNotifyView * view = [FMNotifyView notifyViewWithMessage:@"正在搜索..."];
         view.backgroundColor = [UIColor clearColor];
         view.frame = CGRectMake(0, 0, 150, 44);
-        CATransition *animation = [CATransition animation];
-        animation.duration = 0.2f ;
-        animation.timingFunction = UIViewAnimationCurveEaseInOut;
-        animation.fillMode = kCAFillModeForwards;
-        animation.removedOnCompletion = YES;
-        animation.type = @"push";
-        animation.subtype = @"fromBottom";
-        
-        [view.layer addAnimation:animation forKey:nil];
+//        CATransition *animation = [CATransition animation];
+//        animation.duration = 0.2f ;
+//        animation.timingFunction = UIViewAnimationCurveEaseInOut;
+//        animation.fillMode = kCAFillModeForwards;
+//        animation.removedOnCompletion = YES;
+//        animation.type = @"push";
+//        animation.subtype = @"fromBottom";
+//        
+//        [view.layer addAnimation:animation forKey:nil];
         self.navigationItem.titleView  = view;
     }else{
         self.navigationItem.titleView = _titleView;
@@ -178,8 +178,6 @@
     [self beginSearching];
 }
 
-
-
 - (void)serverBrowserFoundService:(NSNetService *)service {
     for (NSData * address in service.addresses) {
         NSString* addressString = [GCDAsyncSocket hostFromAddress:address];
@@ -202,6 +200,7 @@
         ser.name = service.name;
         ser.type = service.type;
         ser.displayPath = addressString;
+        ser.hostName = service.hostName;
         BOOL isNew = YES;
         for (FMSerachService * s in self.dataSource) {
             if (IsEquallString(s.path, ser.path)) {

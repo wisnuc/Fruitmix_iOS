@@ -12,4 +12,10 @@
 
 +(instancetype)shareCheckManager;
 
+- (void) beginSearchingWithBlock:(void (^)(NSArray * discoveredServers))block;
+
++(NSString *)serverIPFormService:(NSNetService *)service;
+
+//测试服务器上 当前用户是否状态正常
++(BOOL)testServerWithIP:(NSString *)ip andToken:(NSString *)token;
 @end

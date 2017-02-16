@@ -48,23 +48,8 @@ typedef void(^selectComplete)(NSArray<FMLocalPhoto *> * result);
  */
 +(void)reloadLocalMediaShares;
 
-//同步本地User
-+(void)asynUsers;
-
-//同步UserHome
-+(void)asyncUserHome;
 
 +(void)getAllAlbumWithCompleteBlock:(void(^)(NSArray * result))block;
-/**
- *  获得当前NAS上所有用户的UUID
- */
-+(NSArray *)getAllUsersUUID;
-
-
-
-
-+(NSArray<FMUsers *> *)getAllUsers;
-
 
 /*
     获取本地下载的所有文件
@@ -74,6 +59,34 @@ typedef void(^selectComplete)(NSArray<FMLocalPhoto *> * result);
     增加或删除 一条 download 记录
  */
 +(void)updateDownloadWithFile:(FLDownload *)download isAdd:(BOOL)isAdd;
+
+
+
+/********************** about User ***********************/
+
+//同步本地User
++(void)asynUsers;
+
+//同步UserHome
++(void)asyncUserHome;
+/**
+ *  获得当前NAS上所有用户的UUID
+ */
++(NSArray *)getAllUsersUUID;
+
++(NSArray<FMUsers *> *)getAllUsers;
+
+//添加一条 用户登录记录
++(void)addUserLoginInfo:(FMUserLoginInfo *)info;
+
+//删除一条 用户登录记录
++(void)removeUserLoginInfo:(NSString *)userid;
+
+//查询一条用户登录记录
++(FMUserLoginInfo *)findUserLoginInfo:(NSString *)userid;
+
++(NSArray  *)getAllUserLoginInfo;
+
 @end
 
 @interface FMLocalPhotoStore : NSObject
@@ -100,5 +113,7 @@ typedef void(^selectComplete)(NSArray<FMLocalPhoto *> * result);
  * return nil or hash ,if nil, the photo has not caculture digest
  */
 -(NSString *)getPhotoHashWithLocalId:(NSString *)localId;
+
+
 
 @end

@@ -36,57 +36,65 @@ static MBProgressHUD  *s_progressHUD = nil;
 
 
 + (void)showProgressHUD:(NSString *)aString duration:(CGFloat)duration {
-    [self hideProgressHUD];
-    MBProgressHUD *progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
-    [_mainWindow() addSubview:progressHUD];
-    progressHUD.animationType = MBProgressHUDAnimationZoom;
-    progressHUD.labelText = aString;
-    
-    progressHUD.removeFromSuperViewOnHide = YES;
-    progressHUD.opacity = 0.7;
-    [progressHUD show:NO];
-    [progressHUD hide:YES afterDelay:duration];
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self hideProgressHUD];
+        MBProgressHUD *progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
+        [_mainWindow() addSubview:progressHUD];
+        progressHUD.animationType = MBProgressHUDAnimationZoom;
+        progressHUD.labelText = aString;
+        
+        progressHUD.removeFromSuperViewOnHide = YES;
+        progressHUD.opacity = 0.7;
+        [progressHUD show:NO];
+        [progressHUD hide:YES afterDelay:duration];
+    });
 }
 
 + (void)showProgressHUD:(NSString *)aString {
-    if (!s_progressHUD) {
-        static dispatch_once_t once;
-        dispatch_once(&once, ^{
-            s_progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
-        });
-    }else{
-        [s_progressHUD hide:NO];
-    }
-    [_mainWindow() addSubview:s_progressHUD];
-    s_progressHUD.removeFromSuperViewOnHide = YES;
-    s_progressHUD.animationType = MBProgressHUDAnimationZoom;
-    if ([aString length]>0) {
-      s_progressHUD.labelText = aString;
-    }
-    else s_progressHUD.labelText = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!s_progressHUD) {
+            static dispatch_once_t once;
+            dispatch_once(&once, ^{
+                s_progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
+            });
+        }else{
+            [s_progressHUD hide:NO];
+        }
+        [_mainWindow() addSubview:s_progressHUD];
+        s_progressHUD.removeFromSuperViewOnHide = YES;
+        s_progressHUD.animationType = MBProgressHUDAnimationZoom;
+        if ([aString length]>0) {
+            s_progressHUD.labelText = aString;
+        }
+        else s_progressHUD.labelText = nil;
+        
+        s_progressHUD.opacity = 0.7;
+        [s_progressHUD show:YES];
+    });
     
-    s_progressHUD.opacity = 0.7;
-    [s_progressHUD show:YES];
     
 }
 
 + (void)showAlertHUD:(NSString *)aString duration:(CGFloat)duration {
-    [self hideProgressHUD];
-    MBProgressHUD *progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
-    [_mainWindow() addSubview:progressHUD];
-    progressHUD.animationType = MBProgressHUDAnimationZoom;
-    progressHUD.labelText =aString;
-    progressHUD.removeFromSuperViewOnHide = YES;
-    progressHUD.opacity = 0.7;
-    progressHUD.mode = MBProgressHUDModeText;
-    [progressHUD show:NO];
-    [progressHUD hide:YES afterDelay:duration];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self hideProgressHUD];
+        MBProgressHUD *progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
+        [_mainWindow() addSubview:progressHUD];
+        progressHUD.animationType = MBProgressHUDAnimationZoom;
+        progressHUD.labelText =aString;
+        progressHUD.removeFromSuperViewOnHide = YES;
+        progressHUD.opacity = 0.7;
+        progressHUD.mode = MBProgressHUDModeText;
+        [progressHUD show:NO];
+        [progressHUD hide:YES afterDelay:duration];
+    });
 }
 
 + (void)hideProgressHUD {
     if (s_progressHUD) {
-        [s_progressHUD hide:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+           [s_progressHUD hide:YES];
+        });
     }
 }
 

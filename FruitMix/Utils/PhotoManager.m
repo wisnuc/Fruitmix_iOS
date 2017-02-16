@@ -506,15 +506,14 @@ NSString * JY_UUID() {
                  network = YES;
                  change = YES;
                  shouldUpload = YES;
-                if (![PhotoManager shareManager].isUploading) {
+                 if (![PhotoManager shareManager].isUploading) {
                     [PhotoManager shareManager].canUpload = YES;
-                }
+                 }
                  //同步localmediaShare
 //                 [[FMQuickMSManager shareInstancetype] startUploadLocalMediaShare];
                  break;
              }
              case AFNetworkReachabilityStatusReachableViaWWAN:
-                 
              {
                  [MyAppDelegate.notification displayNotificationWithMessage:@"当前为移动网络" forDuration:1];
                   [PhotoManager shareManager].netStatus = FMNetStatusWWAN;
@@ -527,7 +526,6 @@ NSString * JY_UUID() {
              default:
                  break;
          }
-         
      }];
     
 }
@@ -702,7 +700,7 @@ BOOL shouldUpload = NO;
 //                        }
 //                    }];
 //                }];
-//                
+                
                 NSString * url = [NSString stringWithFormat:@"%@libraries/%@",[JYRequestConfig sharedConfig].baseURL,[PhotoManager getUUID]];
                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
                 

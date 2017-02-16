@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="339" height="600"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bg_pic.png" translatesAutoresizingMaskIntoConstraints="NO" id="nKw-lj-RPT">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bg_pic.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="nKw-lj-RPT">
                     <rect key="frame" x="0.0" y="0.0" width="339" height="180"/>
                     <color key="backgroundColor" red="0.20863847158624327" green="0.35912540791674785" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
@@ -35,7 +35,7 @@
                     <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </tableView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jack Yang" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="InW-Xi-ER3">
-                    <rect key="frame" x="16" y="135.5" width="307" height="20.5"/>
+                    <rect key="frame" x="16" y="135.5" width="243" height="20.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
@@ -46,6 +46,21 @@
                     <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yU1-y9-FTn">
+                    <rect key="frame" x="299" y="134" width="24" height="24"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="Ci9-f2-OCt"/>
+                        <constraint firstAttribute="width" constant="24" id="rlV-os-jQa"/>
+                    </constraints>
+                    <state key="normal" backgroundImage="ic_arrow_drop_down.png"/>
+                    <connections>
+                        <action selector="dropDownBtnClick:" destination="gZm-OB-Sqc" eventType="touchUpInside" id="L77-b8-syd"/>
+                    </connections>
+                </button>
+                <tableView clipsSubviews="YES" alpha="0.0" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="BSv-LH-7wp" userLabel="UsersTableView">
+                    <rect key="frame" x="0.0" y="179" width="339" height="421"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
@@ -53,30 +68,39 @@
                 <constraint firstItem="UCf-2J-WUS" firstAttribute="leading" secondItem="gZm-OB-Sqc" secondAttribute="leading" constant="16" id="7fd-zi-fdD"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="leading" secondItem="nKw-lj-RPT" secondAttribute="leading" constant="16" id="FxI-Pa-Tcf"/>
                 <constraint firstItem="9WK-pc-3S3" firstAttribute="top" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-1" id="GQh-an-4wE"/>
-                <constraint firstItem="InW-Xi-ER3" firstAttribute="trailing" secondItem="nKw-lj-RPT" secondAttribute="trailing" constant="-16" id="Icc-nS-Zfb"/>
+                <constraint firstItem="InW-Xi-ER3" firstAttribute="trailing" secondItem="nKw-lj-RPT" secondAttribute="trailing" constant="-80" id="Icc-nS-Zfb"/>
                 <constraint firstItem="9WK-pc-3S3" firstAttribute="leading" secondItem="gZm-OB-Sqc" secondAttribute="leading" id="NCb-i0-OWN"/>
+                <constraint firstItem="BSv-LH-7wp" firstAttribute="leading" secondItem="gZm-OB-Sqc" secondAttribute="leading" id="NoW-nh-AcH"/>
+                <constraint firstAttribute="trailing" secondItem="BSv-LH-7wp" secondAttribute="trailing" id="Qvk-KL-ubf"/>
+                <constraint firstAttribute="bottom" secondItem="BSv-LH-7wp" secondAttribute="bottom" id="XPg-v4-GB6"/>
                 <constraint firstAttribute="bottom" secondItem="9WK-pc-3S3" secondAttribute="bottom" constant="52" id="bkT-iN-5fI"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="top" secondItem="8q5-bR-fHS" secondAttribute="bottom" constant="16" id="c6x-91-c83"/>
+                <constraint firstItem="yU1-y9-FTn" firstAttribute="centerY" secondItem="InW-Xi-ER3" secondAttribute="centerY" id="f0e-db-YDe"/>
                 <constraint firstItem="nKw-lj-RPT" firstAttribute="top" secondItem="gZm-OB-Sqc" secondAttribute="top" id="fIb-tb-zAw"/>
                 <constraint firstAttribute="trailing" secondItem="9WK-pc-3S3" secondAttribute="trailing" id="g4E-p6-6dS"/>
                 <constraint firstItem="8q5-bR-fHS" firstAttribute="leading" secondItem="InW-Xi-ER3" secondAttribute="leading" id="hFv-Wk-S0p"/>
+                <constraint firstItem="yU1-y9-FTn" firstAttribute="leading" secondItem="nKw-lj-RPT" secondAttribute="trailing" constant="-40" id="hbj-zy-FaF"/>
                 <constraint firstAttribute="bottom" secondItem="UCf-2J-WUS" secondAttribute="bottom" constant="24" id="ktX-uK-MLl"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="bottom" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-24" id="lG5-bc-6Qo"/>
                 <constraint firstAttribute="trailing" secondItem="UCf-2J-WUS" secondAttribute="trailing" constant="34" id="oK6-AK-ZFa"/>
+                <constraint firstItem="BSv-LH-7wp" firstAttribute="top" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-1" id="wrT-d6-iJB"/>
                 <constraint firstAttribute="trailing" secondItem="nKw-lj-RPT" secondAttribute="trailing" id="xpj-Pu-LHY"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="dropDownBtn" destination="yU1-y9-FTn" id="BhQ-Bm-zr4"/>
                 <outlet property="nameLabel" destination="InW-Xi-ER3" id="LJT-Tl-8RK"/>
                 <outlet property="settingTabelView" destination="9WK-pc-3S3" id="pdZ-9x-vKh"/>
                 <outlet property="userHeaderIV" destination="8q5-bR-fHS" id="INI-og-JuU"/>
+                <outlet property="usersTableView" destination="BSv-LH-7wp" id="Vde-IU-SD7"/>
                 <outlet property="versionLb" destination="UCf-2J-WUS" id="G91-vN-mWO"/>
             </connections>
-            <point key="canvasLocation" x="57" y="172"/>
+            <point key="canvasLocation" x="-178.5" y="104"/>
         </view>
     </objects>
     <resources>
-        <image name="bg_pic.png" width="310" height="178"/>
+        <image name="bg_pic.jpg" width="304" height="172"/>
         <image name="head-portrait.png" width="34" height="34"/>
+        <image name="ic_arrow_drop_down.png" width="24" height="24"/>
     </resources>
 </document>

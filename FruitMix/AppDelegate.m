@@ -26,6 +26,7 @@
 #import "FLFilesVC.h"
 #import "FLShareVC.h"
 #import "FLLocalFIleVC.h"
+#import "FMCheckManager.h"
 
 #import <CoreTelephony/CTCellularData.h>
 #import "UIApplication+JYTopVC.h"
@@ -178,11 +179,13 @@
     _Help = [[FMHelp alloc]init];
     _zhuxiao = [[FMLoginVC alloc]init];
     self.menu = [MenuView MenuViewWithDependencyView:self.window MenuView:leftMenu isShowCoverView:YES];
+//    @weakify(self);
     self.menu.showBlock = ^() {
         UIViewController * topVC = [UIApplication topViewController];
         if([topVC isKindOfClass:[RTContainerController class]])
             topVC = ((RTContainerController *)topVC).contentViewController;
         if ([topVC isKindOfClass:[FLBaseVC class]] || [topVC isKindOfClass:[FMBaseFirstVC class]]) {
+//            [weak_self.leftMenu.settingTabelView reloadData];
             return YES;
         }
         return NO;
@@ -204,7 +207,6 @@
     _leftMenu.imageNames = menusImages;
     [_leftMenu.settingTabelView reloadData];
 }
-
 
 // 将NSlog打印信息保存到Document目录下的文件中
 - (void)redirectNSlogToDocumentFolder
@@ -308,7 +310,68 @@
 
 #pragma mark - leftmenu Delegate
 
--(void)LeftMenuViewClick:(NSInteger)tag andTitle:(NSString *)title{
+//切换 账户 响应
+-(void)LeftMenuViewClickUserTable:(FMUserLoginInfo *)info{
+    [self _hiddenMenu];
+    [SXLoadingView showProgressHUD:@"正在切换"];
+    [PhotoManager shareManager].canUpload = NO;//停止上传
+    FMConfigInstance.userToken = @"";
+    @weakify(MyAppDelegate);
+    [[FMCheckManager shareCheckManager] beginSearchingWithBlock:^(NSArray *discoveredServers) {
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            BOOL canFindDevice = NO;
+            for (NSNetService * service in discoveredServers) {
+                if ([service.hostName isEqualToString:info.bonjour_name]) {
+                    canFindDevice = YES;
+                    NSString * addressIP = [FMCheckManager serverIPFormService:service];
+                    BOOL isAlive = [FMCheckManager testServerWithIP:addressIP andToken:info.jwt_token];
+                    if (isAlive) { //如果可以跳转
+                        
+                        [SXLoadingView hideProgressHUD];
+                        
+                        //切换操作
+                        [FMDBControl reloadTables];
+                        [FMDBControl asyncLoadPhotoToDB];
+                        
+                        //清除deviceID
+                        FMConfigInstance.deviceUUID = info.deviceId;//清除deviceUUID
+                        FMConfigInstance.userToken = info.jwt_token;
+                        FMConfigInstance.userUUID = info.uuid;
+                        
+                        JYRequestConfig * config = [JYRequestConfig sharedConfig];
+                        config.baseURL = [NSString stringWithFormat:@"%@:3721/",addressIP];
+                        //重置数据
+                        [weak_MyAppDelegate resetDatasource];
+#warning could not restart syncer
+                        //重启photoSyncer
+                        [PhotoManager shareManager].canUpload = NO;
+                        //组装UI
+                        weak_MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
+                        [weak_MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
+                        [weak_MyAppDelegate.sharesTabBar setSelectedIndex:0];
+                        weak_MyAppDelegate.filesTabBar = nil;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [UIApplication sharedApplication].keyWindow.rootViewController = weak_MyAppDelegate.sharesTabBar;
+                            [[UIApplication sharedApplication].keyWindow makeKeyAndVisible];
+                        });
+                    }else{
+                        [SXLoadingView showAlertHUD:@"切换失败，设备当前状态未知，请检查" duration:1];
+                        [self skipToLogin];
+                    }
+                    break;
+                }
+            }
+            [SXLoadingView hideProgressHUD];
+            if (!canFindDevice) {
+                [SXLoadingView showAlertHUD:@"切换失败，可能设备不在附近" duration:1];
+                [self skipToLogin];
+            }
+        });
+    }];
+    
+}
+
+-(void)LeftMenuViewClickSettingTable:(NSInteger)tag andTitle:(NSString *)title{
     [self _hiddenMenu];
     UIViewController * vc = nil;
     RDVTabBarController * tVC = (RDVTabBarController *)self.window.rootViewController;
@@ -352,13 +415,19 @@
         FMConfigInstance.userToken = @"";
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [SXLoadingView hideProgressHUD];
-            FMLoginVC * vc = [[FMLoginVC alloc]init];
-            vc.title = @"搜索附近设备";
-            NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
-            self.window.rootViewController = nav;
-            [self.window makeKeyAndVisible];
+            [self skipToLogin];
         });
     }
+}
+
+-(void)skipToLogin{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        FMLoginVC * vc = [[FMLoginVC alloc]init];
+        vc.title = @"搜索附近设备";
+        NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
+        self.window.rootViewController = nav;
+        [self.window makeKeyAndVisible];
+    });
 }
 
 -(void)configUmeng{

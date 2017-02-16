@@ -76,12 +76,6 @@
         [SXLoadingView hideProgressHUD];
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;
-        MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
-        [MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
-        [MyAppDelegate.sharesTabBar setSelectedIndex:0];
-        MyAppDelegate.filesTabBar = nil;
-        [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
-        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [SXLoadingView hideProgressHUD];
         NSHTTPURLResponse * res = (NSHTTPURLResponse *)task.response;
@@ -106,12 +100,32 @@
     //更新图库
     JYRequestConfig * config = [JYRequestConfig sharedConfig];
     config.baseURL = self.service.path;
+    
+    //重启photoSyncer
     [PhotoManager shareManager].canUpload = YES;
+    
     //重置数据
     [MyAppDelegate resetDatasource];
     
-    //保存用户信息
     
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        //保存用户信息
+        FMUserLoginInfo * info = [FMUserLoginInfo new];
+        info.userName = _user.username;
+        info.uuid = _user.uuid;
+        info.deviceId = [PhotoManager getUUID];
+        info.jwt_token = token;
+        info.bonjour_name = _service.hostName;
+        [FMDBControl addUserLoginInfo:info];
+    });
+    
+    //组装UI
+    MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
+    [MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
+    [MyAppDelegate.sharesTabBar setSelectedIndex:0];
+    MyAppDelegate.filesTabBar = nil;
+    [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
+   
 }
 
 

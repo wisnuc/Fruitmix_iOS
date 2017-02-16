@@ -21,6 +21,7 @@
 #import "FMNeedUploadPatch.h"
 #import "FMUserInfo.h"
 #import "FMSyncLogs.h"
+#import "FMUserLoginInfo.h"
 
 
 @interface FMDBSet : FMDTManager
@@ -50,5 +51,7 @@
 @property (nonatomic) FMDTContext * userInfo;
 
 @property (nonatomic) FMDTContext * syncLogs; //上传记录
+
+@property (nonatomic) FMDTContext * userLoginInfo; // 登录记录
 
 @end

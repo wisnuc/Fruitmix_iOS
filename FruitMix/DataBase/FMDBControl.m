@@ -108,11 +108,6 @@
 
 @implementation FMDBControl
 
-///********* Store Local Assets **********/
-//
-//-(BOOL)checkPhotoIsLocal:(NSString *)localId;
-//
-///********* End Store Local Assets **********/
 
 +(void)asyncLoadPhotoToDB{
     [self asyncLoadPhotoToDBWithCompleteBlock:nil];
@@ -238,11 +233,6 @@
             FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
             [cmd whereIsNull:@"uploadTime" ];
             block([cmd fetchArray]);
-//            [cmd fetchArrayInBackground:^(NSArray *result) {
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    block(result);
-//                });
-//            }];
         }
     });
 }
@@ -441,6 +431,18 @@
     return  all;
 }
 
++(void)getAllAlbumWithCompleteBlock:(void(^)(NSArray * result))block;{
+    FMDBSet * set = [FMDBSet shared];
+    FMDTSelectCommand * scmd = FMDT_SELECT(set.mediashare);
+    [scmd where:@"album" equalTo:@(1)];
+    [scmd where:@"archived" equalTo:@(0)];
+    [scmd orderByDescending:@"mtime"];
+    [scmd fetchArrayInBackground:^(NSArray *result) {
+        block(result);
+    }];
+}
+
+
 
 #pragma mark - 拿到 用户名
 
@@ -478,8 +480,11 @@
 //    return [NSArray array];
 //}
 
-#pragma mark - Users
 
+
+
+#pragma mark - Users
+/************************* User Control ****************/
 +(void)asynUsers{
     FMGetUsersAPI * api = [FMGetUsersAPI new];
     [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
@@ -540,18 +545,6 @@
 }
 
 
-+(void)getAllAlbumWithCompleteBlock:(void(^)(NSArray * result))block;{
-    FMDBSet * set = [FMDBSet shared];
-    FMDTSelectCommand * scmd = FMDT_SELECT(set.mediashare);
-    [scmd where:@"album" equalTo:@(1)];
-    [scmd where:@"archived" equalTo:@(0)];
-    [scmd orderByDescending:@"mtime"];
-    [scmd fetchArrayInBackground:^(NSArray *result) {
-        block(result);
-    }];
-}
-
-
 +(NSArray *)getAllUsersUUID{
     NSMutableArray * usersArr = [NSMutableArray arrayWithCapacity:0];
     NSArray * users =  [self getAllUsers];
@@ -569,6 +562,47 @@
     return users;
 }
 
+//添加 用户登录记录
++(void)addUserLoginInfo:(FMUserLoginInfo *)info{
+    FMDBSet * set = [FMDBSet shared];
+    FMDTSelectCommand * scmd = FMDT_SELECT(set.userLoginInfo);
+    [scmd where:@"uuid" equalTo:info.uuid];
+    if([scmd fetchArray].count){
+        FMDTUpdateObjectCommand * ocmd = FMDT_UPDATE_OBJECT(set.userLoginInfo);
+        [ocmd add:info];
+        [ocmd saveChanges];
+    }else{
+        FMDTInsertCommand * icmd = FMDT_INSERT(set.userLoginInfo);
+        [icmd add:info];
+        [icmd saveChanges];
+    }
+}
+
+//删除一条 用户登录记录
++(void)removeUserLoginInfo:(NSString *)userid{
+    FMDBSet * set = [FMDBSet shared];
+    FMDTDeleteCommand * dcmd = FMDT_DELETE(set.userLoginInfo);
+    [dcmd where:@"uuid" equalTo:userid];
+    [dcmd saveChanges];
+}
+
+//查询一条用户登录记录
++(FMUserLoginInfo *)findUserLoginInfo:(NSString *)userid{
+    FMDBSet * set = [FMDBSet shared];
+    FMDTSelectCommand * scmd = FMDT_SELECT(set.userLoginInfo);
+    NSArray * users =  [scmd fetchArray];
+    if(users.count)
+        return users[0];
+    return nil;
+}
+
++(NSArray  *)getAllUserLoginInfo{
+    FMDBSet * set = [FMDBSet shared];
+    FMDTSelectCommand * scmd = FMDT_SELECT(set.userLoginInfo);
+    return [scmd fetchArray];
+}
+
+/************************************************************/
 
 +(NSArray *)getAllDownloadFiles{
     FMDBSet * set = [FMDBSet shared];
