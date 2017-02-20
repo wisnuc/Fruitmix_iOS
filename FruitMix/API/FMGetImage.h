@@ -16,6 +16,11 @@ typedef void(^getImageComplete)(UIImage *image,NSString * tag);
 @interface FMGetImage : NSObject
 
 +(instancetype)defaultGetImage;
+
+@property (nonatomic, strong) YYImageCache * cache;
+@property (nonatomic) SDWebImageManager * manager;
+
+
 /**
  *  获取 网络缩略图
  *

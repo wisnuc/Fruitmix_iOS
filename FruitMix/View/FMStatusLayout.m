@@ -10,6 +10,10 @@
 
 @implementation FMStatusLayout
 
+-(void)dealloc{
+    
+}
+
 - (instancetype)initWithStatus:(id<FMMediaShareProtocol>)status{
     if(!status) return nil;
     self = [super init];

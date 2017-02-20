@@ -66,9 +66,9 @@
 
 -(void)asynAnyThings{
     //上传照片
-    shouldUplod(^{
-        [PhotoManager checkNetwork];
-    });
+//    shouldUplod(^{
+    [PhotoManager checkNetwork];
+//    });
     //监听奔溃
 //    [FMABManager shareManager];
     [JYExceptionHandler installExceptionHandler];

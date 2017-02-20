@@ -87,8 +87,8 @@
 //登录完成 做的事
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
-    //判断是否为同一用户退出后登录
     
+    //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
         [FMDBControl reloadTables];
         [FMDBControl asyncLoadPhotoToDB];
@@ -101,8 +101,13 @@
     JYRequestConfig * config = [JYRequestConfig sharedConfig];
     config.baseURL = self.service.path;
     
-    //重启photoSyncer
-    [PhotoManager shareManager].canUpload = YES;
+    if(IsNilString(USER_SHOULD_SYNC_PHOTO) || IsEquallString(USER_SHOULD_SYNC_PHOTO, _user.uuid)){
+        //设置   可备份用户为
+        [[NSUserDefaults standardUserDefaults] setObject:_user.uuid forKey:USER_SHOULD_SYNC_PHOTO_STR];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        //重启photoSyncer
+        [PhotoManager shareManager].canUpload = YES;
+    }
     
     //重置数据
     [MyAppDelegate resetDatasource];

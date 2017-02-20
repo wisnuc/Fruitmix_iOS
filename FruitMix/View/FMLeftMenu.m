@@ -9,6 +9,7 @@
 #import "FMLeftMenu.h"
 #import "FMLeftMenuCell.h"
 #import "FMLeftUserCell.h"
+#import "FMLeftUserFooterView.h"
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UILabel *versionLb;
@@ -30,7 +31,9 @@
     
     _settingTabelView.scrollEnabled = NO;
     _settingTabelView.tableFooterView = [UIView new];
-    _usersTableView.tableFooterView = [UIView new];
+    _usersTableView.tableFooterView = [FMLeftUserFooterView footerViewWithTouchBlock:^{
+        NSLog(@"touch UserSetting");
+    }];
     self.userHeaderIV.userInteractionEnabled = YES;
     [self.userHeaderIV addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapHeader:)]];
     
@@ -44,12 +47,13 @@
 
 - (IBAction)dropDownBtnClick:(id)sender {
     _isUserTableViewShow = !_isUserTableViewShow;
+    @weakify(self);
     if (_isUserTableViewShow) {
         ((UIButton *)sender).transform = CGAffineTransformMakeRotation(M_PI);
         [UIView animateWithDuration:0.3 animations:^{
-            _usersTableView.alpha = 1;
-            self.usersDatasource = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
-            [_usersTableView reloadData];
+            weak_self.usersTableView.alpha = 1;
+//            self.usersDatasource = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
+            [weak_self.usersTableView reloadData];
         } completion:nil];
     }else{
         ((UIButton *)sender).transform = CGAffineTransformIdentity;
@@ -58,11 +62,13 @@
         [_settingTabelView reloadData];
         self.menus = tempArr;
         [UIView animateWithDuration:0.3 animations:^{
-            _usersTableView.alpha = 0;
-            [_settingTabelView reloadData];
+            weak_self.usersTableView.alpha = 0;
+            [weak_self.settingTabelView reloadData];
         } completion:^(BOOL finished) {
-            self.usersDatasource = [NSMutableArray new];
-            [_usersTableView reloadData];
+            NSMutableArray * tmpA = weak_self.usersDatasource;
+            weak_self.usersDatasource = [NSMutableArray new];
+            [weak_self.usersTableView reloadData];
+            weak_self.usersDatasource = tmpA;
         }];
     }
 }
@@ -171,7 +177,6 @@
          cell.alpha = 1.f;
          
      } completion:nil];
-    
 }
 
 @end

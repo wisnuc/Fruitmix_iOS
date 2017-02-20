@@ -18,8 +18,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
     dispatch_semaphore_t _lock;
 }
 //@property (nonatomic, strong) NSRecursiveLock *lock;
-@property (nonatomic, strong) YYImageCache * cache;
-@property (nonatomic) SDWebImageManager * manager;
+
 
 @end
 

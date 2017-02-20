@@ -323,10 +323,7 @@ NSString * JY_UUID() {
         //非图片
         result(nil,nil);
     }
-
 }
-
-
 
 - (void) getImageFromPHAsset: (PHAsset * ) asset Complete: (Result) result {
     
@@ -507,10 +504,9 @@ NSString * JY_UUID() {
                  change = YES;
                  shouldUpload = YES;
                  if (![PhotoManager shareManager].isUploading) {
-                    [PhotoManager shareManager].canUpload = YES;
+                    if(IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID))
+                        [PhotoManager shareManager].canUpload = YES;
                  }
-                 //同步localmediaShare
-//                 [[FMQuickMSManager shareInstancetype] startUploadLocalMediaShare];
                  break;
              }
              case AFNetworkReachabilityStatusReachableViaWWAN:
@@ -586,7 +582,10 @@ BOOL shouldUpload = NO;
             return;
         }
         else {
-            [weakSelf uploadImage:imageArr[currentIndex] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+            if(_canUpload && shouldUpload){
+                [weakSelf uploadImage:imageArr[currentIndex] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+            }else
+                [PhotoManager shareManager].isUploading = NO;
         }
     };
     [self uploadImage:imageArr[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
@@ -788,7 +787,7 @@ BOOL shouldUpload = NO;
 }
 
 +(NSString *)getUUID{
-    NSString * uuid = DEVICE_UUID;
+    __block NSString * uuid = DEVICE_UUID;
     if (uuid.length<=0) {
         __block BOOL completed = NO;
         NSCondition *condition = [[NSCondition alloc] init];
@@ -798,6 +797,7 @@ BOOL shouldUpload = NO;
         [manager POST:[NSString stringWithFormat:@"%@libraries",[JYRequestConfig sharedConfig].baseURL] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSString * str = responseObject[@"uuid"];
             FMConfigInstance.deviceUUID = str;
+            uuid = str;
             completed = YES;
             [condition signal];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

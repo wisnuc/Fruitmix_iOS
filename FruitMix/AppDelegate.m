@@ -27,6 +27,7 @@
 #import "FLShareVC.h"
 #import "FLLocalFIleVC.h"
 #import "FMCheckManager.h"
+#import "FMGetThumbImage.h"
 
 #import <CoreTelephony/CTCellularData.h>
 #import "UIApplication+JYTopVC.h"
@@ -161,6 +162,14 @@
     //重置数据源
     self.photoDatasource = nil;
     self.mediaDataSource = nil;
+    
+    //结束当前所有任务
+    [[FMGetThumbImage defaultGetThumbImage].getImageQueue cancelAllOperations];
+    
+    //清理 内存 垃圾
+    [[FMGetThumbImage defaultGetThumbImage].cache.memoryCache  removeAllObjects];
+    [[FMGetImage defaultGetImage].cache.memoryCache removeAllObjects];
+    [[FMGetImage defaultGetImage].manager.imageCache clearMemory];
 }
 
 //配置侧拉
@@ -171,6 +180,10 @@
     leftMenu.delegate = self;
     leftMenu.menus = [NSMutableArray arrayWithObjects:@"我的文件",@"设置",@"注销",nil];//@"个人信息", @"我的私有云", @"用户管理", @"设置", @"帮助",
     leftMenu.imageNames = [NSMutableArray arrayWithObjects:@"files",@"set",@"cancel",nil];//@"personal",@"cloud",@"user",@"set",@"help",
+    //配置Users 列表
+   
+    leftMenu.usersDatasource = [self getUsersInfo];
+    
     [leftMenu.settingTabelView reloadData];
     _Info = [[FMUserEditVC alloc]init];
     _OwnCloud = [[FMOwnCloud alloc]init];
@@ -192,6 +205,18 @@
     };
 }
 
+-(NSMutableArray *)getUsersInfo{
+    NSMutableArray * arr = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
+    
+    for (FMUserLoginInfo * info in arr) {
+        if (IsEquallString(info.uuid, DEF_UUID)) {
+            [arr removeObject:info];
+            break;
+        }
+    }
+    return arr;
+}
+
 -(void)reloadLeftMenuIsAdmin:(BOOL)isAdmin{
     NSMutableArray * menusTitle = nil;
     NSMutableArray * menusImages = nil;
@@ -202,7 +227,7 @@
         menusTitle = [NSMutableArray arrayWithObjects:@"我的文件",@"用户管理",@"设置",@"注销",nil];//,@"个人信息",@"personal"
         menusImages = [NSMutableArray arrayWithObjects:@"files",@"person_add",@"set",@"cancel",nil];
     }
-    
+    _leftMenu.usersDatasource = [self getUsersInfo];
     _leftMenu.menus = menusTitle;
     _leftMenu.imageNames = menusImages;
     [_leftMenu.settingTabelView reloadData];
@@ -314,8 +339,7 @@
 -(void)LeftMenuViewClickUserTable:(FMUserLoginInfo *)info{
     [self _hiddenMenu];
     [SXLoadingView showProgressHUD:@"正在切换"];
-    [PhotoManager shareManager].canUpload = NO;//停止上传
-    FMConfigInstance.userToken = @"";
+//    FMConfigInstance.userToken = @"";
     @weakify(MyAppDelegate);
     [[FMCheckManager shareCheckManager] beginSearchingWithBlock:^(NSArray *discoveredServers) {
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
@@ -342,21 +366,29 @@
                         config.baseURL = [NSString stringWithFormat:@"%@:3721/",addressIP];
                         //重置数据
                         [weak_MyAppDelegate resetDatasource];
-#warning could not restart syncer
-                        //重启photoSyncer
-                        [PhotoManager shareManager].canUpload = NO;
+
+                        if(IsNilString(USER_SHOULD_SYNC_PHOTO) || IsEquallString(USER_SHOULD_SYNC_PHOTO, info.uuid)){
+                            //设置   可备份用户为
+                            [[NSUserDefaults standardUserDefaults] setObject:info.uuid forKey:USER_SHOULD_SYNC_PHOTO_STR];
+                            [[NSUserDefaults standardUserDefaults] synchronize];
+                            //重启photoSyncer
+                            [PhotoManager shareManager].canUpload = YES;
+                        }else{
+                            [PhotoManager shareManager].canUpload = NO;//停止上传
+                        }
                         //组装UI
                         weak_MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
                         [weak_MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
                         [weak_MyAppDelegate.sharesTabBar setSelectedIndex:0];
                         weak_MyAppDelegate.filesTabBar = nil;
+                        [self reloadLeftMenuIsAdmin:NO];
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [UIApplication sharedApplication].keyWindow.rootViewController = weak_MyAppDelegate.sharesTabBar;
                             [[UIApplication sharedApplication].keyWindow makeKeyAndVisible];
                         });
                     }else{
                         [SXLoadingView showAlertHUD:@"切换失败，设备当前状态未知，请检查" duration:1];
-                        [self skipToLogin];
+//                        [self skipToLogin];
                     }
                     break;
                 }
@@ -364,7 +396,7 @@
             [SXLoadingView hideProgressHUD];
             if (!canFindDevice) {
                 [SXLoadingView showAlertHUD:@"切换失败，可能设备不在附近" duration:1];
-                [self skipToLogin];
+//                [self skipToLogin];
             }
         });
     }];
@@ -422,6 +454,7 @@
 
 -(void)skipToLogin{
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self reloadLeftMenuIsAdmin:NO];
         FMLoginVC * vc = [[FMLoginVC alloc]init];
         vc.title = @"搜索附近设备";
         NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];

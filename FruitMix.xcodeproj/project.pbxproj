@@ -610,6 +610,7 @@
 		C1FFC88C1D51C74200AD4D15 /* BackgroundHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */; };
 		F616AEBE1E5142E60052CB81 /* FMSyncLogs.m in Sources */ = {isa = PBXBuildFile; fileRef = F616AEBD1E5142E60052CB81 /* FMSyncLogs.m */; };
 		F62A06151E25F62C00DBD7E9 /* JYProcessView.m in Sources */ = {isa = PBXBuildFile; fileRef = F62A06141E25F62C00DBD7E9 /* JYProcessView.m */; };
+		F64308701E5A81AF00A5560B /* FMLeftUserFooterView.m in Sources */ = {isa = PBXBuildFile; fileRef = F643086F1E5A81AF00A5560B /* FMLeftUserFooterView.m */; };
 		F65931421C97DE1800AD10D1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F65931411C97DE1800AD10D1 /* main.m */; };
 		F65931451C97DE1800AD10D1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F65931441C97DE1800AD10D1 /* AppDelegate.m */; };
 		F659314B1C97DE1900AD10D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F65931491C97DE1900AD10D1 /* Main.storyboard */; };
@@ -1590,6 +1591,8 @@
 		F616AEBD1E5142E60052CB81 /* FMSyncLogs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMSyncLogs.m; sourceTree = "<group>"; };
 		F62A06131E25F62C00DBD7E9 /* JYProcessView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JYProcessView.h; sourceTree = "<group>"; };
 		F62A06141E25F62C00DBD7E9 /* JYProcessView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JYProcessView.m; sourceTree = "<group>"; };
+		F643086E1E5A81AF00A5560B /* FMLeftUserFooterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMLeftUserFooterView.h; sourceTree = "<group>"; };
+		F643086F1E5A81AF00A5560B /* FMLeftUserFooterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMLeftUserFooterView.m; sourceTree = "<group>"; };
 		F659313D1C97DE1800AD10D1 /* FruitMix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FruitMix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65931411C97DE1800AD10D1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F65931431C97DE1800AD10D1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
@@ -1807,8 +1810,8 @@
 		C110BB0F1D814C13001D02F0 /* 设置 */ = {
 			isa = PBXGroup;
 			children = (
-				C1A95A111CBCC0C1007A1DC9 /* FMSetting.h */,
 				C1A95A121CBCC0C1007A1DC9 /* FMSetting.m */,
+				C1A95A111CBCC0C1007A1DC9 /* FMSetting.h */,
 				C1A95A131CBCC0C1007A1DC9 /* FMSetting.xib */,
 			);
 			name = "设置";
@@ -3523,6 +3526,8 @@
 				F6FBFE071E53FDF0003CD8CB /* FMLeftUserCell.h */,
 				F6FBFE081E53FDF0003CD8CB /* FMLeftUserCell.m */,
 				F6FBFE091E53FDF0003CD8CB /* FMLeftUserCell.xib */,
+				F643086E1E5A81AF00A5560B /* FMLeftUserFooterView.h */,
+				F643086F1E5A81AF00A5560B /* FMLeftUserFooterView.m */,
 			);
 			name = JYLeftMenu;
 			sourceTree = "<group>";
@@ -4850,6 +4855,7 @@
 				F6F259201E2DC3F20074F521 /* FMPersonCell.m in Sources */,
 				C19136601CC9C474008BAB93 /* NSString+JYImageType.m in Sources */,
 				C1FB83EA1DBF029A00D09541 /* APAddressBookBaseRoutine.m in Sources */,
+				F64308701E5A81AF00A5560B /* FMLeftUserFooterView.m in Sources */,
 				C1880E9B1D20FC71001CB99D /* FMNeedUploadPatch.m in Sources */,
 				C1FB83F11DBF029A00D09541 /* APEmail.m in Sources */,
 				C1F44A991D13F3C000A8FD34 /* UIColor+MaterialTextField.m in Sources */,

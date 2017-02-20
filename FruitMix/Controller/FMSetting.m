@@ -29,6 +29,7 @@
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
+    [self.settingTableView reloadData];
 //    self.navDelegate =  self.navigationController.interactivePopGestureRecognizer.delegate;
 //    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
 //    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"back"] andSEL:@selector(backbtnClick:)];
@@ -56,20 +57,28 @@
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 2;
+    return 3;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell * cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"123"];
     if (indexPath.row == 0) {
+        cell.textLabel.text = @"照片自动备份:";
+        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(0, 0, 50, 40)];
+        switchBtn.on = IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO);
+        [switchBtn addTarget:self  action:@selector(switchBtnHandleForSync:) forControlEvents:UIControlEventValueChanged];
+        cell.accessoryView = switchBtn;
+    }
+    if (indexPath.row == 1) {
         cell.textLabel.text = @"手机网络上传:";
         UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(0, 0, 50, 40)];
         switchBtn.on = SHOULD_WLNN_UPLOAD;
-        [switchBtn addTarget:self  action:@selector(switchBtnHandle:) forControlEvents:UIControlEventValueChanged];
+        [switchBtn addTarget:self  action:@selector(switchBtnHandleForWWNN:) forControlEvents:UIControlEventValueChanged];
         cell.accessoryView = switchBtn;
-    }else if(indexPath.row == 1){
+    }else if(indexPath.row == 2){
         cell.textLabel.text = @"清除缓存";
         UIButton * cleanBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
+        cleanBtn.userInteractionEnabled = NO;
         [cleanBtn setTitle:@"正在计算..." forState:UIControlStateNormal];
         cleanBtn.titleLabel.font = [UIFont systemFontOfSize:14];
         [cleanBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -83,7 +92,7 @@
         });        
         cell.accessoryView = cleanBtn;
     }
-    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 
@@ -116,7 +125,7 @@
     }
 }
 
--(void)switchBtnHandle:(UISwitch *)switchBtn{
+-(void)switchBtnHandleForWWNN:(UISwitch *)switchBtn{
     [[NSUserDefaults standardUserDefaults]setBool:switchBtn.isOn forKey:SHOULD_WLNN_UPLOAD_STR];
     [[NSUserDefaults standardUserDefaults] synchronize];
     if([PhotoManager shareManager].netStatus == FMNetStatusWWAN ){
@@ -124,6 +133,18 @@
             [PhotoManager shareManager].canUpload = YES;
         }else{
             [PhotoManager shareManager].canUpload = NO;
+        }
+    }
+}
+
+-(void)switchBtnHandleForSync:(UISwitch *)switchBtn{
+    [[NSUserDefaults standardUserDefaults]setObject:switchBtn.isOn?DEF_UUID:NO_USER forKey:USER_SHOULD_SYNC_PHOTO_STR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    if (switchBtn.isOn) {
+        [PhotoManager shareManager].canUpload = YES;
+    }else{
+        if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)) {
+             [PhotoManager shareManager].canUpload = NO;
         }
     }
 }

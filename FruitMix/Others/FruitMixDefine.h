@@ -29,6 +29,9 @@
 #define SHOULD_WLNN_UPLOAD_STR @"SHOULD_WLNN_UPLOAD_STR"
 
 
+#define USER_SHOULD_SYNC_PHOTO_STR @"USER_SHOULD_SYNC_PHOTO_STR"
+#define NO_USER @"NO_USER_STR"
+
 //First TODO
 #define IS_FIRST_IN_PHOTO_BROWSER_STR @"IS_FIRST_IN_PHOTO_BROWSER"
 #define IS_FIRST_IN_ALBUM_STR @"IS_FIRST_IN_ALBUM"
@@ -46,7 +49,12 @@
 #define EXCEPTION_HANDLER [[NSUserDefaults standardUserDefaults]boolForKey:EXCEPTION_HANDLER_STR]//上次是否为奔溃。
 
 #define SHOULD_UPLOAD [[NSUserDefaults standardUserDefaults]boolForKey:SHOULD_UPLOAD_STR]
+
+
 #define SHOULD_WLNN_UPLOAD [[NSUserDefaults standardUserDefaults]boolForKey:SHOULD_WLNN_UPLOAD_STR]
+
+//抢先原则 记录 当前 可备份 用户 UUID
+#define USER_SHOULD_SYNC_PHOTO [[NSUserDefaults standardUserDefaults]objectForKey:USER_SHOULD_SYNC_PHOTO_STR]
 
 #define IS_FIRST_IN_PHOTO [[NSUserDefaults standardUserDefaults]objectForKey:IS_FIRST_IN_PHOTO_BROWSER_STR]
 #define IS_FIRST_IN_ALBUM [[NSUserDefaults standardUserDefaults]objectForKey:IS_FIRST_IN_ALBUM_STR]
