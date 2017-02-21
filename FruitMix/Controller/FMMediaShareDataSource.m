@@ -53,25 +53,27 @@
 -(void)getMetaData{
     @weakify(self);
     [FMUpdateShareTool getMediaShares:^(NSArray *shares) {
-        NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
-        for (id<FMMediaShareProtocol> mediaShare in shares) {
-            FMStatusLayout * layout = [[FMStatusLayout alloc]initWithStatus:mediaShare];
-            [arr addObject:layout];
-        }
-        if ([weak_self checkIfEqualWithNow:arr]) {
-            NSLog(@"...........需要刷新..........");
-            weak_self.dataSource = arr;
-            [weak_self.dataSource sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-                long long time1 = ((FMStatusLayout *)obj1).status.getTime;
-                long long time2 = ((FMStatusLayout *)obj2).status.getTime;
-                if (time1 > time2)
-                    return NSOrderedAscending;
-                else if (time1 == time2)
-                    return NSOrderedSame;
-                else
-                    return NSOrderedDescending;
-            }];
-            [weak_self _notifyDelegate];
+        @autoreleasepool {
+            NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
+            for (id<FMMediaShareProtocol> mediaShare in shares) {
+                FMStatusLayout * layout = [[FMStatusLayout alloc]initWithStatus:mediaShare];
+                [arr addObject:layout];
+            }
+            if ([weak_self checkIfEqualWithNow:arr]) {
+                NSLog(@"...........需要刷新..........");
+                weak_self.dataSource = arr;
+                [weak_self.dataSource sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+                    long long time1 = ((FMStatusLayout *)obj1).status.getTime;
+                    long long time2 = ((FMStatusLayout *)obj2).status.getTime;
+                    if (time1 > time2)
+                        return NSOrderedAscending;
+                    else if (time1 == time2)
+                        return NSOrderedSame;
+                    else
+                        return NSOrderedDescending;
+                }];
+                [weak_self _notifyDelegate];
+            }
         }
     }];
 }
@@ -81,22 +83,27 @@
         return YES;
     NSMutableArray * tempArr = [self.dataSource mutableCopy];
     BOOL shouldRefresh = NO;
+    
     for (FMStatusLayout * layout in arr) {
-        BOOL tempshouldRefresh = YES;
-        FMStatusLayout * tempLayout;
-        for (FMStatusLayout * layout2  in tempArr) {
-            if ([(FMMediaShare *)layout2.status isEqualToMediaShare:layout.status]){//找到相同
-                tempshouldRefresh = NO;
-                tempLayout = layout2;
-                break;
+        @autoreleasepool {
+            BOOL tempshouldRefresh = YES;
+            FMStatusLayout * tempLayout;
+            for (FMStatusLayout * layout2  in tempArr) {
+                if ([(FMMediaShare *)layout2.status isEqualToMediaShare:layout.status]){//找到相同
+                    tempshouldRefresh = NO;
+                    tempLayout = layout2;
+                    break;
+                }
             }
+            if (tempshouldRefresh) {//没有相同
+                shouldRefresh = YES;
+                break;
+            }else
+                [tempArr removeObject:tempLayout];
         }
-        if (tempshouldRefresh) {//没有相同
-            shouldRefresh = YES;
-            break;
-        }else
-            [tempArr removeObject:tempLayout];
     }
+    
+    tempArr = nil;
     return shouldRefresh;
 }
 

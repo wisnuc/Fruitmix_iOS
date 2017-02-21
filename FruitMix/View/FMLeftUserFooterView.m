@@ -23,7 +23,7 @@
     [super layoutSubviews];
     _label = [[UILabel alloc]initWithFrame:CGRectMake(72, 20, 200, 20)];
     [self addSubview:_label];
-    _label.text = @"用户登录设置";
+    _label.text = @"帐号管理";
     _label.font = [UIFont systemFontOfSize:14];
     _label.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.54];
 }

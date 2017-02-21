@@ -654,49 +654,6 @@ BOOL shouldUpload = NO;
                         success(@"123");
                     return ;
                 }
-//                FMFileUploadInfo * info = [FMFileUploadInfo new];
-//                info.filePath = filePath;
-//                NSMutableURLRequest * formDataRequest = [info getRequest];
-//                NSString * tempPath = info.tempFilePath;
-                
-                
-//                uploadTask = [_afManager uploadTaskWithRequest:request fromFile:[NSURL fileURLWithPath:info.tempFilePath] progress:^(NSProgress * _Nonnull uploadProgress) {
-//                    
-//                } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-//                    NSLog(@"complete xxxx forground begain next");
-//                    NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
-//                    [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
-//                                    andSha256:str
-//                                 withFilePath:tempPath
-//                                     andAsset:asset
-//                              andSuccessBlock:success
-//                                      Failure:failure];
-//                }];
-//                [uploadTask resume];
-//                [_afManager setDidFinishEventsForBackgroundURLSessionBlock:^(NSURLSession * _Nonnull session) {
-//                    NSLog(@"complete  background uploaded");
-//                    [session getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
-//                        if ([uploadTasks count] == 0) {
-//                            if (MyAppDelegate.backgroundSessionCompletionHandler != nil) {
-//                                // Copy locally the completion handler.
-//                                void(^completionHandler)() = MyAppDelegate.backgroundSessionCompletionHandler;
-//                                // Make nil the backgroundTransferCompletionHandler.
-//                                MyAppDelegate.backgroundSessionCompletionHandler = nil;
-//                                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-//                                    completionHandler();
-//                                    // 这里继续做下一个任务
-//                                    NSLog(@"complete xxxx background begain next");
-//                                    [weak_self uploadComplete:YES
-//                                               andSha256:str
-//                                            withFilePath:tempPath
-//                                                andAsset:asset
-//                                         andSuccessBlock:success
-//                                                 Failure:failure];
-//                                }];
-//                            }
-//                        }
-//                    }];
-//                }];
                 
                 NSString * url = [NSString stringWithFormat:@"%@libraries/%@",[JYRequestConfig sharedConfig].baseURL,[PhotoManager getUUID]];
                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
@@ -706,7 +663,6 @@ BOOL shouldUpload = NO;
                     [formData appendPartWithFileURL:[NSURL fileURLWithPath:filePath] name:@"file" fileName:@"file" mimeType:@"image/jpeg" error:nil];
                 } error:nil];
                 [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-//                _afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
                 _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
                 NSURLSessionUploadTask *uploadTask;
                 uploadTask = [_afManager
@@ -769,9 +725,19 @@ BOOL shouldUpload = NO;
             [ucmd fieldWithKey:@"degist" val:str];
             [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
             [ucmd saveChangesInBackground:^{
-                [ucmd fieldWithKey:@"uploadTime" val:[NSDate getFormatDateWithDate:[NSDate date]]];
-                [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
-                [ucmd saveChangesInBackground:^{
+//                [ucmd fieldWithKey:@"uploadTime" val:[NSDate getFormatDateWithDate:[NSDate date]]];
+//                [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
+//                [ucmd saveChangesInBackground:^{
+//                    
+//                }];
+                //添加上传记录
+                FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].syncLogs);
+                FMSyncLogs * log = [FMSyncLogs new];
+                log.userId =DEF_UUID;
+                log.photoHash = str;
+                log.localId = asset.localIdentifier;
+                [icmd add:log];
+                [icmd saveChangesInBackground:^{
                     
                 }];
                 NSLog(@"上传成功！%@",str);

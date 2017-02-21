@@ -23,7 +23,7 @@
                     </constraints>
                 </imageView>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="head-portrait.png" translatesAutoresizingMaskIntoConstraints="NO" id="8q5-bR-fHS">
-                    <rect key="frame" x="16" y="55.5" width="64" height="64"/>
+                    <rect key="frame" x="16" y="55" width="64" height="64"/>
                     <gestureRecognizers/>
                     <constraints>
                         <constraint firstAttribute="height" constant="64" id="XvU-i3-feq"/>
@@ -35,13 +35,13 @@
                     <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </tableView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jack Yang" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="InW-Xi-ER3">
-                    <rect key="frame" x="16" y="135.5" width="243" height="20.5"/>
+                    <rect key="frame" x="16" y="135" width="243" height="21"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="WISNUC V1.0." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UCf-2J-WUS">
-                    <rect key="frame" x="16" y="561.5" width="289" height="15"/>
+                    <rect key="frame" x="16" y="561" width="289" height="15"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
@@ -61,6 +61,26 @@
                     <rect key="frame" x="0.0" y="179" width="339" height="421"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 </tableView>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e3s-Op-dBP" userLabel="UserBtn1">
+                    <rect key="frame" x="283" y="40" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="Mue-yQ-d6t"/>
+                        <constraint firstAttribute="height" constant="40" id="SvL-gO-npG"/>
+                    </constraints>
+                    <connections>
+                        <action selector="smallBtnClick:" destination="gZm-OB-Sqc" eventType="touchUpInside" id="cwv-kv-6GP"/>
+                    </connections>
+                </button>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="syn-iD-ACf" userLabel="UserBtn2">
+                    <rect key="frame" x="227" y="40" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="hS5-1y-P04"/>
+                        <constraint firstAttribute="height" constant="40" id="kFj-dh-UTy"/>
+                    </constraints>
+                    <connections>
+                        <action selector="smallBtnClick:" destination="gZm-OB-Sqc" eventType="touchUpInside" id="l2u-Zv-OeG"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
@@ -69,9 +89,11 @@
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="leading" secondItem="nKw-lj-RPT" secondAttribute="leading" constant="16" id="FxI-Pa-Tcf"/>
                 <constraint firstItem="9WK-pc-3S3" firstAttribute="top" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-1" id="GQh-an-4wE"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="trailing" secondItem="nKw-lj-RPT" secondAttribute="trailing" constant="-80" id="Icc-nS-Zfb"/>
+                <constraint firstItem="e3s-Op-dBP" firstAttribute="leading" secondItem="nKw-lj-RPT" secondAttribute="trailing" constant="-56" id="L6t-ah-tHW"/>
                 <constraint firstItem="9WK-pc-3S3" firstAttribute="leading" secondItem="gZm-OB-Sqc" secondAttribute="leading" id="NCb-i0-OWN"/>
                 <constraint firstItem="BSv-LH-7wp" firstAttribute="leading" secondItem="gZm-OB-Sqc" secondAttribute="leading" id="NoW-nh-AcH"/>
                 <constraint firstAttribute="trailing" secondItem="BSv-LH-7wp" secondAttribute="trailing" id="Qvk-KL-ubf"/>
+                <constraint firstItem="e3s-Op-dBP" firstAttribute="leading" secondItem="syn-iD-ACf" secondAttribute="trailing" constant="16" id="VYa-cg-qaw"/>
                 <constraint firstAttribute="bottom" secondItem="BSv-LH-7wp" secondAttribute="bottom" id="XPg-v4-GB6"/>
                 <constraint firstAttribute="bottom" secondItem="9WK-pc-3S3" secondAttribute="bottom" constant="52" id="bkT-iN-5fI"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="top" secondItem="8q5-bR-fHS" secondAttribute="bottom" constant="16" id="c6x-91-c83"/>
@@ -80,8 +102,10 @@
                 <constraint firstAttribute="trailing" secondItem="9WK-pc-3S3" secondAttribute="trailing" id="g4E-p6-6dS"/>
                 <constraint firstItem="8q5-bR-fHS" firstAttribute="leading" secondItem="InW-Xi-ER3" secondAttribute="leading" id="hFv-Wk-S0p"/>
                 <constraint firstItem="yU1-y9-FTn" firstAttribute="leading" secondItem="nKw-lj-RPT" secondAttribute="trailing" constant="-40" id="hbj-zy-FaF"/>
+                <constraint firstItem="syn-iD-ACf" firstAttribute="top" secondItem="e3s-Op-dBP" secondAttribute="top" id="jKD-cQ-s1S"/>
                 <constraint firstAttribute="bottom" secondItem="UCf-2J-WUS" secondAttribute="bottom" constant="24" id="ktX-uK-MLl"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="bottom" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-24" id="lG5-bc-6Qo"/>
+                <constraint firstItem="nKw-lj-RPT" firstAttribute="top" secondItem="e3s-Op-dBP" secondAttribute="bottom" constant="-80" id="nDu-0s-IdV"/>
                 <constraint firstAttribute="trailing" secondItem="UCf-2J-WUS" secondAttribute="trailing" constant="34" id="oK6-AK-ZFa"/>
                 <constraint firstItem="BSv-LH-7wp" firstAttribute="top" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-1" id="wrT-d6-iJB"/>
                 <constraint firstAttribute="trailing" secondItem="nKw-lj-RPT" secondAttribute="trailing" id="xpj-Pu-LHY"/>
@@ -91,6 +115,8 @@
                 <outlet property="dropDownBtn" destination="yU1-y9-FTn" id="BhQ-Bm-zr4"/>
                 <outlet property="nameLabel" destination="InW-Xi-ER3" id="LJT-Tl-8RK"/>
                 <outlet property="settingTabelView" destination="9WK-pc-3S3" id="pdZ-9x-vKh"/>
+                <outlet property="userBtn1" destination="e3s-Op-dBP" id="egl-zd-vWD"/>
+                <outlet property="userBtn2" destination="syn-iD-ACf" id="mmm-wh-dLu"/>
                 <outlet property="userHeaderIV" destination="8q5-bR-fHS" id="INI-og-JuU"/>
                 <outlet property="usersTableView" destination="BSv-LH-7wp" id="Vde-IU-SD7"/>
                 <outlet property="versionLb" destination="UCf-2J-WUS" id="G91-vN-mWO"/>

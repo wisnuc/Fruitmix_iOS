@@ -13,6 +13,8 @@
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UILabel *versionLb;
+@property (weak, nonatomic) IBOutlet UIButton *userBtn1;
+@property (weak, nonatomic) IBOutlet UIButton *userBtn2;
 
 @end
 
@@ -34,6 +36,10 @@
     _usersTableView.tableFooterView = [FMLeftUserFooterView footerViewWithTouchBlock:^{
         NSLog(@"touch UserSetting");
     }];
+    
+    _userBtn1.layer.cornerRadius = 20;
+    _userBtn2.layer.cornerRadius = 20;
+    
     self.userHeaderIV.userInteractionEnabled = YES;
     [self.userHeaderIV addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapHeader:)]];
     
@@ -44,6 +50,39 @@
     NSString *app_Version = [infoDictionary objectForKey:@"CFBundleVersion"];
     self.versionLb.text = [NSString stringWithFormat:@"WISNUC %@",app_Version];
 }
+- (IBAction)smallBtnClick:(id)sender {
+    if (sender == _userBtn1) {
+        [self.delegate LeftMenuViewClickUserTable:self.usersDatasource[_userBtn2.hidden?0:1]];
+    }else{
+        [self.delegate LeftMenuViewClickUserTable:self.usersDatasource[0]];
+    }
+}
+
+-(void)setUsersDatasource:(NSMutableArray *)usersDatasource{
+    _usersDatasource = usersDatasource;
+    if (usersDatasource.count) {
+        if (usersDatasource.count == 1) { //等于1
+            _userBtn1.hidden = NO;
+            _userBtn2.hidden = YES;
+            [_userBtn1 setBackgroundImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[0]).userName size:_userBtn1.bounds.size] forState:UIControlStateNormal];
+        }else{ // 大于 1
+            _userBtn1.hidden = NO;
+            _userBtn2.hidden = NO;
+            [_userBtn1 setImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[1]).userName size:_userBtn1.bounds.size] forState:UIControlStateNormal];
+            [_userBtn1 setImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[0]).userName size:_userBtn2.bounds.size] forState:UIControlStateNormal];
+        }
+    }else{
+        _userBtn1.hidden = YES;
+        _userBtn2.hidden = YES;
+    }
+}
+
+-(void)checkToStart{
+    if (_isUserTableViewShow) {
+        [self dropDownBtnClick:_dropDownBtn];
+    }
+}
+
 
 - (IBAction)dropDownBtnClick:(id)sender {
     _isUserTableViewShow = !_isUserTableViewShow;
@@ -52,6 +91,8 @@
         ((UIButton *)sender).transform = CGAffineTransformMakeRotation(M_PI);
         [UIView animateWithDuration:0.3 animations:^{
             weak_self.usersTableView.alpha = 1;
+            weak_self.userBtn1.alpha = 0;
+            weak_self.userBtn2.alpha = 0;
 //            self.usersDatasource = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
             [weak_self.usersTableView reloadData];
         } completion:nil];
@@ -64,6 +105,8 @@
         [UIView animateWithDuration:0.3 animations:^{
             weak_self.usersTableView.alpha = 0;
             [weak_self.settingTabelView reloadData];
+            weak_self.userBtn1.alpha = 1;
+            weak_self.userBtn2.alpha = 1;
         } completion:^(BOOL finished) {
             NSMutableArray * tmpA = weak_self.usersDatasource;
             weak_self.usersDatasource = [NSMutableArray new];
@@ -137,6 +180,7 @@
     }else{
         if(self.delegate){
             [self.delegate LeftMenuViewClickUserTable:self.usersDatasource[indexPath.row]];
+            [self checkToStart];
         }
     }
     

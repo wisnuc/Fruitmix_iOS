@@ -14,4 +14,6 @@
 
 @property (nonatomic) NSString * photoHash; //photoHash
 
+@property (nonatomic) NSString * localId;
+
 @end

@@ -11,7 +11,7 @@
 @implementation FMUpdateShareTool
 
 {
-    NSTimer * _updateTimer;
+    MSWeakTimer * _updateTimer;
 }
 
 +(instancetype)shareInstance{
@@ -36,8 +36,10 @@
     [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in request.responseJsonObject) {
-            FMMediaShare  * photo = [FMMediaShare yy_modelWithJSON:dic];
-            [arr addObject:photo];
+            @autoreleasepool {
+                FMMediaShare  * photo = [FMMediaShare yy_modelWithJSON:dic];
+                [arr addObject:photo];
+            }
         }
         block(arr);
     } failure:^(__kindof JYBaseRequest *request) {

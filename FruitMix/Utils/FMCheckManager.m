@@ -32,7 +32,7 @@
 - (void) beginSearchingWithBlock:(void (^)(NSArray * discoveredServers))block {
         _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
         _browser.delegate = self;
-        double delayInSeconds = 4.0f;
+        double delayInSeconds = 3.0f;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
             NSArray * tempArr = [NSArray arrayWithArray:_browser.discoveredServers ];

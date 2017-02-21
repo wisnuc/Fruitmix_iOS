@@ -231,7 +231,7 @@
 
 #pragma  mark - DataSource
 -(void)shareDataSourceDidUpdate{
-    [self.tableView reloadData];
+    [self.tableView reloadData];  
     [self.tableView displayWithMsg:@"暂无分享数据" withRowCount:self.dataSource.dataSource.count andIsNoData:YES andTouchBlock:nil];
 }
 

@@ -230,9 +230,18 @@
                 [weakSelf performSelector:@selector(getDBPhotosWithCompleteBlock:) withObject:block afterDelay:1];
             });
         }else{
-            FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
-            [cmd whereIsNull:@"uploadTime" ];
-            block([cmd fetchArray]);
+            FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+            [scmd where:@"userId" equalTo:DEF_UUID];
+            [scmd fetchArrayInBackground:^(NSArray *result) {
+                NSMutableArray * temp = [NSMutableArray arrayWithCapacity:0];
+                for (FMSyncLogs * log in result) {
+                    [temp addObject:log.localId];
+                }
+                FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
+                [cmd where:@"localIdentifier" notContainedIn:temp];
+                block([cmd fetchArray]);
+            }];
+            
         }
     });
 }
