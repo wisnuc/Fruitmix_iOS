@@ -14,13 +14,12 @@
 
 +(FMLeftUserFooterView *)footerViewWithTouchBlock:(void(^)())block{
     FMLeftUserFooterView * view = [[FMLeftUserFooterView alloc]initWithFrame:CGRectMake(0, 0, __kWidth, 64)];
-    
+    [view setUpViews];
     view.touchBlock = block;
     return view;
 }
 
--(void)layoutSubviews{
-    [super layoutSubviews];
+-(void)setUpViews{
     _label = [[UILabel alloc]initWithFrame:CGRectMake(72, 20, 200, 20)];
     [self addSubview:_label];
     _label.text = @"帐号管理";
