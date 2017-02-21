@@ -46,11 +46,6 @@ NSString * JY_UUID() {
     FMFileUploadInfo * _currentUploadInfo;
 }
 
-@property (nonatomic) NSOperationQueue * getImageQueue;
-
-@property (nonatomic) AFURLSessionManager * afManager;
-
-
 @end
 
 @implementation PhotoManager
@@ -67,9 +62,12 @@ NSString * JY_UUID() {
 -(instancetype)init{
     if(self = [super init]){
         _canUpload = YES;
-        _afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[self defaultConfig]];
+//        _afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[self defaultConfig]];
 //        _afManager.attemptsToRecreateUploadTasksForBackgroundSessions = YES;
-        _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+//        _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        
+        _afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        
         _getImageQueue = [[NSOperationQueue alloc]init];
         _getImageQueue.maxConcurrentOperationCount = 1;
         _getImageQueue.qualityOfService = NSQualityOfServiceUserInitiated;
@@ -708,10 +706,10 @@ BOOL shouldUpload = NO;
                     [formData appendPartWithFileURL:[NSURL fileURLWithPath:filePath] name:@"file" fileName:@"file" mimeType:@"image/jpeg" error:nil];
                 } error:nil];
                 [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-                AFURLSessionManager * afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-                afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+//                _afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+                _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
                 NSURLSessionUploadTask *uploadTask;
-                uploadTask = [afManager
+                uploadTask = [_afManager
                               uploadTaskWithStreamedRequest:request
                               progress:^(NSProgress *uploadProgress){
                                   

@@ -23,7 +23,10 @@
 }
 
 -(void)dealloc{
-    
+    [self.netphotoArr removeAllObjects];
+    [self.dataSource removeAllObjects];
+    [self.imageArr removeAllObjects];
+    [self.timeArr removeAllObjects];
 }
 
 -(instancetype)init{
@@ -83,20 +86,22 @@
 -(void)analysisPhotos:(id)response{
     NSArray * userArr = response;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        NSMutableArray * photoArr = [NSMutableArray arrayWithCapacity:0];
-        for (NSDictionary * dic in userArr) {
-            FMNASPhoto * nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-            if(!IsNilString([nasPhoto getPhotoHash]) && ![_localphotoDigest containsObject:[nasPhoto getPhotoHash]])
-                [photoArr addObject:nasPhoto];
+        @autoreleasepool {
+            NSMutableArray * photoArr = [NSMutableArray arrayWithCapacity:0];
+            for (NSDictionary * dic in userArr) {
+                @autoreleasepool {
+                    FMNASPhoto * nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+                    if(!IsNilString([nasPhoto getPhotoHash]) && ![_localphotoDigest containsObject:[nasPhoto getPhotoHash]])
+                        [photoArr addObject:nasPhoto];
+                }
+            }
+            if (photoArr.count) {
+                self.netphotoArr = photoArr;
+                [_imageArr addObjectsFromArray:photoArr];
+                [self initPhotosIsRefrash];
+            }
         }
-        NSLog(@"******************     网络来图      *****************************");
-//        NSLog(@"%@",photoArr);
-        NSLog(@"******************  网络来图打印完成  *****************************");
-        if (photoArr.count) {
-            self.netphotoArr = [photoArr copy];
-            [_imageArr addObjectsFromArray:photoArr];
-            [self initPhotosIsRefrash];
-        }
+        
     });
     //Cache 到数据库
 //    [FMDBControl asynNASPhoto:[photoArr copy] andCompleteBlock:^{
@@ -145,15 +150,13 @@
             return (NSComparisonResult)NSOrderedSame;
         };
         [self.imageArr sortUsingComparator:cmptr];
+        @weakify(self);
         [self getTimeArrAndPhotoGroupArrWithCompleteBlock:^(NSMutableArray *tGroup, NSMutableArray *pGroup) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _timeArr = tGroup;
-                _dataSource = pGroup;
-                //
-                _isFinishLoading = YES;
-//                NSLog(@"\n\n*******************排序完成 ********************\n\n");
-//                NSLog(@"%@",_dataSource);
-//                NSLog(@"***********************打印结束**************************\n\n");
+                weak_self.timeArr = tGroup;
+                weak_self.dataSource = pGroup;
+                
+                weak_self.isFinishLoading = YES;
                 [[NSNotificationCenter defaultCenter]postNotificationName:FMPhotoDatasourceLoadFinishNotify object:nil];
                 if (block) block();
                 if (_delegate && [_delegate respondsToSelector:@selector(dataSourceFinishToLoadPhotos)]) {
@@ -165,34 +168,40 @@
 }
 
 -(void)getTimeArrAndPhotoGroupArrWithCompleteBlock:(SortSuccessBlock)block{
-    NSMutableArray * tArr = [NSMutableArray array];//时间组
-    NSMutableArray * pGroupArr = [NSMutableArray array];//照片组数组
-    if (self.imageArr.count>0) {
-        IDMPhoto * photo = self.imageArr[0];
-        NSMutableArray * photoDateGroup1 = [NSMutableArray array];//第一组照片
-        [photoDateGroup1 addObject:photo];
-        [pGroupArr addObject:photoDateGroup1];
-        [tArr addObject:[photo getPhotoCreateTime]];
-        
-        NSMutableArray * photoDateGroup2 = photoDateGroup1;//最近的一组
-        for (int i = 1 ; i < self.imageArr.count; i++) {
-            IDMPhoto * photo1 =  self.imageArr[i];
-            IDMPhoto * photo2 = self.imageArr[i-1];
-            if ([self isSameDay:[photo1 getPhotoCreateTime] date2:[photo2 getPhotoCreateTime]]) {
-                [photoDateGroup2 addObject:photo1];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        @autoreleasepool {
+            NSMutableArray * tArr = [NSMutableArray array];//时间组
+            NSMutableArray * pGroupArr = [NSMutableArray array];//照片组数组
+            if (self.imageArr.count>0) {
+                IDMPhoto * photo = self.imageArr[0];
+                NSMutableArray * photoDateGroup1 = [NSMutableArray array];//第一组照片
+                [photoDateGroup1 addObject:photo];
+                [pGroupArr addObject:photoDateGroup1];
+                [tArr addObject:[photo getPhotoCreateTime]];
+                
+                NSMutableArray * photoDateGroup2 = photoDateGroup1;//最近的一组
+                for (int i = 1 ; i < self.imageArr.count; i++) {
+                    @autoreleasepool {
+                        IDMPhoto * photo1 =  self.imageArr[i];
+                        IDMPhoto * photo2 = self.imageArr[i-1];
+                        if ([self isSameDay:[photo1 getPhotoCreateTime] date2:[photo2 getPhotoCreateTime]]) {
+                            [photoDateGroup2 addObject:photo1];
+                        }
+                        else{
+                            [tArr addObject:[photo1 getPhotoCreateTime]];
+                            photoDateGroup2 = nil;
+                            photoDateGroup2 = [NSMutableArray array];
+                            [photoDateGroup2 addObject:photo1];
+                            [pGroupArr addObject:photoDateGroup2];
+                        }
+                    }
+                }
             }
-            else{
-                [tArr addObject:[photo1 getPhotoCreateTime]];
-                photoDateGroup2 = nil;
-                photoDateGroup2 = [NSMutableArray array];
-                [photoDateGroup2 addObject:photo1];
-                [pGroupArr addObject:photoDateGroup2];
-            }
+            //主线程
+            dispatch_async(dispatch_get_main_queue(), ^{
+                block(tArr,pGroupArr);
+            });
         }
-    }
-    //主线程
-    dispatch_async(dispatch_get_main_queue(), ^{
-        block(tArr,pGroupArr);
     });
 }
 

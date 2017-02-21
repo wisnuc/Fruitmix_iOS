@@ -59,28 +59,30 @@
 -(void)getLocalThumbWithLocalId:(NSString *)localId andCompleteBlock:(FMGetThumbImageCompleteBlock)block andQueue:(dispatch_queue_t)queue{
     @weakify(self);
     [_createQueue addOperationAtFrontOfQueueWithBlock:^{
-        UIImage * image;
-        if([weak_self.localIdDic objectForKey:localId] && (image = [_cache getImageForKey:[weak_self.localIdDic objectForKey:localId]])){
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if(block)
-                    block(image,localId);
-            });
-        }else{
-            PHAsset * asset = [[FMLocalPhotoStore shareStore] checkPhotoIsLocalWithLocalId:localId];
-            if (asset) {
-                [weak_self createLocalThumb:asset andCompleteBlock:^(UIImage *image) {
-                    if(block)
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            block(image,localId);
-                        });
-                    [weak_self cacheThumbImageWithLocalId:asset andImage:image];
-                }];
-            }else{
+        @autoreleasepool {
+            UIImage * image;
+            if([weak_self.localIdDic objectForKey:localId] && (image = [_cache getImageForKey:[weak_self.localIdDic objectForKey:localId]])){
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    block(nil,localId);
+                    if(block)
+                        block(image,localId);
                 });
+            }else{
+                PHAsset * asset = [[FMLocalPhotoStore shareStore] checkPhotoIsLocalWithLocalId:localId];
+                if (asset) {
+                    [weak_self createLocalThumb:asset andCompleteBlock:^(UIImage *image) {
+                        if(block)
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                block(image,localId);
+                            });
+                        [weak_self cacheThumbImageWithLocalId:asset andImage:image];
+                    }];
+                }else{
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        block(nil,localId);
+                    });
+                }
+                
             }
-            
         }
     }];
 }
@@ -92,30 +94,30 @@
  *  @param block 制作完成通知
  */
 -(void)createLocalThumb:(PHAsset *)asset andCompleteBlock:(void(^)(UIImage *image))block{
-    NSInteger retinaScale = [UIScreen mainScreen].scale;
-    CGFloat thumbW = asset.pixelWidth*retinaScale>200*retinaScale?200*retinaScale:asset.pixelWidth*retinaScale;
-    CGFloat thumbH = thumbW*(asset.pixelHeight/asset.pixelWidth);
-    CGSize retinaSquare = CGSizeMake(thumbW, thumbH);
-    PHImageRequestOptions *cropToSquare = [[PHImageRequestOptions alloc] init];
-    cropToSquare.resizeMode = PHImageRequestOptionsResizeModeExact;
-    CGRect square = CGRectMake(0, 0, asset.pixelWidth, asset.pixelHeight);
-    CGRect cropRect = CGRectApplyAffineTransform(square,
-                                                 CGAffineTransformMakeScale(1.0 / asset.pixelWidth,
-                                                                            1.0 / asset.pixelHeight));
-    cropToSquare.normalizedCropRect = cropRect;
-    cropToSquare.synchronous = YES;
-    cropToSquare.networkAccessAllowed = YES;
-    
-//    @autoreleasepool {
+    @autoreleasepool {
+        NSInteger retinaScale = [UIScreen mainScreen].scale;
+        CGFloat thumbW = asset.pixelWidth*retinaScale>200*retinaScale?200*retinaScale:asset.pixelWidth*retinaScale;
+        CGFloat thumbH = thumbW*(asset.pixelHeight/asset.pixelWidth);
+        CGSize retinaSquare = CGSizeMake(thumbW, thumbH);
+        PHImageRequestOptions *cropToSquare = [[PHImageRequestOptions alloc] init];
+        cropToSquare.resizeMode = PHImageRequestOptionsResizeModeExact;
+        CGRect square = CGRectMake(0, 0, asset.pixelWidth, asset.pixelHeight);
+        CGRect cropRect = CGRectApplyAffineTransform(square,
+                                                     CGAffineTransformMakeScale(1.0 / asset.pixelWidth,
+                                                                                1.0 / asset.pixelHeight));
+        cropToSquare.normalizedCropRect = cropRect;
+        cropToSquare.synchronous = YES;
+        cropToSquare.networkAccessAllowed = YES;
+        
         [[PHImageManager defaultManager]
          requestImageForAsset:asset
          targetSize:retinaSquare
          contentMode:PHImageContentModeAspectFit
          options:cropToSquare
          resultHandler:^(UIImage *result, NSDictionary *info) {
-                 if(block) block(result);
+             if(block) block(result);
          }];
-//    }
+    }
 }
 
 
@@ -173,11 +175,14 @@
     @weakify(self);
     [[FMGetThumbImage defaultGetThumbImage].getImageQueue addOperationAtFrontOfQueueWithBlock:^{
         if([[FMGetThumbImage defaultGetThumbImage].cache containsImageForKey:hash]){
-            UIImage *img = [[FMGetThumbImage defaultGetThumbImage].cache getImageForKey:hash];
-            if(block)
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    block(img,hash);
+            @autoreleasepool {
+                UIImage *img = [[FMGetThumbImage defaultGetThumbImage].cache getImageForKey:hash];
+                if(block)
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        block(img,hash);
                 });
+            }
+            
         }else{
             [PhotoManager managerCheckPhotoIsLocalWithPhotohash:hash andCompleteBlock:^(NSString *localId, NSString *photoHash, BOOL isLocal) {
                 if(localId){//本地图
@@ -189,17 +194,19 @@
                     } andQueue:nil];
                 }else{  //网络图
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                        if (weak_asset.shouldRequestThumbnail) {
-                            [weak_self  getThumbImageWithHash:hash andCount:0 andAsset:weak_asset andPressBlock:^(NSInteger receivedSize, NSInteger expectedSize) {
-                            } andCompletBlock:^(UIImage *image,NSString * tag) {
-                                dispatch_async([FMUtil setterCacheQueue], ^{
-                                    [[FMGetThumbImage defaultGetThumbImage].cache setImage:image forKey:hash];
-                                });
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    if(block && weak_asset.shouldRequestThumbnail)
-                                        block(image,photoHash);
-                                });
-                            }];
+                        @autoreleasepool {
+                            if (weak_asset.shouldRequestThumbnail) {
+                                [weak_self  getThumbImageWithHash:hash andCount:0 andAsset:weak_asset andPressBlock:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                } andCompletBlock:^(UIImage *image,NSString * tag) {
+                                    dispatch_async([FMUtil setterCacheQueue], ^{
+                                        [[FMGetThumbImage defaultGetThumbImage].cache setImage:image forKey:hash];
+                                    });
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        if(block && weak_asset.shouldRequestThumbnail)
+                                            block(image,photoHash);
+                                    });
+                                }];
+                            }
                         }
                     });
                 }
@@ -275,40 +282,4 @@
         }
     }];
 }
-
-//+(void)_getThumbImageWithPhotoHash:(NSString * )hash andCompleteBlock:(FMGetThumbImageCompleteBlock)block andQueue:(dispatch_queue_t)queue{
-//    NSAssert(hash != nil, @"degist 不能为空");
-//    [[FMGetThumbImage defaultGetThumbImage].getImageQueue addOperationAtFrontOfQueueWithBlock:^{
-//        if([[FMGetThumbImage defaultGetThumbImage].cache containsImageForKey:hash]){
-//            UIImage *img = [[FMGetThumbImage defaultGetThumbImage].cache getImageForKey:hash];
-//            if(block)
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    block(img,hash);
-//                });
-//        }else{
-//            [PhotoManager managerCheckPhotoIsLocalWithPhotohash:hash andCompleteBlock:^(NSString *localId, NSString *photoHash, BOOL isLocal) {
-//                if(localId){//本地图
-//                    [[FMGetThumbImage defaultGetThumbImage] getLocalThumbWithLocalId:localId andCompleteBlock:^(UIImage *image, NSString *tag){
-//                        dispatch_async(dispatch_get_main_queue(), ^{
-//                            if(block)
-//                                block(image,photoHash);
-//                        });
-//                    } andQueue:queue];
-//                }else{  //网络图
-//                    [[FMGetImage defaultGetImage]getThumbImageWithHash:hash andCount:0 andPressBlock:^(NSInteger receivedSize, NSInteger expectedSize) {
-//                    } andCompletBlock:^(UIImage *image,NSString * tag) {
-//                        dispatch_async([FMUtil setterCacheQueue], ^{
-//                            [[FMGetThumbImage defaultGetThumbImage].cache setImage:image forKey:hash];
-//                        });
-//                        dispatch_async(dispatch_get_main_queue(), ^{
-//                            if(block)
-//                                block(image,photoHash);
-//                        });
-//                    } andQueue:queue];
-//                }
-//            }];
-//        }
-//    }];
-//}
-
 @end

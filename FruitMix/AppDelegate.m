@@ -170,6 +170,9 @@
     [[FMGetThumbImage defaultGetThumbImage].cache.memoryCache  removeAllObjects];
     [[FMGetImage defaultGetImage].cache.memoryCache removeAllObjects];
     [[FMGetImage defaultGetImage].manager.imageCache clearMemory];
+    [[SDWebImageManager sharedManager] cancelAll];
+    
+    [[PhotoManager shareManager].getImageQueue cancelAllOperations];
 }
 
 //配置侧拉
@@ -445,6 +448,7 @@
         [SXLoadingView showProgressHUD:@"正在注销"];
         [PhotoManager shareManager].canUpload = NO;//停止上传
         FMConfigInstance.userToken = @"";
+        [self resetDatasource];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [SXLoadingView hideProgressHUD];
             [self skipToLogin];

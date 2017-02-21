@@ -33,6 +33,10 @@ typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
 
 @property (nonatomic) BOOL canUpload;
 
+@property (nonatomic) NSOperationQueue * getImageQueue;
+
+@property (nonatomic) AFURLSessionManager * afManager;
+
 +(__kindof PhotoManager *)shareManager;
 
 +(void)reStartUploader;
