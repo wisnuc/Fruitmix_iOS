@@ -110,7 +110,7 @@
 }
 
 - (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 1) {
+    if (buttonIndex == 2) {
         [SXLoadingView showProgressHUD:@"正在清除缓存"];
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             [[SDImageCache sharedImageCache] cleanDisk];
