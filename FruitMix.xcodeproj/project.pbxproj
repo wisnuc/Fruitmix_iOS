@@ -608,6 +608,10 @@
 		C1FFC86A1D51931200AD4D15 /* RSNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8631D51931200AD4D15 /* RSNetworkManager.m */; };
 		C1FFC86B1D51931200AD4D15 /* RSUploadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8671D51931200AD4D15 /* RSUploadManager.m */; };
 		C1FFC88C1D51C74200AD4D15 /* BackgroundHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */; };
+		F60B0BD01E5EB2E400670E03 /* FMUserLoginSettingVC.m in Sources */ = {isa = PBXBuildFile; fileRef = F60B0BCE1E5EB2E400670E03 /* FMUserLoginSettingVC.m */; };
+		F60B0BD11E5EB2E400670E03 /* FMUserLoginSettingVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = F60B0BCF1E5EB2E400670E03 /* FMUserLoginSettingVC.xib */; };
+		F60B0BD51E5EE76700670E03 /* FMUsersLoginMangeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F60B0BD31E5EE76700670E03 /* FMUsersLoginMangeCell.m */; };
+		F60B0BD61E5EE76700670E03 /* FMUsersLoginMangeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F60B0BD41E5EE76700670E03 /* FMUsersLoginMangeCell.xib */; };
 		F616AEBE1E5142E60052CB81 /* FMSyncLogs.m in Sources */ = {isa = PBXBuildFile; fileRef = F616AEBD1E5142E60052CB81 /* FMSyncLogs.m */; };
 		F62A06151E25F62C00DBD7E9 /* JYProcessView.m in Sources */ = {isa = PBXBuildFile; fileRef = F62A06141E25F62C00DBD7E9 /* JYProcessView.m */; };
 		F64308701E5A81AF00A5560B /* FMLeftUserFooterView.m in Sources */ = {isa = PBXBuildFile; fileRef = F643086F1E5A81AF00A5560B /* FMLeftUserFooterView.m */; };
@@ -1587,6 +1591,12 @@
 		C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundHelper.m; sourceTree = "<group>"; };
 		D8F9EC1FC30A48A47556F08A /* Pods-FruitMix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FruitMix.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix.debug.xcconfig"; sourceTree = "<group>"; };
 		ECF19DD5C75ACC1FF3304B45 /* Pods-FruitMix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FruitMix.release.xcconfig"; path = "Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix.release.xcconfig"; sourceTree = "<group>"; };
+		F60B0BCD1E5EB2E400670E03 /* FMUserLoginSettingVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMUserLoginSettingVC.h; sourceTree = "<group>"; };
+		F60B0BCE1E5EB2E400670E03 /* FMUserLoginSettingVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMUserLoginSettingVC.m; sourceTree = "<group>"; };
+		F60B0BCF1E5EB2E400670E03 /* FMUserLoginSettingVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMUserLoginSettingVC.xib; sourceTree = "<group>"; };
+		F60B0BD21E5EE76700670E03 /* FMUsersLoginMangeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMUsersLoginMangeCell.h; sourceTree = "<group>"; };
+		F60B0BD31E5EE76700670E03 /* FMUsersLoginMangeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMUsersLoginMangeCell.m; sourceTree = "<group>"; };
+		F60B0BD41E5EE76700670E03 /* FMUsersLoginMangeCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMUsersLoginMangeCell.xib; sourceTree = "<group>"; };
 		F616AEBC1E5142E60052CB81 /* FMSyncLogs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMSyncLogs.h; sourceTree = "<group>"; };
 		F616AEBD1E5142E60052CB81 /* FMSyncLogs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMSyncLogs.m; sourceTree = "<group>"; };
 		F62A06131E25F62C00DBD7E9 /* JYProcessView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JYProcessView.h; sourceTree = "<group>"; };
@@ -3276,6 +3286,7 @@
 		C1A959F71CBCBD84007A1DC9 /* LeftMenu */ = {
 			isa = PBXGroup;
 			children = (
+				F60B0BCC1E5EB2A500670E03 /* 登录管理 */,
 				C110BB0B1D814B73001D02F0 /* 个人信息 */,
 				C110BB0D1D814BF3001D02F0 /* 我的文件 */,
 				C110BB101D814C26001D02F0 /* 帮助 */,
@@ -4029,6 +4040,19 @@
 			path = UploadManager;
 			sourceTree = "<group>";
 		};
+		F60B0BCC1E5EB2A500670E03 /* 登录管理 */ = {
+			isa = PBXGroup;
+			children = (
+				F60B0BCD1E5EB2E400670E03 /* FMUserLoginSettingVC.h */,
+				F60B0BCE1E5EB2E400670E03 /* FMUserLoginSettingVC.m */,
+				F60B0BCF1E5EB2E400670E03 /* FMUserLoginSettingVC.xib */,
+				F60B0BD21E5EE76700670E03 /* FMUsersLoginMangeCell.h */,
+				F60B0BD31E5EE76700670E03 /* FMUsersLoginMangeCell.m */,
+				F60B0BD41E5EE76700670E03 /* FMUsersLoginMangeCell.xib */,
+			);
+			name = "登录管理";
+			sourceTree = "<group>";
+		};
 		F62A06111E25F5FE00DBD7E9 /* public */ = {
 			isa = PBXGroup;
 			children = (
@@ -4637,6 +4661,7 @@
 				C19E8B601DDDBF7A00DB3CBE /* photos@18pt.png in Resources */,
 				C1A959E51CBB8897007A1DC9 /* tabbar_selected_background.png in Resources */,
 				C11FE8A31DED75C0008F73D8 /* back.png in Resources */,
+				F60B0BD11E5EB2E400670E03 /* FMUserLoginSettingVC.xib in Resources */,
 				C1955F991DB4C71100B4A057 /* folder_shared.png in Resources */,
 				C19E8B4E1DDDB49B00DB3CBE /* small_1@2x.png in Resources */,
 				C1F44A5F1D12B27800A8FD34 /* Arrow_down.png in Resources */,
@@ -4699,6 +4724,7 @@
 				C1A9593D1CB7C47F007A1DC9 /* up@2x.png in Resources */,
 				C158C4A91DDEB2510073A342 /* person_add@3x.png in Resources */,
 				C1BB71101CE03C5400AEBADA /* info@2x.png in Resources */,
+				F60B0BD61E5EE76700670E03 /* FMUsersLoginMangeCell.xib in Resources */,
 				C17615DC1D0D2A8200FDFE1B /* check-box@2x.png in Resources */,
 				C179704D1CD372F0002B7EAA /* praise_solid_select@2x.png in Resources */,
 				C179704A1CD372F0002B7EAA /* praise_line@2x.png in Resources */,
@@ -5013,6 +5039,7 @@
 				C1FFC86A1D51931200AD4D15 /* RSNetworkManager.m in Sources */,
 				C1E074761CEC449400A7A91E /* FMShareAlbumItem.m in Sources */,
 				C1F44A801D13942900A8FD34 /* FMUserCell.m in Sources */,
+				F60B0BD51E5EE76700670E03 /* FMUsersLoginMangeCell.m in Sources */,
 				C1A95A471CBD0120007A1DC9 /* FMShareTalkView.m in Sources */,
 				C1E8F32D1CAE1CC400E1F1FC /* UIView+JHChainableAnimations.m in Sources */,
 				C1FB83E61DBF029900D09541 /* APSocialServiceHelper.m in Sources */,
@@ -5036,6 +5063,7 @@
 				C1AAF1351DCB268000590F4E /* FMDTContext.m in Sources */,
 				C17615EC1D0D646D00FDFE1B /* FMGetAfterShareAPI.m in Sources */,
 				C16F8F991CAD1D540012EFEF /* UIView+JYExtension.m in Sources */,
+				F60B0BD01E5EB2E400670E03 /* FMUserLoginSettingVC.m in Sources */,
 				C11BF17F1CD8464F004336D6 /* BRPlaceholderTextView.m in Sources */,
 				C1A95A0A1CBCBF84007A1DC9 /* FMHelp.m in Sources */,
 				C191366E1CCDEAFF008BAB93 /* FMUtil.m in Sources */,
