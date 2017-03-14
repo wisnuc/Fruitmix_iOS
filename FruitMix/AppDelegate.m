@@ -21,6 +21,7 @@
 #import "FMOwnCloud.h"
 #import "FMUserSetting.h"
 #import "BackgroundRunner.h"
+#import "FMUserLoginSettingVC.h"
 
 #import "RRFPSBar.h"
 #import "FLFilesVC.h"
@@ -206,6 +207,7 @@
         }
         return NO;
     };
+    
 }
 
 -(NSMutableArray *)getUsersInfo{
@@ -453,6 +455,11 @@
             [SXLoadingView hideProgressHUD];
             [self skipToLogin];
         });
+    }else if(IsEquallString(title,@"USER_FOOTERVIEW_CLICK")){
+        vc = [FMUserLoginSettingVC new];
+        if ([selectVC isKindOfClass:[NavViewController class]]) {
+            [selectVC  pushViewController:vc animated:YES];
+        }
     }
 }
 

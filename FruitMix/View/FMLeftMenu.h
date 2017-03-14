@@ -36,4 +36,6 @@
 @property (weak, nonatomic) IBOutlet UITableView *usersTableView;
 
 @property (nonatomic) NSMutableArray * usersDatasource;
+
+@property (nonatomic) void(^footViewClickBlock)();
 @end

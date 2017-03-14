@@ -9,5 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface FMUsersLoginMangeCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *userHeaderIV;
+@property (weak, nonatomic) IBOutlet UILabel *userNameLb;
+@property (weak, nonatomic) IBOutlet UIButton *deleteBtn;
 
 @end
