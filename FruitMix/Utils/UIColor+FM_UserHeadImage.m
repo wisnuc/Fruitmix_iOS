@@ -10,8 +10,10 @@
 
 @implementation UIColor (FM_UserHeadImage)
 
+static UIColor * lastColor = nil;
 +(UIColor *)colorForUser:(NSString *)userName{
     static NSMutableArray * colorArr = nil;
+    
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         colorArr = [NSMutableArray array];
@@ -23,8 +25,15 @@
     UIColor * color = [self colorForKey:userName];
     if (color) {
         return color;
+    }else if(lastColor){
+        NSMutableArray * tempArr = [colorArr mutableCopy];
+        [tempArr removeObject:lastColor];
+        color = tempArr[arc4random() % 2];
+        [self setColor:color forKey:userName];
+        return color;
     }
     color = colorArr[arc4random() % 3];
+    lastColor = color;
     [self setColor:color forKey:userName];
     return color;
 }

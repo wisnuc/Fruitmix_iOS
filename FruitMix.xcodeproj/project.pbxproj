@@ -608,6 +608,10 @@
 		C1FFC86A1D51931200AD4D15 /* RSNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8631D51931200AD4D15 /* RSNetworkManager.m */; };
 		C1FFC86B1D51931200AD4D15 /* RSUploadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8671D51931200AD4D15 /* RSUploadManager.m */; };
 		C1FFC88C1D51C74200AD4D15 /* BackgroundHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */; };
+		F607BA141E5FDBDF0040D64F /* ic_delete@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F607BA111E5FDBDF0040D64F /* ic_delete@2x.png */; };
+		F607BA151E5FDBDF0040D64F /* ic_delete@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = F607BA121E5FDBDF0040D64F /* ic_delete@3x.png */; };
+		F607BA161E5FDBDF0040D64F /* ic_delete.png in Resources */ = {isa = PBXBuildFile; fileRef = F607BA131E5FDBDF0040D64F /* ic_delete.png */; };
+		F607BA1C1E6006D20040D64F /* FMUserLoginHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = F607BA1B1E6006D20040D64F /* FMUserLoginHeaderView.m */; };
 		F60B0BD01E5EB2E400670E03 /* FMUserLoginSettingVC.m in Sources */ = {isa = PBXBuildFile; fileRef = F60B0BCE1E5EB2E400670E03 /* FMUserLoginSettingVC.m */; };
 		F60B0BD11E5EB2E400670E03 /* FMUserLoginSettingVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = F60B0BCF1E5EB2E400670E03 /* FMUserLoginSettingVC.xib */; };
 		F60B0BD51E5EE76700670E03 /* FMUsersLoginMangeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F60B0BD31E5EE76700670E03 /* FMUsersLoginMangeCell.m */; };
@@ -1591,6 +1595,11 @@
 		C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundHelper.m; sourceTree = "<group>"; };
 		D8F9EC1FC30A48A47556F08A /* Pods-FruitMix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FruitMix.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix.debug.xcconfig"; sourceTree = "<group>"; };
 		ECF19DD5C75ACC1FF3304B45 /* Pods-FruitMix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FruitMix.release.xcconfig"; path = "Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix.release.xcconfig"; sourceTree = "<group>"; };
+		F607BA111E5FDBDF0040D64F /* ic_delete@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_delete@2x.png"; sourceTree = "<group>"; };
+		F607BA121E5FDBDF0040D64F /* ic_delete@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_delete@3x.png"; sourceTree = "<group>"; };
+		F607BA131E5FDBDF0040D64F /* ic_delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_delete.png; sourceTree = "<group>"; };
+		F607BA1A1E6006D20040D64F /* FMUserLoginHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMUserLoginHeaderView.h; sourceTree = "<group>"; };
+		F607BA1B1E6006D20040D64F /* FMUserLoginHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMUserLoginHeaderView.m; sourceTree = "<group>"; };
 		F60B0BCD1E5EB2E400670E03 /* FMUserLoginSettingVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMUserLoginSettingVC.h; sourceTree = "<group>"; };
 		F60B0BCE1E5EB2E400670E03 /* FMUserLoginSettingVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMUserLoginSettingVC.m; sourceTree = "<group>"; };
 		F60B0BCF1E5EB2E400670E03 /* FMUserLoginSettingVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMUserLoginSettingVC.xib; sourceTree = "<group>"; };
@@ -3082,6 +3091,9 @@
 		C19E8B541DDDBF5F00DB3CBE /* LeftMenu */ = {
 			isa = PBXGroup;
 			children = (
+				F607BA111E5FDBDF0040D64F /* ic_delete@2x.png */,
+				F607BA121E5FDBDF0040D64F /* ic_delete@3x.png */,
+				F607BA131E5FDBDF0040D64F /* ic_delete.png */,
 				F6FBFE011E53F01D003CD8CB /* ic_arrow_drop_down@2x.png */,
 				F6FBFE021E53F01D003CD8CB /* ic_arrow_drop_down@3x.png */,
 				F6FBFE031E53F01D003CD8CB /* ic_arrow_drop_down.png */,
@@ -4043,6 +4055,8 @@
 		F60B0BCC1E5EB2A500670E03 /* 登录管理 */ = {
 			isa = PBXGroup;
 			children = (
+				F607BA1A1E6006D20040D64F /* FMUserLoginHeaderView.h */,
+				F607BA1B1E6006D20040D64F /* FMUserLoginHeaderView.m */,
 				F60B0BCD1E5EB2E400670E03 /* FMUserLoginSettingVC.h */,
 				F60B0BCE1E5EB2E400670E03 /* FMUserLoginSettingVC.m */,
 				F60B0BCF1E5EB2E400670E03 /* FMUserLoginSettingVC.xib */,
@@ -4494,6 +4508,7 @@
 				C1F44A7C1D12B2F700A8FD34 /* login@3x.png in Resources */,
 				C1009B4B1DFE8BB6006ADA84 /* ic_account_circle@3x.png in Resources */,
 				C1F44A621D12B27800A8FD34 /* Arrow.png in Resources */,
+				F607BA161E5FDBDF0040D64F /* ic_delete.png in Resources */,
 				C16A50D51DC6F01300172CE0 /* Default.png in Resources */,
 				C11FE9401DEED338008F73D8 /* local@2x.png in Resources */,
 				C1955F8E1DB4C6B900B4A057 /* file_icon@2x.png in Resources */,
@@ -4661,6 +4676,7 @@
 				C19E8B601DDDBF7A00DB3CBE /* photos@18pt.png in Resources */,
 				C1A959E51CBB8897007A1DC9 /* tabbar_selected_background.png in Resources */,
 				C11FE8A31DED75C0008F73D8 /* back.png in Resources */,
+				F607BA151E5FDBDF0040D64F /* ic_delete@3x.png in Resources */,
 				F60B0BD11E5EB2E400670E03 /* FMUserLoginSettingVC.xib in Resources */,
 				C1955F991DB4C71100B4A057 /* folder_shared.png in Resources */,
 				C19E8B4E1DDDB49B00DB3CBE /* small_1@2x.png in Resources */,
@@ -4679,6 +4695,7 @@
 				C1A233D01CF5737A007D8CEA /* handrail.png in Resources */,
 				C1009B5B1DFEA738006ADA84 /* FMChangePwdVC.xib in Resources */,
 				C1BB71111CE03C5400AEBADA /* info@3x.png in Resources */,
+				F607BA141E5FDBDF0040D64F /* ic_delete@2x.png in Resources */,
 				C1A959CE1CBB7F96007A1DC9 /* share_red@3x.png in Resources */,
 				C17970531CD372F0002B7EAA /* send@2x.png in Resources */,
 				C158C49A1DDE94EB0073A342 /* cancel@3x.png in Resources */,
@@ -4990,6 +5007,7 @@
 				C158C4A31DDEA4120073A342 /* UIApplication+JYTopVC.m in Sources */,
 				C1FB83E91DBF029A00D09541 /* APAddressBookExternalChangeRoutine.m in Sources */,
 				C1AAF13B1DCB268000590F4E /* FMDTUpdateObjectCommand.m in Sources */,
+				F607BA1C1E6006D20040D64F /* FMUserLoginHeaderView.m in Sources */,
 				C1F44A471D12A88000A8FD34 /* RATreeNodeItem.m in Sources */,
 				C17615C61D08127E00FDFE1B /* FMOwnerSetAPI.m in Sources */,
 				C1133BFA1D6D47D600D6370F /* FMGetThumbImage.m in Sources */,

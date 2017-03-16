@@ -11,11 +11,11 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="67" id="KGk-i7-Jjw" customClass="FMUsersLoginMangeCell">
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FMUsersLoginMangeCell" rowHeight="67" id="KGk-i7-Jjw" customClass="FMUsersLoginMangeCell">
             <rect key="frame" x="0.0" y="0.0" width="410" height="67"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="410" height="66.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="410" height="66"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="MXI-WB-J7v">
@@ -32,12 +32,15 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kx1-Hu-qhW" userLabel="DeleteButton">
-                        <rect key="frame" x="380" y="22.5" width="14" height="22"/>
+                        <rect key="frame" x="370" y="22" width="24" height="24"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="22" id="1DO-s3-gJj"/>
-                            <constraint firstAttribute="width" constant="14" id="cd1-rV-qlR"/>
+                            <constraint firstAttribute="height" constant="24" id="1DO-s3-gJj"/>
+                            <constraint firstAttribute="width" constant="24" id="cd1-rV-qlR"/>
                         </constraints>
-                        <state key="normal" image="del_user.png"/>
+                        <state key="normal" image="ic_delete.png"/>
+                        <connections>
+                            <action selector="deleteBtnClick:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="l6j-OK-lUM"/>
+                        </connections>
                     </button>
                 </subviews>
                 <constraints>
@@ -51,10 +54,15 @@
                 <constraint firstItem="MXI-WB-J7v" firstAttribute="leading" secondItem="KGk-i7-Jjw" secondAttribute="leading" constant="16" id="ZjQ-Lw-lcy"/>
                 <constraint firstAttribute="trailing" secondItem="kx1-Hu-qhW" secondAttribute="trailing" constant="16" id="xL0-Gw-K1a"/>
             </constraints>
-            <point key="canvasLocation" x="16" y="52"/>
+            <connections>
+                <outlet property="deleteBtn" destination="kx1-Hu-qhW" id="cxo-T8-DaC"/>
+                <outlet property="userHeaderIV" destination="MXI-WB-J7v" id="snd-97-aK9"/>
+                <outlet property="userNameLb" destination="XXm-T8-72n" id="wUE-1H-93W"/>
+            </connections>
+            <point key="canvasLocation" x="-300" y="-25"/>
         </tableViewCell>
     </objects>
     <resources>
-        <image name="del_user.png" width="25" height="32"/>
+        <image name="ic_delete.png" width="24" height="24"/>
     </resources>
 </document>

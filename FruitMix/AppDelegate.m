@@ -21,6 +21,7 @@
 #import "FMOwnCloud.h"
 #import "FMUserSetting.h"
 #import "BackgroundRunner.h"
+#import "FMUserLoginSettingVC.h"
 
 #import "RRFPSBar.h"
 #import "FLFilesVC.h"
@@ -206,6 +207,7 @@
         }
         return NO;
     };
+    
 }
 
 -(NSMutableArray *)getUsersInfo{
@@ -218,6 +220,12 @@
         }
     }
     return arr;
+}
+
+
+-(void)reloadLeftUsers{
+    _leftMenu.usersDatasource = [self getUsersInfo];
+    [_leftMenu checkToStart];
 }
 
 -(void)reloadLeftMenuIsAdmin:(BOOL)isAdmin{
@@ -234,6 +242,7 @@
     _leftMenu.menus = menusTitle;
     _leftMenu.imageNames = menusImages;
     [_leftMenu.settingTabelView reloadData];
+    [_leftMenu checkToStart];
 }
 
 // 将NSlog打印信息保存到Document目录下的文件中
@@ -453,6 +462,11 @@
             [SXLoadingView hideProgressHUD];
             [self skipToLogin];
         });
+    }else if(IsEquallString(title,@"USER_FOOTERVIEW_CLICK")){
+        vc = [FMUserLoginSettingVC new];
+        if ([selectVC isKindOfClass:[NavViewController class]]) {
+            [selectVC  pushViewController:vc animated:YES];
+        }
     }
 }
 

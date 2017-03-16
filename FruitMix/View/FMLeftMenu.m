@@ -11,6 +11,7 @@
 #import "FMLeftUserCell.h"
 #import "FMLeftUserFooterView.h"
 
+
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UILabel *versionLb;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn1;
@@ -19,6 +20,7 @@
 @end
 
 @implementation FMLeftMenu
+
 
 -(void)awakeFromNib{
     [super awakeFromNib];
@@ -33,10 +35,14 @@
     
     _settingTabelView.scrollEnabled = NO;
     _settingTabelView.tableFooterView = [UIView new];
+    @weakify(self);
     _usersTableView.tableFooterView = [FMLeftUserFooterView footerViewWithTouchBlock:^{
-        NSLog(@"touch UserSetting");
+        if(weak_self.delegate){
+            [weak_self.delegate LeftMenuViewClickSettingTable:-1 andTitle:@"USER_FOOTERVIEW_CLICK"];
+            [weak_self checkToStart];
+        }
     }];
-    
+
     _userBtn1.layer.cornerRadius = 20;
     _userBtn2.layer.cornerRadius = 20;
     
@@ -68,8 +74,8 @@
         }else{ // 大于 1
             _userBtn1.hidden = NO;
             _userBtn2.hidden = NO;
-            [_userBtn1 setImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[1]).userName size:_userBtn1.bounds.size] forState:UIControlStateNormal];
-            [_userBtn1 setImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[0]).userName size:_userBtn2.bounds.size] forState:UIControlStateNormal];
+            [_userBtn1 setBackgroundImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[1]).userName size:_userBtn1.bounds.size] forState:UIControlStateNormal];
+            [_userBtn2 setBackgroundImage:[UIImage imageForName:((FMUserLoginInfo *)usersDatasource[0]).userName size:_userBtn2.bounds.size] forState:UIControlStateNormal];
         }
     }else{
         _userBtn1.hidden = YES;
