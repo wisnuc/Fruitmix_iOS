@@ -62,8 +62,34 @@
     FMUsersLoginMangeCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FMUsersLoginMangeCell class]) forIndexPath:indexPath];
     cell.userHeaderIV.image = [UIImage imageForName:((FMUserLoginInfo *)(_dataSource[indexPath.section][indexPath.row])).userName size:cell.userHeaderIV.bounds.size];
     cell.userNameLb.text = ((FMUserLoginInfo *)(_dataSource[indexPath.section][indexPath.row])).userName;
+    @weakify(MyAppDelegate);
+    @weakify(self);
+    cell.deleteBtnClick = ^(UIButton * btn){
+       FMUserLoginInfo * info =  (FMUserLoginInfo *)(_dataSource[indexPath.section][indexPath.row]);
+        [SXLoadingView showProgressHUD:@"正在删除数据"];
+        [FMDBControl removeUserLoginInfo:info.uuid];//删除数据
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [SXLoadingView hideProgressHUD];
+//            MyAppDelegate 
+            if (IsEquallString(info.uuid, DEF_UUID)) {
+                [PhotoManager shareManager].canUpload = NO;//停止上传
+                FMConfigInstance.userToken = @"";
+                [weak_MyAppDelegate resetDatasource];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [SXLoadingView hideProgressHUD];
+                    [weak_MyAppDelegate skipToLogin];
+                });
+            }else{
+                [weak_self getDataSource];
+                [tableView reloadData];
+            }
+            [weak_MyAppDelegate reloadLeftUsers];
+        });
+    };
     return cell;
 }
+
+
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 56;

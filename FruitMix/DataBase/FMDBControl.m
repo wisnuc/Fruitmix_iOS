@@ -593,6 +593,12 @@
     FMDTDeleteCommand * dcmd = FMDT_DELETE(set.userLoginInfo);
     [dcmd where:@"uuid" equalTo:userid];
     [dcmd saveChanges];
+    
+    //删除上传记录
+    FMDTDeleteCommand * dcmd2 = FMDT_DELETE(set.syncLogs);
+    [dcmd2 where:@"userId" equalTo:userid];
+    [dcmd2 saveChanges];
+    
 }
 
 //查询一条用户登录记录

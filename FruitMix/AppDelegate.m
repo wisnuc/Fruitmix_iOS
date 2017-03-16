@@ -222,6 +222,12 @@
     return arr;
 }
 
+
+-(void)reloadLeftUsers{
+    _leftMenu.usersDatasource = [self getUsersInfo];
+    [_leftMenu checkToStart];
+}
+
 -(void)reloadLeftMenuIsAdmin:(BOOL)isAdmin{
     NSMutableArray * menusTitle = nil;
     NSMutableArray * menusImages = nil;
@@ -236,6 +242,7 @@
     _leftMenu.menus = menusTitle;
     _leftMenu.imageNames = menusImages;
     [_leftMenu.settingTabelView reloadData];
+    [_leftMenu checkToStart];
 }
 
 // 将NSlog打印信息保存到Document目录下的文件中

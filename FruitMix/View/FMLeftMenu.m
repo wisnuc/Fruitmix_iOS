@@ -21,6 +21,7 @@
 
 @implementation FMLeftMenu
 
+
 -(void)awakeFromNib{
     [super awakeFromNib];
 //    self.userHeaderIV.layer.cornerRadius = self.userHeaderIV.frame.size.width/2;

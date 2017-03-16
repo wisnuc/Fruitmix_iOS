@@ -51,5 +51,9 @@
 -(void)resetDatasource;
 
 -(UIView *)notifyViewWithMessage:(NSString *)message;
+
+-(void)skipToLogin;
+
+-(void)reloadLeftUsers;
 @end
 
