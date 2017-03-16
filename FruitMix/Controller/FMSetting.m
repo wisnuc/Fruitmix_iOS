@@ -12,6 +12,8 @@
 @interface FMSetting ()<UITableViewDelegate,UITableViewDataSource,LCActionSheetDelegate>
 @property (nonatomic) id navDelegate;
 
+@property (nonatomic) BOOL displayProgress;
+
 @end
 
 @implementation FMSetting
@@ -23,12 +25,14 @@
 //    self.automaticallyAdjustsScrollViewInsets = NO;
     self.navigationController.navigationBar.translucent = NO;
     self.settingTableView.tableFooterView = [UIView new];
+    self.displayProgress = NO;
     [self createNavbtn];
 }
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
+    self.displayProgress = NO;
     [self.settingTableView reloadData];
 //    self.navDelegate =  self.navigationController.interactivePopGestureRecognizer.delegate;
 //    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
@@ -63,20 +67,61 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell * cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"123"];
     if (indexPath.row == 0) {
-        cell.textLabel.text = @"照片自动备份:";
-        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(0, 0, 50, 40)];
+        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+        titleLb.text = @"照片自动备份:";
+        titleLb.font = [UIFont systemFontOfSize:17];
+        
+        [cell.contentView addSubview:titleLb];
+        cell.contentView.layer.masksToBounds = YES;
+        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
         switchBtn.on = IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO);
         [switchBtn addTarget:self  action:@selector(switchBtnHandleForSync:) forControlEvents:UIControlEventValueChanged];
-        cell.accessoryView = switchBtn;
+        [cell.contentView addSubview:switchBtn];
+        
+        if(switchBtn.isOn){
+            UILabel * lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 50, __kWidth, 12)];
+            lb.font = [UIFont systemFontOfSize:12];
+            lb.textAlignment = NSTextAlignmentCenter;
+            lb.text = _displayProgress?@"点击收回备份详情": @"点击查看备份详情";
+            [cell.contentView addSubview:lb];
+            
+            UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
+            progressLb.font = [UIFont systemFontOfSize:12];
+            progressLb.textAlignment = NSTextAlignmentCenter;
+            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                NSInteger allPhotos = result.count;
+                FMDBSet * dbSet = [FMDBSet shared];
+                FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+                [scmd where:@"userId" equalTo:DEF_UUID];
+                [scmd fetchArrayInBackground:^(NSArray *results) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
+                    });
+                }];
+            }];
+            
+            [cell.contentView addSubview:progressLb];
+            progressLb.hidden = !_displayProgress;
+        }
+        
+        
     }
     if (indexPath.row == 1) {
-        cell.textLabel.text = @"手机网络上传:";
-        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(0, 0, 50, 40)];
+        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+        titleLb.text = @"手机网络上传:";
+        titleLb.font = [UIFont systemFontOfSize:17];
+        [cell.contentView addSubview:titleLb];
+        
+        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
         switchBtn.on = SHOULD_WLNN_UPLOAD;
         [switchBtn addTarget:self  action:@selector(switchBtnHandleForWWNN:) forControlEvents:UIControlEventValueChanged];
-        cell.accessoryView = switchBtn;
+        [cell.contentView addSubview:switchBtn];
     }else if(indexPath.row == 2){
-        cell.textLabel.text = @"清除缓存";
+        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+        titleLb.text = @"清除缓存";
+        titleLb.font = [UIFont systemFontOfSize:17];
+        [cell.contentView addSubview:titleLb];
+        
         UIButton * cleanBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
         cleanBtn.userInteractionEnabled = NO;
         [cleanBtn setTitle:@"正在计算..." forState:UIControlStateNormal];
@@ -97,7 +142,11 @@
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.row == 1) {
+    if(indexPath.row == 0){
+        _displayProgress = !_displayProgress;
+        [self.settingTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+    else if (indexPath.row == 1) {
         LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"确认清除缓存"
                                                                  delegate:self
                                                         cancelButtonTitle:@"取消"
@@ -108,6 +157,15 @@
         [actionSheet show];
     }
 }
+
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if(IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO) && indexPath.row == 0 && _displayProgress)
+        return 100;
+    return 64;
+        
+}
+
 
 - (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 2) {
@@ -147,6 +205,7 @@
              [PhotoManager shareManager].canUpload = NO;
         }
     }
+    [self.settingTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:100];
 }
 
 - (IBAction)cleanBtnClick:(id)sender {

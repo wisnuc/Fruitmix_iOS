@@ -40,4 +40,6 @@
 @property (nonatomic) void(^footViewClickBlock)();
 
 -(void)checkToStart;
+
+
 @end

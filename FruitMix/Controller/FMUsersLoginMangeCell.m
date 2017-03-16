@@ -15,9 +15,11 @@
     // Initialization code
 }
 - (IBAction)deleteBtnClick:(id)sender {
+
     if (_deleteBtnClick) {
         _deleteBtnClick(sender);
     }
+
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
