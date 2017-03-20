@@ -77,14 +77,14 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
 
     self.isBackground = YES;
-//    [[BackgroundRunner shared] run];
+    [[BackgroundRunner shared] run];
     if (self.didEnterBackgroundHandler) {
         self.didEnterBackgroundHandler();
     }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-//    [[BackgroundRunner shared] stop];
+    [[BackgroundRunner shared] stop];
     self.isBackground = NO;
 }
 

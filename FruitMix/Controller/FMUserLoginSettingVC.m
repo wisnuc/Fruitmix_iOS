@@ -37,6 +37,7 @@
     NSMutableArray * arr = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
     for (FMUserLoginInfo * info in arr) {
+        if(!info.bonjour_name)info.bonjour_name = @"未知设备,请删除后重新添加";
         if ([[dic allKeys] containsObject:info.bonjour_name]) {
             NSMutableArray * temp = dic[info.bonjour_name];
             [temp addObject:info];
@@ -106,12 +107,17 @@
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     NSString * str = ((FMUserLoginInfo *)(_dataSource[section][0])).bonjour_name;
     NSArray * tempArr = [str componentsSeparatedByString:@"."];
-    NSString * str2 = tempArr[0];
-    NSArray * tmp2 = [str2 componentsSeparatedByString:@"-"];
-    NSString * name = tmp2[1];
-    NSString * sn = tmp2[2];
+    if(tempArr.count > 2){
+        NSString * str2 = tempArr[0];
+        NSArray * tmp2 = [str2 componentsSeparatedByString:@"-"];
+        NSString * name = tmp2[1];
+        NSString * sn = tmp2[2];
+        return [FMUserLoginHeaderView headerViewWithDeviceName:name DeviceSN:sn];
+    }else
+        return [FMUserLoginHeaderView headerViewWithDeviceName:str DeviceSN:@"未知"];
     
-    return [FMUserLoginHeaderView headerViewWithDeviceName:name DeviceSN:sn];
+    
+    
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
