@@ -89,10 +89,15 @@
             progressLb.font = [UIFont systemFontOfSize:12];
             progressLb.textAlignment = NSTextAlignmentCenter;
             [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+                for (FMLocalPhoto * p in result) {
+                    [tmp addObject:p.localIdentifier];
+                }
                 NSInteger allPhotos = result.count;
                 FMDBSet * dbSet = [FMDBSet shared];
                 FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
                 [scmd where:@"userId" equalTo:DEF_UUID];
+                [scmd where:@"localId" containedIn:tmp];
                 [scmd fetchArrayInBackground:^(NSArray *results) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
@@ -146,7 +151,7 @@
         _displayProgress = !_displayProgress;
         [self.settingTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
-    else if (indexPath.row == 1) {
+    else if (indexPath.row == 2) {
         LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"确认清除缓存"
                                                                  delegate:self
                                                         cancelButtonTitle:@"取消"
@@ -168,7 +173,7 @@
 
 
 - (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 2) {
+    if (buttonIndex == 1) {
         [SXLoadingView showProgressHUD:@"正在清除缓存"];
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             [[SDImageCache sharedImageCache] cleanDisk];

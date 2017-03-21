@@ -141,7 +141,7 @@
                 [photoIDArr addObject:asset.localIdentifier];
             }
             
-            //查找已存在的
+            //查找已删除的
             FMDTSelectCommand * scmd1 = FMDT_SELECT(dbSet.photo);
             [scmd1 where:@"localIdentifier" notContainedIn:photoIDArr];
             [scmd1 fetchArrayInBackground:^(NSArray *result1) {
@@ -149,6 +149,8 @@
                 for (FMLocalPhoto * p in result1) {
                     [tempDelArrIds addObject:p.localIdentifier];
                 }
+                
+                //删除操作
                 FMDTDeleteCommand * delcmd = FMDT_DELETE(dbSet.photo);
                 [delcmd where:@"localIdentifier" containedIn:tempDelArrIds];
                 [delcmd saveChangesInBackground:nil];
