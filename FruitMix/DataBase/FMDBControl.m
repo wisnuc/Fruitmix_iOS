@@ -9,7 +9,7 @@
 #import "FMDBControl.h"
 #import "FMMediaShareTask.h"
 #import "FMFileManager.h"
-
+#import "FMAccountUsersAPI.h"
 @interface FMLocalPhotoStore ()
 @property (nonatomic ,strong ,readwrite) NSMutableDictionary * localPhotoDic;
 @property (nonatomic ,strong ,readwrite) NSMutableDictionary * hashToLocalIdMap;
@@ -529,27 +529,33 @@
 
 
 +(void)asyncUserHome{
-    FMAsyncUsersAPI * usersApi = [FMAsyncUsersAPI new];
+    FMAccountUsersAPI * usersApi = [FMAccountUsersAPI new];
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSArray * userArr = request.responseJsonObject;
-        for (NSDictionary * dic in userArr) {
-            if (IsEquallString(dic[UUIDKey], DEF_UUID)) {
-                if ([dic[@"isAdmin"] boolValue]) {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(1)];
-                }else
-                    [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(0)];
-                FMConfigInstance.userHome = dic[@"home"];
-                //更新 UsrInfo 信息
-//                FMUserInfo * info = [FMUserInfo new];
-//                info.userId = DEF_UUID;
-//                info.home = dic[@"home"];
-//                info.library = dic[@"library"];
-//                FMDTUpdateObjectCommand * ucmd = FMDT_UPDATE_OBJECT([FMDBSet shared].userInfo);
-//                [ucmd add:info];
-//                [ucmd saveChanges];
-            }
+        NSLog(@"😈😈😈😈%@",request.responseJsonObject);
+//        NSArray * userArr = request.responseJsonObject;
+//        NSLog(@"%lu",(unsigned long)userArr);
+//        if (userArr.count>0) {
+//            for (NSDictionary * dic in userArr) {
+          NSDictionary * dic = request.responseJsonObject;
+                if (IsEquallString(dic[UUIDKey], DEF_UUID)) {
+                    if ([dic[@"isAdmin"] boolValue]) {
+                        [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(1)];
+                    }else
+                        [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(0)];
+                    FMConfigInstance.userHome = dic[@"home"];
+                    //更新 UsrInfo 信息
+                    //                FMUserInfo * info = [FMUserInfo new];
+                    //                info.userId = DEF_UUID;
+                    //                info.home = dic[@"home"];
+                    //                info.library = dic[@"library"];
+                    //                FMDTUpdateObjectCommand * ucmd = FMDT_UPDATE_OBJECT([FMDBSet shared].userInfo);
+                    //                [ucmd add:info];
+                    //                [ucmd saveChanges];
+//                }
+//            }
+            NSLog(@"userhome表更新完成"); 
         }
-        NSLog(@"userhome表更新完成");
+     
     } failure:^(__kindof JYBaseRequest *request) {
         NSLog(@"更新UsersHome失败");
     }];

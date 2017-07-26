@@ -60,6 +60,7 @@
     else{
         FMCreateUserAPI * api = [FMCreateUserAPI new];
         NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
+         [dic setObject:@"local" forKey:@"type"];
         [dic setObject:self.userNameTF.text forKey:@"username"];
         [dic setObject:IsNilString(self.passwordTF.text)?@"":self.passwordTF.text forKey:@"password"];
         api.param = dic;
@@ -67,6 +68,7 @@
             [MyAppDelegate.notification displayNotificationWithMessage:@"创建用户成功" forDuration:1];
             [self.navigationController popViewControllerAnimated:YES];
         } failure:^(__kindof JYBaseRequest *request) {
+            NSLog(@"%@",request.error);
             [MyAppDelegate.notification displayNotificationWithMessage:@"创建用户失败" forDuration:1];
         }];
     }

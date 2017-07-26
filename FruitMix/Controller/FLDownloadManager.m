@@ -27,8 +27,10 @@
 
 
 -(void)downloadFileWithFileModel:(FLFilesModel *)model{
+    NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
-    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@files/%@",[JYRequestConfig sharedConfig].baseURL,model.uuid] filePath:filePath];
+    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@files/fruitmix/download/%@/%@",[JYRequestConfig sharedConfig].baseURL,model.parUUID,model.uuid] filePath:filePath];
+
     downloadModel.jy_fileName = model.name;
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
     [manager startWithDownloadModel:downloadModel];
@@ -43,6 +45,7 @@
         if (state == TYDownloadStateCompleted) {
             FLDownload * download = [FLDownload new];
             download.name = downloadModel.jy_fileName;
+            NSLog(@"%@",download.name);
             NSDateFormatter * formatter1 = [[NSDateFormatter alloc]init];
             formatter1.dateFormat = @"yyyy-MM-dd hh:mm:ss";
             [formatter1 setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];

@@ -8,8 +8,16 @@
 
 #import "FMUsers.h"
 
+@implementation Users
++ (NSDictionary *)modelContainerPropertyGenericClass {
+    return @{@"users" : [Users class]};
+}
+@end
+
 @implementation FMUsers
 + (NSString *)primaryKeyFieldName {
     return @"uuid";
 }
+
+
 @end

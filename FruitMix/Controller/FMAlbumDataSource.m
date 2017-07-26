@@ -170,6 +170,7 @@
         NSLog(@"创建相册成功%@",request.responseJsonObject);
         block(YES);
     } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request);
         NSLog(@"创建相册失败：%@",request.error);
         block(NO);
     }];

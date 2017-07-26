@@ -298,12 +298,13 @@
         downloadModel.downloadDate = [NSDate date];
         self.downloadingModelDic[downloadModel.downloadURL] = downloadModel;
         // 创建一个Data任务
-        downloadModel.task = [self.session dataTaskWithRequest:request];
+        
+        downloadModel.task = [self.session  dataTaskWithRequest:request];
+             
         downloadModel.task.taskDescription = URLString;
     }
     
     [downloadModel.task resume];
-    
     downloadModel.state = TYDownloadStateRunning;
     [self downloadModel:downloadModel didChangeState:TYDownloadStateRunning filePath:nil error:nil];
 }
@@ -499,10 +500,13 @@
 /**
  * 接收到响应
  */
+
+
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSHTTPURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
     
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
+    NSLog(@"===========>>>>>😆😆😆😆%@",dataTask.taskDescription);
     if (!downloadModel) {
         return;
     }
@@ -513,6 +517,7 @@
     
     // 打开流
     [downloadModel.stream open];
+
     
     // 获得服务器这次请求 返回数据的总长度
     long long totalBytesWritten =  [self fileSizeWithDownloadModel:downloadModel];
@@ -538,6 +543,7 @@
  */
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
+    NSLog(@"=========>>>>>😁😁😁😁😁😁😁%@",data);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
     if (!downloadModel || downloadModel.state == TYDownloadStateSuspended) {
         return;
@@ -567,6 +573,7 @@
  */
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
+    NSLog(@"%@",error);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:task.taskDescription];
     
     if (!downloadModel) {

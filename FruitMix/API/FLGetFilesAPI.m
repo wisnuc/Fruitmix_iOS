@@ -23,7 +23,7 @@
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-    return [NSString stringWithFormat:@"files/%@",self.fileUUID];
+    return [NSString stringWithFormat:@"files/fruitmix/list/%@/%@",self.fileUUID,self.fileUUID];
 }
 
 -(NSDictionary *)requestHeaderFieldValueDictionary{

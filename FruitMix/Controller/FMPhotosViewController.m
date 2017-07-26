@@ -535,7 +535,7 @@
     BOOL isShouldSelect = YES;
     for (FMPhoto * photo in items) {
         if(![self.choosePhotos containsObject:photo]){
-            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).sharing boolValue]) {
+            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).permittedToShare boolValue]) {
                 isShouldSelect = NO;
                 break;
             }
@@ -629,7 +629,7 @@
     }
     else if(self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose){
         
-        if([photo isKindOfClass:[FMNASPhoto class]] && ![((FMNASPhoto *)photo).sharing boolValue]){
+        if([photo isKindOfClass:[FMNASPhoto class]] && ![((FMNASPhoto *)photo).permittedToShare boolValue]){
             [SXLoadingView showAlertHUD:@"非本人照片，不能操作" duration:0.5];
             return ;
         }
@@ -676,7 +676,7 @@
             for (FMPhoto * photo in items) {
                 if ([self.photoDataSource.netphotoArr containsObject:photo]) {
                     FMNASPhoto * p = (FMNASPhoto *)photo;
-                    if(![p.sharing boolValue])
+                    if(![p.permittedToShare boolValue])
                         continue;
                 }
                 if ([self.choosePhotos indexOfObject:photo] == NSNotFound) {
@@ -717,7 +717,7 @@
     BOOL shouldChoose = YES;
     if ([self.photoDataSource.netphotoArr containsObject:asset]) {
         FMNASPhoto * p = (FMNASPhoto *)asset;
-        shouldChoose = [p.sharing boolValue];
+        shouldChoose = [p.permittedToShare boolValue];
     }
     
     if (shouldChoose) {

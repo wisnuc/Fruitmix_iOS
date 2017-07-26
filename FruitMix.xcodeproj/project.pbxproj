@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9CAB3F041F2740680037E0FE /* FMAccountUsersAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAB3F031F2740680037E0FE /* FMAccountUsersAPI.m */; };
 		B17996EF88C95D857CA6D043 /* Pods_FruitMix.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F807713083ABE0F68BF0E4A /* Pods_FruitMix.framework */; };
 		C1009B3A1DFE8769006ADA84 /* FMUserEditVC.m in Sources */ = {isa = PBXBuildFile; fileRef = C1009B381DFE8769006ADA84 /* FMUserEditVC.m */; };
 		C1009B3B1DFE8769006ADA84 /* FMUserEditVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = C1009B391DFE8769006ADA84 /* FMUserEditVC.xib */; };
@@ -692,6 +693,8 @@
 
 /* Begin PBXFileReference section */
 		7F807713083ABE0F68BF0E4A /* Pods_FruitMix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FruitMix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9CAB3F021F2740680037E0FE /* FMAccountUsersAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMAccountUsersAPI.h; sourceTree = "<group>"; };
+		9CAB3F031F2740680037E0FE /* FMAccountUsersAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMAccountUsersAPI.m; sourceTree = "<group>"; };
 		C1009B371DFE8769006ADA84 /* FMUserEditVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMUserEditVC.h; sourceTree = "<group>"; };
 		C1009B381DFE8769006ADA84 /* FMUserEditVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMUserEditVC.m; sourceTree = "<group>"; };
 		C1009B391DFE8769006ADA84 /* FMUserEditVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMUserEditVC.xib; sourceTree = "<group>"; };
@@ -2582,6 +2585,8 @@
 				C19136041CC73F36008BAB93 /* FMGetUsersAPI.m */,
 				C11A27391D2E64240033764F /* FMAsyncUsersAPI.h */,
 				C11A273A1D2E64240033764F /* FMAsyncUsersAPI.m */,
+				9CAB3F021F2740680037E0FE /* FMAccountUsersAPI.h */,
+				9CAB3F031F2740680037E0FE /* FMAccountUsersAPI.m */,
 			);
 			name = "获取User";
 			sourceTree = "<group>";
@@ -5033,6 +5038,7 @@
 				C1F44A451D12A88000A8FD34 /* RATreeNodeController.m in Sources */,
 				C152131C1CB38EAC00EF61CF /* FMPhotosCollectionViewCell.m in Sources */,
 				C191365D1CC8C088008BAB93 /* FMDBSet.m in Sources */,
+				9CAB3F041F2740680037E0FE /* FMAccountUsersAPI.m in Sources */,
 				C1E8997C1CCF947400E8E493 /* FMWaterfallCell.m in Sources */,
 				C1880E931D1FAFC4001CB99D /* FMNeedUploadMediaShare.m in Sources */,
 				C1FFC8691D51931200AD4D15 /* NetworkClient.m in Sources */,
@@ -5337,7 +5343,7 @@
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8SC32MU7TG;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5376,7 +5382,7 @@
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8SC32MU7TG;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

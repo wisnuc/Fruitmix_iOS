@@ -628,6 +628,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location
 {
+    NSLog(@"%@",location);
+    
+    
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:downloadTask.taskDescription];
     if (!downloadModel && _backgroundSessionDownloadCompleteBlock) {
         NSString *filePath = _backgroundSessionDownloadCompleteBlock(downloadTask.taskDescription);

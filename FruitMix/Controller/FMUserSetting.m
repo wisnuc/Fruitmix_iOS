@@ -9,7 +9,7 @@
 #import "FMUserSetting.h"
 #import "FMUserSettingCell.h"
 #import "FMUserAddVC.h"
-
+#import "FMUserLoginInfo.h"
 @interface FMUserSetting ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UILabel *deviceNameLb;
 @property (weak, nonatomic) IBOutlet UITableView *usersTableView;
@@ -48,8 +48,34 @@
 
 -(void)getData{
     FMAsyncUsersAPI * usersApi = [FMAsyncUsersAPI new];
+//    NSArray *userData = [FMDBControl getAllUserLoginInfo];
+//    NSLog(@"%@",userData);
+ 
+//    for (FMUserLoginInfo * info in arr) {
+//        if (IsEquallString(info.uuid, DEF_UUID)) {
+//            [arr removeObject:info];
+//            break;
+//        }
+//    }
+
+//    NSMutableArray *tempDataSource = [NSMutableArray arrayWithCapacity:0];
+
+//            for (FMUserLoginInfo * info in userData) {
+////                NSLog(@"%@",info);
+////                FMUsers * model = [FMUsers yy_modelWithJSON:info];
+////                NSLog(@"%@",model);
+//                [tempDataSource addObject:info];
+//            }
+//    
+//            self.dataSource = tempDataSource;
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [self.usersTableView reloadData];
+//            });
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSArray * userArr = request.responseJsonObject;
+        NSLog(@"%@",request.responseJsonObject);
+     
+        FMUsers * model = [FMUsers yy_modelWithJSON:request.responseJsonObject];
+           NSArray * userArr = model.users;
         NSMutableArray *tempDataSource = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in userArr) {
             FMUsers * model = [FMUsers yy_modelWithJSON:dic];
@@ -61,9 +87,22 @@
             [self.usersTableView reloadData];
         });
     } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.error);
         NSLog(@"失败");
     }];
 }
+
+//-(NSMutableArray *)getUsersInfo{
+//    NSMutableArray * arr = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
+//    
+//    for (FMUserLoginInfo * info in arr) {
+//        if (IsEquallString(info.uuid, DEF_UUID)) {
+//            [arr removeObject:info];
+//            break;
+//        }
+//    }
+//    return arr;
+//}
 
 -(NSMutableArray *)dataSource{
     if (!_dataSource) {

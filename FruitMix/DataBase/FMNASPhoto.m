@@ -80,7 +80,10 @@
     [inputFormatter setDateFormat:@"yyyy:MM:dd HH:mm:ss"];
     _createDate = [inputFormatter dateFromString:createDate];
 }
-
+- (void)setDigest:(NSString *)digest{
+//     NSLog(@"😜😜😜😜%@",digest);
+    _digest = digest;
+}
 //yymodel
 //+ (NSDictionary *)modelCustomPropertyMapper {
 //    return @{@"hashid" : @"hash",
@@ -88,6 +91,21 @@
 //             @"exifinfo":@"detail"
 //             };
 //}
+
++ (NSDictionary *)modelCustomPropertyMapper {
+    return @{
+             @"format":@"metadata.format",
+             @"exifDateTime":@"metadata.exifDateTime",
+             @"exifMake":@"metadata.exifMake",
+             @"exifModel":@"metadata.exifModel",
+             @"exifOrientation":@"metadata.exifOrientation",
+             
+             @"size":@"metadata.size",
+             @"height":@"metadata.height",
+             @"width":@"metadata.width"
+     };
+}
+
 
 -(instancetype)init{
     self = [super init];

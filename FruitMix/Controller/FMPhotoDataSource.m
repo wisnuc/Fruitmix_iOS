@@ -88,11 +88,16 @@
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         @autoreleasepool {
             NSMutableArray * photoArr = [NSMutableArray arrayWithCapacity:0];
-            for (NSDictionary * dic in userArr) {
+            for (NSArray * contentArr in userArr) {
                 @autoreleasepool {
-                    FMNASPhoto * nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-                    if(!IsNilString([nasPhoto getPhotoHash]) && ![_localphotoDigest containsObject:[nasPhoto getPhotoHash]])
-                        [photoArr addObject:nasPhoto];
+                    if (contentArr.count>0) {
+                        NSString *photoHash = contentArr[0];
+                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:contentArr[1]];
+                        nasPhoto.digest = photoHash;
+                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
+                            [photoArr addObject:nasPhoto];
+                        NSLog(@"%@",photoArr);
+                    }
                 }
             }
             if (photoArr.count) {

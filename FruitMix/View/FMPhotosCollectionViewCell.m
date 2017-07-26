@@ -72,7 +72,7 @@
 -(void)setBtnHiddenWithAsset:(id<IDMPhoto>)asset{
     if ([asset isKindOfClass:[FMNASPhoto class]]) {
         if (!self.state) {
-            if(![((FMNASPhoto *)asset).sharing boolValue]){
+            if(![((FMNASPhoto *)asset).permittedToShare boolValue]){
                 self.lockBtn.hidden = NO;
                 self.maskLayer.hidden = NO;
             }

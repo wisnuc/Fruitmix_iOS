@@ -1,23 +1,22 @@
 //
-//  FMAsyncUsersAPI.m
+//  FMAccountUsersAPI.m
 //  FruitMix
 //
-//  Created by 杨勇 on 16/7/7.
-//  Copyright © 2016年 WinSun. All rights reserved.
+//  Created by wisnuc on 2017/7/25.
+//  Copyright © 2017年 WinSun. All rights reserved.
 //
 
-#import "FMAsyncUsersAPI.h"
+#import "FMAccountUsersAPI.h"
 
-@implementation FMAsyncUsersAPI
-
+@implementation FMAccountUsersAPI
 /// Http请求的方法
 - (JYRequestMethod)requestMethod{
     return JYRequestMethodGet;
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-//    return @"users";
-   return  @"admin/users";
+    //    return @"users";
+    return  @"account";
 }
 
 -(NSDictionary *)requestHeaderFieldValueDictionary{

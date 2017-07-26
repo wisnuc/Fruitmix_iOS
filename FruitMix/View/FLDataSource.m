@@ -30,17 +30,21 @@
 }
 
 -(void)getFilesWithUUID:(NSString *)uuid{
+  
     [[FLGetFilesAPI apiWithFileUUID:uuid]
      startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSArray * arr = request.responseJsonObject;
+           NSLog(@"%@",request.responseJsonObject);
         for (NSDictionary * dic in arr) {
             FLFilesModel * model = [FLFilesModel yy_modelWithJSON:dic];
+            model.parUUID = uuid;
             [self.dataSource addObject:model];
         }
         if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
             [self.delegate fl_Datasource:self finishLoading:YES];
         }
     } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.error);
         if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
             [self.delegate fl_Datasource:self finishLoading:NO];
         }

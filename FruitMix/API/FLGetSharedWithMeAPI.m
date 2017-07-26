@@ -16,7 +16,7 @@
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-    return @"share/sharedWithMe";
+    return @"fileshare";
 }
 -(NSDictionary *)requestHeaderFieldValueDictionary{
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];

@@ -193,7 +193,8 @@
 
 -(void)findIpToCheck:(NSString *)addressString andService:(NSNetService *)service{
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3721/", addressString];
-    if ([service.name rangeOfString:@"WISNUC"].location !=NSNotFound ||[service.name rangeOfString:@"wisnuc"].location !=NSNotFound) {
+    NSLog(@"%@", urlString);
+//    if ([service.name rangeOfString:@"WISNUC"].location !=NSNotFound ||[service.name rangeOfString:@"wisnuc"].location !=NSNotFound) {
         FMSerachService * ser = [FMSerachService new];
         ser.path = urlString;
         //        ser.path = @"http://192.168.5.207:3721/";
@@ -212,7 +213,7 @@
             [self.dataSource addObject:ser];
             [self refreshDatasource];
         }
-    }
+//    }
 }
 
 - (void)serverBrowserLostService:(NSNetService *)service index:(NSUInteger)index {

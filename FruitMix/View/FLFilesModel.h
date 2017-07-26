@@ -24,5 +24,7 @@
 
 @property (readonly,nonatomic) BOOL isFile;
 
+@property (nonatomic) NSString * parUUID;
+
 @end
 

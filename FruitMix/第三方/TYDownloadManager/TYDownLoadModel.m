@@ -73,6 +73,7 @@
 {
     if (self = [self init]) {
         _downloadURL = URLString;
+//        NSLog(@"%@",_downloadURL);
         _fileName = filePath.lastPathComponent;
         _downloadDirectory = filePath.stringByDeletingLastPathComponent;
         _filePath = filePath;

@@ -27,6 +27,7 @@
     static int i = 0;
     __weak typeof(self) weakSelf = self;
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    NSLog(@"%@",_path);
     [manager GET:[NSString stringWithFormat:@"%@login",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray * userArr = responseObject;
@@ -36,9 +37,9 @@
             [tempArr addObject:model];
         }
         self.users = tempArr;
-        if (tempArr.count>0) {
+//        if (tempArr.count>0) {
             self.isReadly = YES;
-        }
+//        }
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"ERROR: %@",error.code == -1004?@"请求超时":(error.code == -1003?@"无法解析ip":@"未知错误"));

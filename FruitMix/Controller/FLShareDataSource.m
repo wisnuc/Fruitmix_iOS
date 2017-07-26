@@ -33,6 +33,7 @@
             [self.delegate shareDataSourceLoadingComplete:YES];
         
     } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.error);
          if (self.delegate && [self.delegate respondsToSelector:@selector(shareDataSourceLoadingComplete:)])
              [self.delegate shareDataSourceLoadingComplete:NO];
     }];

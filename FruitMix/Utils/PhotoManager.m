@@ -655,7 +655,8 @@ BOOL shouldUpload = NO;
                     return ;
                 }
                 
-                NSString * url = [NSString stringWithFormat:@"%@libraries/%@",[JYRequestConfig sharedConfig].baseURL,[PhotoManager getUUID]];
+//                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
+                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
                 
                 // 前台上传
@@ -671,7 +672,16 @@ BOOL shouldUpload = NO;
                                   
                               }
                               completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                  NSLog(@"%@",responseObject);
+                                  NSData *responseData = [NSData dataWithData:responseObject];
+                                
+                                
+                                  NSString *result = [[NSString alloc] initWithData:responseData  encoding:NSUTF8StringEncoding];
+                                  
+                                    NSLog(@"%@",result);
+//                                  NSDictionary *dicFromResponseData = [NSDictionary ]
                                   NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
+                                  NSLog(@"%ld",(long)rep.statusCode);
                                   [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
                                              andSha256:str
                                           withFilePath:filePath
