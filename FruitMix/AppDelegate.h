@@ -26,6 +26,7 @@
 @property (retain, nonatomic) UIViewController *UserSetting;
 @property (retain, nonatomic) UIViewController *Setting;
 @property (retain, nonatomic) UIViewController *Help;
+@property (retain, nonatomic) UIViewController *downAndUpLoadManager;
 @property (retain, nonatomic) FMLoginVC * zhuxiao;
 @property (nonatomic) MenuView * menu;
 

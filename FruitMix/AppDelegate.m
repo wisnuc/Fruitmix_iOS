@@ -182,7 +182,7 @@
     leftMenu.frame = CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width * 0.8, [[UIScreen mainScreen] bounds].size.height);
     _leftMenu = leftMenu;
     leftMenu.delegate = self;
-    leftMenu.menus = [NSMutableArray arrayWithObjects:@"我的文件",@"设置",@"注销",nil];//@"个人信息", @"我的私有云", @"用户管理", @"设置", @"帮助",
+    leftMenu.menus = [NSMutableArray arrayWithObjects:@"文件下载",@"设置",@"注销",nil];//@"个人信息", @"我的私有云", @"用户管理", @"设置", @"帮助",
     leftMenu.imageNames = [NSMutableArray arrayWithObjects:@"files",@"set",@"cancel",nil];//@"personal",@"cloud",@"user",@"set",@"help",
     //配置Users 列表
    
@@ -195,6 +195,7 @@
     _Setting = [[FMSetting alloc]init];
     _Help = [[FMHelp alloc]init];
     _zhuxiao = [[FMLoginVC alloc]init];
+    _downAndUpLoadManager = [[FLLocalFIleVC alloc]init];
     self.menu = [MenuView MenuViewWithDependencyView:self.window MenuView:leftMenu isShowCoverView:YES];
 //    @weakify(self);
     self.menu.showBlock = ^() {
@@ -232,10 +233,10 @@
     NSMutableArray * menusTitle = nil;
     NSMutableArray * menusImages = nil;
     if (!isAdmin){
-        menusTitle =  [NSMutableArray arrayWithObjects:@"我的文件",@"设置",@"注销", nil];//,@"个人信息",@"personal"
+        menusTitle =  [NSMutableArray arrayWithObjects:@"文件下载",@"设置",@"注销", nil];//,@"个人信息",@"personal"
         menusImages = [NSMutableArray arrayWithObjects:@"files",@"set",@"cancel",nil];
     }else{
-        menusTitle = [NSMutableArray arrayWithObjects:@"我的文件",@"用户管理",@"设置",@"注销",nil];//,@"个人信息",@"personal"
+        menusTitle = [NSMutableArray arrayWithObjects:@"文件下载",@"用户管理",@"设置",@"注销",nil];//,@"个人信息",@"personal"
         menusImages = [NSMutableArray arrayWithObjects:@"files",@"person_add",@"set",@"cancel",nil];
     }
     _leftMenu.usersDatasource = [self getUsersInfo];
@@ -267,27 +268,31 @@
     /* 页面 */
     FMShareViewController * shareVC = [[FMShareViewController alloc]init];
     FMPhotosViewController * photosVC = [[FMPhotosViewController alloc]init];
-    FMAlbumsViewController * albumsVC = [[FMAlbumsViewController alloc]init];
+//    FMAlbumsViewController * albumsVC = [[FMAlbumsViewController alloc]init];
+        FLFilesVC * filesVC = [[FLFilesVC alloc]init];
     /* 导航 */
     NavViewController *nav0 = [[NavViewController alloc] initWithRootViewController:shareVC];
     
     NavViewController *nav1 = [[NavViewController alloc]initWithRootViewController:photosVC];
-    NavViewController *nav2 = [[NavViewController alloc] initWithRootViewController:albumsVC];
+    NavViewController *nav2 = [[NavViewController alloc] initWithRootViewController:filesVC];
     
     shareVC.title = @"分享";
     photosVC.title = @"照片";
-    albumsVC.title = @"相册";
+    filesVC.title = @"文件";
     NSMutableArray *viewControllersMutArr = [[NSMutableArray alloc] initWithObjects:nav0, nav1,nav2,nil];
     [tabbar setViewControllers:viewControllersMutArr];
+   
     tabbar.tabBar.backgroundView.backgroundColor = UICOLOR_RGB(0x3f51b5);
     NSArray *tabBarItemImages = @[@"share", @"photo", @"photo-album"];
+    NSArray *tabBarItemTitles = @[@"分享", @"照片", @"文件"];
     NSInteger index = 0;
     for (RDVTabBarItem *item in [[tabbar tabBar] items]) {
         UIImage *selectedimage = [UIImage imageNamed:[NSString stringWithFormat:@"%@_select",
                                                       [tabBarItemImages objectAtIndex:index]]];
         UIImage *unselectedimage = [UIImage imageNamed:[NSString stringWithFormat:@"%@",
                                                         [tabBarItemImages objectAtIndex:index]]];
-        item.title = @"";
+        item.title = tabBarItemTitles[index];
+
         [item setFinishedSelectedImage:selectedimage withFinishedUnselectedImage:unselectedimage];
         index++;
     }
@@ -295,13 +300,13 @@
 }
 
 
--(RDVTabBarController *)filesTabBar{
-    if (!_filesTabBar) {
-        _filesTabBar = [[RDVTabBarController alloc]init];
-        [self initFilesWithTabBar:_filesTabBar];
-    }
-    return _filesTabBar;
-}
+//-(RDVTabBarController *)filesTabBar{
+//    if (!_filesTabBar) {
+//        _filesTabBar = [[RDVTabBarController alloc]init];
+//        [self initFilesWithTabBar:_filesTabBar];
+//    }
+//    return _filesTabBar;
+//}
 
 -(void)initFilesWithTabBar:(RDVTabBarController *)tabbar{
     /* 页面 */
@@ -431,21 +436,29 @@
             [selectVC  pushViewController:vc animated:YES];
         }
     }
-    else if (IsEquallString(title, @"我的照片")){
-        self.window.rootViewController = self.sharesTabBar;
-        [self.window makeKeyAndVisible];
-        NSInteger index = [self.leftMenu.menus indexOfObject:@"我的照片"];
-        self.leftMenu.menus[index] = @"我的文件";
-        self.leftMenu.imageNames[index] = @"files";
-        [self.leftMenu.settingTabelView reloadData];
-    }else if (IsEquallString(title, @"我的文件")){
-        self.window.rootViewController = self.filesTabBar;
-        [self.window makeKeyAndVisible];
-        NSInteger index = [self.leftMenu.menus indexOfObject:@"我的文件"];
-        self.leftMenu.menus[index] = @"我的照片";
-        self.leftMenu.imageNames[index] = @"photos";
-        [self.leftMenu.settingTabelView reloadData];
-    }
+        else if (IsEquallString(title, @"文件下载")){
+            vc = self.downAndUpLoadManager;
+            if ([selectVC isKindOfClass:[NavViewController class]]) {
+                [selectVC  pushViewController:vc animated:YES];
+            }
+
+        }
+    //        [self.window makeKeyAndVisible];
+//    else if (IsEquallString(title, @"我的照片")){
+//        self.window.rootViewController = self.sharesTabBar;
+//        [self.window makeKeyAndVisible];
+//        NSInteger index = [self.leftMenu.menus indexOfObject:@"我的照片"];
+//        self.leftMenu.menus[index] = @"我的文件";
+//        self.leftMenu.imageNames[index] = @"files";
+//        [self.leftMenu.settingTabelView reloadData];
+//    }else if (IsEquallString(title, @"我的文件")){
+//        self.window.rootViewController = self.filesTabBar;
+//        [self.window makeKeyAndVisible];
+//        NSInteger index = [self.leftMenu.menus indexOfObject:@"我的文件"];
+//        self.leftMenu.menus[index] = @"我的照片";
+//        self.leftMenu.imageNames[index] = @"photos";
+//        [self.leftMenu.settingTabelView reloadData];
+//    }
     else if (IsEquallString(title, @"设置")){
             vc = self.Setting;
             if ([selectVC isKindOfClass:[NavViewController class]]) {

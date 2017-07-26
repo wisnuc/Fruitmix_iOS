@@ -8,6 +8,6 @@
 
 #import "FLBaseVC.h"
 
-@interface FLLocalFIleVC : FLBaseVC
+@interface FLLocalFIleVC : FABaseVC
 
 @end
