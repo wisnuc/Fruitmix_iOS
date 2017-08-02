@@ -268,7 +268,9 @@ CGFloat buttonToScreenHeight;
     for (int i = 0; i< noOfRows; i++)
     {
         [ip addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+        NSLog(@"%d",i);
     }
+    
     [_menuTable insertRowsAtIndexPaths:ip withRowAnimation:UITableViewRowAnimationFade];
 }
 
@@ -376,8 +378,8 @@ CGFloat buttonToScreenHeight;
     
 //    cell.imgView.image = [UIImage imageNamed:[[_menuItemSet allKeys]objectAtIndex:indexPath.row]];
 //        cell.title.text = [[_menuItemSet allValues]objectAtIndex:indexPath.row];
-    
-    cell.imgView.image = [UIImage imageNamed:[_imageArray objectAtIndex:indexPath.row]];
+    NSLog(@"%lu",(unsigned long)_imageArray.count);
+    cell.imgView.image = [UIImage imageNamed:[_imageArray objectAtIndex:indexPath.row ]];
     cell.title.text    = [_labelArray objectAtIndex:indexPath.row];
 
     

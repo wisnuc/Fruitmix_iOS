@@ -17,4 +17,5 @@
 
 @property (nonatomic) FLFliesCellStatus cellStatus;
 
+@property (nonatomic, strong) NSString *name;
 @end

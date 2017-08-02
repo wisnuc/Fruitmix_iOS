@@ -79,7 +79,8 @@
     }
 }
 -(void)shareDataSourceLoadingComplete:(BOOL)complete{
-    [self.tableView displayWithMsg:@"暂无分享文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES andTouchBlock:nil];
+    [self.tableView displayWithMsg:@"暂无分享文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES
+andTableViewFrame:self.view.bounds andTouchBlock:nil];
     if (complete) {
         [self.tableView reloadData];
     }else

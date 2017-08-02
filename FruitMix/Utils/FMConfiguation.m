@@ -100,6 +100,10 @@
      return  username;
 }
 
+//- (NSString *)getBonjourWithUUID:(NSString *)uuid{
+//    
+//    
+//}
 -(void)cleanTheUserAllLocalCache{
     
 }

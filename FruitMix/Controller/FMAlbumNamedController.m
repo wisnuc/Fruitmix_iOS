@@ -64,8 +64,10 @@
         [headView addSubview:_rightBtn];
         
         UIButton * leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 18, 48, 48)];
-        [leftBtn setImage:[UIImage imageNamed:@"back"]
+        [leftBtn setImage:[UIImage imageNamed:@"back_gray"]
                  forState:UIControlStateNormal];
+        [leftBtn setImage:[UIImage imageNamed:@"back_grayhighlight"]
+                 forState:UIControlStateHighlighted];
         [leftBtn addTarget:self
                     action:@selector(leftBtnClick:)
           forControlEvents:UIControlEventTouchUpInside];

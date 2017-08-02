@@ -23,6 +23,8 @@
 
 @property (nonatomic) UIProgressView * processView;
 
+@property (nonatomic) UIButton * cancelBtn;
+
 @end
 
 @implementation JYProcessView
@@ -65,19 +67,10 @@
     _subDescLb.textColor = [UIColor lightGrayColor];
     [_backView addSubview:_subDescLb];
     
-    _processView = [[UIProgressView alloc]initWithFrame:CGRectMake(25, 110, _backView.bounds.size.width-50, 2)];
-    _processView.progressViewStyle= UIProgressViewStyleDefault;
-    _processView.trackTintColor = [UIColor colorWithRed:199/255.0 green:217/255.0 blue:251/255.0 alpha:1];
-    _processView.progressTintColor = UICOLOR_RGB(0x3f51b5);
-    [_backView addSubview:_processView];
-    
-    UIButton * cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
-    [cancelBtn addTarget:self  action:@selector(cancleBtnClick) forControlEvents:UIControlEventTouchUpInside];
-    cancelBtn.frame = CGRectMake(_backView.frame.size.width - 70, _backView.frame.size.height  - 30, 50, 15);
-    cancelBtn.titleLabel.font = [UIFont systemFontOfSize:15];
-    [cancelBtn setTitleColor:UICOLOR_RGB(0x3f51b5) forState:UIControlStateNormal];
-    [_backView addSubview:cancelBtn];
+    [_backView addSubview:self.cancelBtn];
+    [_backView addSubview:self.processView];
+    [self setContentFrame];
+
 }
 
 -(void)cancleBtnClick{
@@ -93,4 +86,44 @@
 -(void)dismiss{
     [self.backWindow removeFromSuperview];
 }
+
+- (void)setContentFrame{
+    [_cancelBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(_backView).offset(-25);
+        make.bottom.equalTo(_backView).offset(-16);
+        make.size.mas_equalTo(CGSizeMake(44, 20));
+    }];
+    [_processView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(_backView).offset(25);
+        make.bottom.equalTo(_backView).offset(-25);
+        make.right.equalTo(_cancelBtn.mas_left).offset(-3);
+        make.height.equalTo(@2);
+    }];
+    
+}
+
+- (UIButton *)cancelBtn{
+    if (!_cancelBtn) {
+        _cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
+        [_cancelBtn addTarget:self  action:@selector(cancleBtnClick) forControlEvents:UIControlEventTouchUpInside];
+        _cancelBtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+//        _cancelBtn.frame = CGRectMake(_backView.frame.size.width - 70, _backView.frame.size.height  - 30, 50, 15);
+        _cancelBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [_cancelBtn setTitleColor:UICOLOR_RGB(0x03a9f4) forState:UIControlStateNormal];
+    }
+    return _cancelBtn;
+}
+
+- (UIProgressView *)processView{
+    if (!_processView) {
+        _processView = [[UIProgressView alloc]init];
+//                        WithFrame:CGRectMake(25, 110, _backView.bounds.size.width-50, 2)];
+        _processView.progressViewStyle= UIProgressViewStyleDefault;
+//        _processView.trackTintColor = UICOLOR_RGB(0x03a9f4);
+        _processView.progressTintColor = UICOLOR_RGB(0x03a9f4);
+    }
+    return _processView;
+}
+
 @end

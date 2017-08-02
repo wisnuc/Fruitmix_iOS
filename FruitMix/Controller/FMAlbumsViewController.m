@@ -65,7 +65,7 @@
 
 -(void)albumDataSourceDidChange{
     [self.tableView reloadData];
-    [self.tableView displayWithMsg:@"暂无相册数据" withRowCount:self.albumDataSource.dataSource.count andIsNoData:YES andTouchBlock:nil];
+    [self.tableView displayWithMsg:@"暂无相册数据" withRowCount:self.albumDataSource.dataSource.count andIsNoData:YES andTableViewFrame:self.view.bounds andTouchBlock:nil];
 }
 
 #pragma mark - View Life Circle and SubViews

@@ -93,6 +93,14 @@
     
 }
 
+- (void)downloadAloneFilesWithModel:(FLFilesModel *)model{
+    [[FLDownloadManager shareManager] downloadFileWithFileModel:model];
+}
+
+- (void)cancleWithDownloadModel{
+    
+}
+
 -(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status{
     cell.nameLabel.text = model.name;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -119,7 +127,7 @@
         LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
                                                                  delegate:nil
                                                         cancelButtonTitle:@"取消"
-                                                    otherButtonTitleArray:@[@"下载该文件",@"分享给好友"]];
+                                                    otherButtonTitleArray:@[@"下载该文件"]];
         actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
             if (buttonIndex == 1) {
                 [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel];

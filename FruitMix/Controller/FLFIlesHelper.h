@@ -31,6 +31,10 @@
 -(void)removeChooseFile:(FLFilesModel *)model;
 
 -(void)removeAllChooseFile;
+
+-(void)cancleWithDownloadModel;
+
+-(void)downloadAloneFilesWithModel:(FLFilesModel *)model;
 //判断该文件是否已经被选择
 -(BOOL)containsFile:(FLFilesModel *)model;
 @end

@@ -98,12 +98,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UILabel * titleLb = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 40)];
-    titleLb.textAlignment = NSTextAlignmentCenter;
-    titleLb.font = [UIFont fontWithName:FANGZHENG size:18];
-    titleLb.textColor = UICOLOR_RGB(0xffffff);
-    titleLb.text = self.title;
-    self.navigationItem.titleView = titleLb;
+//    UILabel * titleLb = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 40)];
+//    titleLb.textAlignment = NSTextAlignmentCenter;
+//    titleLb.font = [UIFont fontWithName:FANGZHENG size:18];
+//    titleLb.textColor = UICOLOR_RGB(0xffffff);
+//    titleLb.text = self.title;
+//    self.navigationItem.titleView = titleLb;
     [self initView];
     [self initData];
     [self registNotify];
@@ -158,10 +158,11 @@
 -(void)createControlbtn{
     if(!_addButton){
          CGRect floatFrame = CGRectMake(self.view.jy_Width-80 , __kHeight - 64 - 56 - 88, 56, 56);
+        NSLog(@"%f",self.view.jy_Width);
         _addButton = [[VCFloatingActionButton alloc]initWithFrame:floatFrame normalImage:[UIImage imageNamed:@"add_album"] andPressedImage:[UIImage imageNamed:@"icon_close"] withScrollview:_collectionView];
         _addButton.automaticallyInsets = YES;
-        _addButton.imageArray = @[@"small_3",@"small_1",@"small_2"];
-        _addButton.labelArray = @[@"",@"",@""];
+        _addButton.imageArray = @[@"fab_share"];
+        _addButton.labelArray = @[@""];
         _addButton.delegate = self;
         _addButton.hidden = YES;
         [self.view addSubview:_addButton];
@@ -177,31 +178,42 @@
 
 //添加 导航器右边按钮
 -(void)addRightBtn{
-    UIBarButtonItem *negativeSpacer = [[ UIBarButtonItem alloc ]
-                                       
-                                       initWithBarButtonSystemItem : UIBarButtonSystemItemFixedSpace
-                                       
-                                       target : nil action : nil ];
     
-    negativeSpacer. width = -8;
-    UIButton * rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 48, 48)];
+    
+    UIButton * rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 40)];
+    [rightBtn setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
+    [rightBtn setImage:[UIImage imageNamed:@"more_highlight"] forState:UIControlStateHighlighted];
     [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-    [rightBtn setTitle:@"选择" forState:UIControlStateNormal];
-    rightBtn.titleLabel.font = [UIFont fontWithName:FANGZHENG size:16];
-    rightBtn.titleLabel.textColor = UICOLOR_RGB(0xffffff);
-    _rightbtn = rightBtn;
-    self.navigationItem.rightBarButtonItems = @[negativeSpacer,[[UIBarButtonItem alloc]initWithCustomView:rightBtn]];
+    UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
+    self.navigationItem.rightBarButtonItem = rightItem;
+
+//    UIBarButtonItem *negativeSpacer = [[ UIBarButtonItem alloc ]
+//                                       
+//                                       initWithBarButtonSystemItem : UIBarButtonSystemItemFixedSpace
+//                                       
+//                                       target : nil action : nil ];
+    
+//    negativeSpacer. width = -8;
+//    UIButton * rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 48, 48)];
+//    [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+//    [rightBtn setTitle:@"选择" forState:UIControlStateNormal];
+//    rightBtn.titleLabel.font = [UIFont fontWithName:FANGZHENG size:16];
+//    rightBtn.titleLabel.textColor = UICOLOR_RGB(0xffffff);
+//    _rightbtn = rightBtn;
+//    self.navigationItem.rightBarButtonItems = @[negativeSpacer,[[UIBarButtonItem alloc]initWithCustomView:rightBtn]];
 }
 
 //添加 可选视图 左边按钮
 -(void)addLeftBtn{
     if (!_chooseHeadView) {
         _chooseHeadView = [[UIView alloc]initWithFrame:CGRectMake(0, -64, __kWidth, 64)];
-        _chooseHeadView.backgroundColor = UICOLOR_RGB(0x3f51b5);
+        _chooseHeadView.backgroundColor = UICOLOR_RGB(0x03a9f4);
         UIButton * leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 16, 48, 48 )];
         UIImage * backImage = [UIImage imageNamed:@"back"];
+//        UIImage * backHighlightImage = [UIImage imageNamed:@"back_grayhighlight"];
 //        [backImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 1, 1) resizingMode:UIImageResizingModeStretch];
         [leftBtn setImage:backImage forState:UIControlStateNormal];
+//        [leftBtn setImage:backHighlightImage forState:UIControlStateHighlighted];
         [leftBtn addTarget:self action:@selector(leftBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         _leftBtn = leftBtn;
         
@@ -278,41 +290,41 @@
 #pragma mark - floatMenuDelegate
 
 -(void)didSelectMenuOptionAtIndex:(NSInteger)row{
-    switch (row) {
-        case 0:{
-            //下载
-            if (self.choosePhotos.count == 0) {
-                [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
-            }else{
-                //downLoading...
-                [self clickDownloadWithShare:NO andCompleteBlock:nil];
-            }
-        }
-            break;
-        case 1:{
-            //创建图集
-            if (self.choosePhotos.count == 0) {
-                [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
-            }else{
-                LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
-                                                                         delegate:self
-                                                                cancelButtonTitle:@"取消"
-                                                            otherButtonTitleArray:@[@"创建新的相册",@"添加到已有相册"]];
-                actionSheet.scrolling          = YES;
-                actionSheet.buttonHeight       = 60.0f;
-                actionSheet.visibleButtonCount = 3.6f;
-                [actionSheet show];
-            }
-        }
-            break;
-        case 2:{
+//    switch (row) {
+//        case 0:{
+//            //下载
+//            if (self.choosePhotos.count == 0) {
+//                [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
+//            }else{
+//                //downLoading...
+//                [self clickDownloadWithShare:NO andCompleteBlock:nil];
+//            }
+//        }
+//            break;
+//        case 1:{
+//            //创建图集
+//            if (self.choosePhotos.count == 0) {
+//                [SXLoadingView showAlertHUD:@"请先选择照片" duration:1];
+//            }else{
+//                LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
+//                                                                         delegate:self
+//                                                                cancelButtonTitle:@"取消"
+//                                                            otherButtonTitleArray:@[@"创建新的相册",@"添加到已有相册"]];
+//                actionSheet.scrolling          = YES;
+//                actionSheet.buttonHeight       = 60.0f;
+//                actionSheet.visibleButtonCount = 3.6f;
+//                [actionSheet show];
+//            }
+//        }
+//            break;
+//        case 2:{
             NSLog(@"创建Share");
             [self clickShareBtn];
-        }
-            break;
-        default:
-            break;
-    }
+//        }
+//            break;
+//        default:
+//            break;
+//    }
 }
 
 -(void)clickDownloadWithShare:(BOOL)share andCompleteBlock:(void(^)(NSArray * images))block{

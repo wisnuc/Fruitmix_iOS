@@ -506,7 +506,7 @@
 {
     
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
-    NSLog(@"===========>>>>>😆😆😆😆%@",dataTask.taskDescription);
+//    NSLog(@"===========>>>>>😆😆😆😆%@",dataTask.taskDescription);
     if (!downloadModel) {
         return;
     }
@@ -543,7 +543,7 @@
  */
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-    NSLog(@"=========>>>>>😁😁😁😁😁😁😁%@",data);
+//    NSLog(@"=========>>>>>😁😁😁😁😁😁😁%@",data);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
     if (!downloadModel || downloadModel.state == TYDownloadStateSuspended) {
         return;

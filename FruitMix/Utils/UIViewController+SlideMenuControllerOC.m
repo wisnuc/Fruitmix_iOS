@@ -12,7 +12,7 @@
 @implementation UIViewController (SlideMenuControllerOC)
 
 -(void)setNavigationBarItem {
-    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"menu"]];
+    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"menu"] andHighlightButtonImage:[UIImage imageNamed:@"menu_select"]];
     [self.slideMenuController removeLeftGestures];
     [self.slideMenuController removeRightGestures];
     [self.slideMenuController addLeftGestures];

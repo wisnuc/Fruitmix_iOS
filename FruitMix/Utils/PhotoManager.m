@@ -547,7 +547,7 @@ BOOL shouldUpload = NO;
             if (result.count>0) {
                 NSLog(@"%ld 张照片等待上传",(unsigned long)result.count);
                 [weakSelf uploadImages:result success:^(NSArray *arr) {
-                    
+                    NSLog(@"%@",arr);
                 } failure:^{
                     
                 }];
@@ -573,7 +573,16 @@ BOOL shouldUpload = NO;
     uploadHelper.singleSuccessBlock  = ^(NSString *url) {
         [array addObject:url];
         currentIndex++;
-        NSLog(@"已上传%ld张,还需需要上传上传%ld张",(unsigned long)currentIndex,(unsigned long)imageArr.count-currentIndex);
+                NSLog(@"已上传%ld张,还需需要上传上传%ld张",(unsigned long)currentIndex,(unsigned long)imageArr.count-currentIndex);
+//        NSString *currentIndexString = [NSString stringWithFormat:@"%ld",currentIndex];
+//        NSString *allImageString = [NSString stringWithFormat:@"%ld",[imageArr count]];
+//        NSDictionary *dict =[NSDictionary  dictionaryWithObjectsAndKeys:currentIndexString,@"currentImage",allImageString,@"allImage", nil];
+        // 创建一个通知中心
+//        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+//        
+//        [center postNotificationName:@"currentImage" object:nil userInfo:dict];
+//        
+
         if ([array count] >= [imageArr count]) {
             success([array copy]);
             [PhotoManager shareManager].isUploading = NO;
@@ -741,6 +750,7 @@ BOOL shouldUpload = NO;
 //                    
 //                }];
                 //添加上传记录
+                NSLog(@"上传的LocalID: ---> %@", asset.localIdentifier);
                 FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].syncLogs);
                 FMSyncLogs * log = [FMSyncLogs new];
                 log.userId =DEF_UUID;

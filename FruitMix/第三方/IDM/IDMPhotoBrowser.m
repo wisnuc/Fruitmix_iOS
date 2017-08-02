@@ -741,9 +741,11 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     
     //jy view CGRectMake(0, 0, __kWidth, 64)
     _jyTitleView = [[UIView alloc]initWithFrame:CGRectZero];
-    _jyTitleView.backgroundColor = UICOLOR_RGB(0x3f51b5);
+    _jyTitleView.backgroundColor = UICOLOR_RGB(0x03a9f4);
     _jyBackBtn = [[UIButton alloc]initWithFrame:CGRectZero]; //CGRectMake(10, 30, 40, 20)
     [_jyBackBtn setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];
+//    [_jyBackBtn setImage:[UIImage imageNamed:@"back_grayhightlight"] forState:UIControlStateHighlighted];
+
     [_jyBackBtn addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     _jyBackBtn.touchExtendInset = UIEdgeInsetsMake(-10, -10, -10, -10);
     UILabel * timeLb = [[UILabel alloc]initWithFrame:CGRectZero];//CGRectMake(75,  20, __kWidth-150, 40)

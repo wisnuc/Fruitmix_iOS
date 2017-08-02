@@ -111,7 +111,8 @@
 
 -(void)initNav{
     UIButton * right = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 20)];
-    [right setImage:[UIImage imageNamed:@"MORE"] forState:UIControlStateNormal];
+    [right setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
+    [right setImage:[UIImage imageNamed:@"more_highlight"] forState:UIControlStateHighlighted];
     [right addTarget:self  action:@selector(morebtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * rItem = [[UIBarButtonItem alloc]initWithCustomView:right];
     self.navigationItem.rightBarButtonItem = rItem;

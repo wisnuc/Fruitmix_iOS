@@ -9,6 +9,6 @@
 #ifndef FMColors_h
 #define FMColors_h
 
-#define StatusBar_Color UICOLOR_RGB(0x303f9f)
-
+//#define StatusBar_Color UICOLOR_RGB(0x303f9f)
+#define StatusBar_Color  [UIColor whiteColor]
 #endif /* FMColors_h */

@@ -251,6 +251,7 @@
 
 
 +(void)getDBAllLocalPhotosWithCompleteBlock:(selectComplete)block{
+    
     __weak id weakSelf = self;
     dispatch_async([FMUtil setterDefaultQueue], ^{
         FMDBSet * dbSet = [FMDBSet shared];

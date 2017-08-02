@@ -201,7 +201,7 @@ static void cancel_delayed_block(CWDelayedBlockHandle delayedHandle)
         } else {
             self.notificationLabelBackgroundColor = [UIColor blackColor];
         }
-        self.notificationLabelTextColor = [UIColor whiteColor];
+        self.notificationLabelTextColor = [UIColor darkTextColor];
         self.notificationLabelFont = [UIFont systemFontOfSize:FONT_SIZE];
         self.notificationLabelHeight = 0.0;
         self.customView = nil;

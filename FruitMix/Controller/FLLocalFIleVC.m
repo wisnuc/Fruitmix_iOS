@@ -34,6 +34,7 @@
     [self initData];
     [self configTableView];
     [self createNavBtns];
+    self.title = @"文件下载";
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
@@ -49,7 +50,8 @@
 
 -(void)createNavBtns{
     UIButton * rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 40)];
-    [rightBtn setImage:[UIImage imageNamed:@"MORE"] forState:UIControlStateNormal];
+    [rightBtn setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
+    [rightBtn setImage:[UIImage imageNamed:@"more_highlight"] forState:UIControlStateHighlighted];
     [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
     self.navigationItem.rightBarButtonItem = rightItem;

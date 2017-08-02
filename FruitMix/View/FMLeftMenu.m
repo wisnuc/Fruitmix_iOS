@@ -10,13 +10,13 @@
 #import "FMLeftMenuCell.h"
 #import "FMLeftUserCell.h"
 #import "FMLeftUserFooterView.h"
-
+#import "FMGetUserInfo.h"
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UILabel *versionLb;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn1;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn2;
-
+@property (strong, nonatomic) FMUserLoginInfo *userInfo;
 @end
 
 @implementation FMLeftMenu
@@ -130,9 +130,100 @@
 
 -(void)layoutSubviews{
     [super layoutSubviews];
+    NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
+    [notiCenter addObserver:self selector:@selector(receiveNotification:) name:FMPhotoDatasourceLoadFinishNotify object:nil];
+    [self getUserInfo];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
+    self.bonjourLabel.text = _userInfo.bonjour_name;
+//    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@",@"100%"];
+//    NSLog(@"%@",info.bonjour_name);
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
-    self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
+        self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
+    
+//===================================优雅的分割线/备份详情==========================================
+    UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
+    progressLb.font = [UIFont systemFontOfSize:12];
+    progressLb.textAlignment = NSTextAlignmentCenter;
+    [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+        NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+        for (FMLocalPhoto * p in result) {
+            [tmp addObject:p.localIdentifier];
+            NSLog(@"%@",p.degist);
+        }
+        NSInteger allPhotos = result.count;
+        FMDBSet * dbSet = [FMDBSet shared];
+        FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+        [scmd where:@"userId" equalTo:DEF_UUID];
+        [scmd where:@"localId" containedIn:tmp];
+        [scmd fetchArrayInBackground:^(NSArray *results) {
+//            NSLog(@"%@",results);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                float progress = (float)results.count/(float)allPhotos;
+                NSLog(@"%f",progress);
+                self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
+                self.backupProgressView.progress = progress;
+                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+//                for (FMLocalPhoto * px in result) {
+//                    for ( FMSyncLogs * logs in results) {
+//                        if ([logs.photoHash isEqualToString:px.degist]) {
+//                            NSLog(@"😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈");
+//                        }
+//                    }
+//                   
+//                }
+//                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
+            });
+        }];
+
+    }];
+    
+//    [cell.contentView addSubview:progressLb];
+//    progressLb.hidden = !_displayProgress;
+}
+
+
+- (void)receiveNotification:(NSNotification *)noti
+{
+    
+    // NSNotification 有三个属性，name, object, userInfo，其中最关键的object就是从第三个界面传来的数据。name就是通知事件的名字， userInfo一般是事件的信息。
+    NSLog(@"%@ === %@ === %@", noti.object, noti.userInfo, noti.name);
+//    NSString *currentImage = [noti.userInfo objectForKey:@"currentImage"];
+//    NSString *allImage = [noti.userInfo objectForKey:@"allImage"];
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        float progress = [currentImage floatValue]/[allImage floatValue];
+//        NSLog(@"%f",progress);
+//        self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
+//        self.backupProgressView.progress = progress;
+//        self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",[currentImage integerValue],[allImage integerValue]];
+//        if ([currentImage integerValue]>0 &&[allImage integerValue]>0 && [currentImage integerValue] == [allImage integerValue]) {
+//    
+//        }
+//    });
+    
+    [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+        NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+        for (FMLocalPhoto * p in result) {
+            [tmp addObject:p.localIdentifier];
+//            NSLog(@"%@",p.degist);
+        }
+        NSInteger allPhotos = result.count;
+        FMDBSet * dbSet = [FMDBSet shared];
+        FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+        [scmd where:@"userId" equalTo:DEF_UUID];
+        [scmd where:@"localId" containedIn:tmp];
+        [scmd fetchArrayInBackground:^(NSArray *results) {
+            NSLog(@"%lu",(unsigned long)results.count);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                float progress = (float)results.count/(float)allPhotos;
+                NSLog(@"%d",results.count);
+                self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
+                self.backupProgressView.progress = progress;
+                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+                //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
+            });
+        }];
+    }];
+
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
@@ -229,4 +320,23 @@
      } completion:nil];
 }
 
+- (void)getUserInfo{
+    NSMutableArray * arr = [FMGetUserInfo getUsersInfo];
+    for (FMUserLoginInfo * info in arr) {
+        _userInfo = info;
+    }
+}
+
+- (void)dealloc
+{
+    // 移除当前对象监听的事件
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (UILabel *)backupLabel{
+    if (!_backupLabel) {
+        
+    }
+    return _backupLabel;
+}
 @end

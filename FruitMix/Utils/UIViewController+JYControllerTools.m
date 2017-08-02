@@ -10,9 +10,12 @@
 
 @implementation UIViewController (JYControllerTools)
 
--(void)addLeftBarButtonWithImage:(UIImage *)buttonImage  andSEL:(SEL)sel{
+-(void)addLeftBarButtonWithImage:(UIImage *)buttonImage andHighlightButtonImage:(UIImage *)image  andSEL:(SEL)sel{
     UIButton * left = [[UIButton alloc]initWithFrame:CGRectMake(0, 10, 40, 20)];
     [left setImage:buttonImage forState:UIControlStateNormal];
+    if (image) {
+        [left setImage:image forState:UIControlStateHighlighted];
+    }
     [left addTarget:self action:sel forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:left];
     self.navigationItem.leftBarButtonItem = leftButton;

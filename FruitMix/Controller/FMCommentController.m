@@ -201,7 +201,7 @@
     [self.view addSubview:_headView];
     
     _backBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 18, 48, 48)];
-    [_backBtn setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];
+    [_backBtn setImage:[UIImage imageNamed:@"back_gray"] forState:UIControlStateNormal];
     [_backBtn addTarget:self  action:@selector(backBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [_headView addSubview:_backBtn];
     

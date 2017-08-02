@@ -53,6 +53,7 @@
     self.dataSource = [FMMediaShareDataSource sharedDataSource];
     self.dataSource.delegate = self;
     [self asynAnyThings];//做所有后台做的事
+    [self shareDataSourceDidUpdate];
 }
 
 -(void)registNotify{
@@ -232,7 +233,8 @@
 #pragma  mark - DataSource
 -(void)shareDataSourceDidUpdate{
     [self.tableView reloadData];  
-    [self.tableView displayWithMsg:@"暂无分享数据" withRowCount:self.dataSource.dataSource.count andIsNoData:YES andTouchBlock:nil];
+    [self.tableView displayWithMsg:@"暂无分享数据" withRowCount:self.dataSource.dataSource.count andIsNoData:YES  andTableViewFrame:self.view.bounds
+                     andTouchBlock:nil];
 }
 
 @end

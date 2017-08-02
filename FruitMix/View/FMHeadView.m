@@ -20,7 +20,8 @@
     if(!_contentView){
 //        CGRectMake(-((20+44)/2), 0, self.jy_Width + (20+44)/2, self.jy_Height)
         _contentView = [[UIView alloc]initWithFrame:CGRectZero];
-        _contentView.backgroundColor = UICOLOR_RGB(0xfafafa);
+        _contentView.backgroundColor = [UIColor whiteColor];
+//        _contentView.backgroundColor = UICOLOR_RGB(0xfafafa);
 //        _contentView.layer.shadowColor = [[UIColor blackColor]CGColor];
 //        _contentView.layer.shadowOffset = CGSizeMake(0, -2);
 //        _contentView.layer.shadowRadius = 5.0;

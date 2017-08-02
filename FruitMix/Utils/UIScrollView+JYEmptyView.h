@@ -39,5 +39,6 @@ typedef void(^JYEmptyTouchBlock)(UIButton * btn);
 -(void)displayWithMsg:(NSString *)message
                    withRowCount:(NSUInteger)count
                     andIsNoData:(BOOL)noData
+                    andTableViewFrame:(CGRect)frame
                   andTouchBlock:(JYEmptyTouchBlock)block;
 @end

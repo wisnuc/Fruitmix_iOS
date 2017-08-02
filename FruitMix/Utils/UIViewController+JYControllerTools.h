@@ -10,6 +10,6 @@
 
 @interface UIViewController (JYControllerTools)
 
--(void)addLeftBarButtonWithImage:(UIImage *)buttonImage  andSEL:(SEL)sel;
+-(void)addLeftBarButtonWithImage:(UIImage *)buttonImage andHighlightButtonImage:(UIImage *)image  andSEL:(SEL)sel;
 
 @end

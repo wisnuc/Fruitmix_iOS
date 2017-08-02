@@ -14,7 +14,9 @@
     self = [super initWithFrame:frame];
     if (self) {
         UIImage *iconImage = [UIImage imageNamed:imageName];
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(frame.size.width*0.5-iconImage.size.width*0.5, frame.size.height*0.5-iconImage.size.height, iconImage.size.width, iconImage.size.height)];
+        NSLog(@"%@",NSStringFromCGRect(frame) );
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake((frame.size.width-iconImage.size.width)/2,(frame.size.height - 64 - 44- iconImage.size.height)/2,iconImage.size.width, iconImage.size.height)];
+//        frame.size.width*0.5-iconImage.size.width*0.5, frame.size.height*0.5-iconImage.size.height, iconImage.size.width, iconImage.size.height
         imageView.image = iconImage;
         [self addSubview:imageView];
         
@@ -74,7 +76,7 @@ const char kJYEmptyViewKey;
 
 -(void)displayWithMsg:(NSString *)message
                    withRowCount:(NSUInteger)count
-                    andIsNoData:(BOOL)noData
+          andIsNoData:(BOOL)noData andTableViewFrame:(CGRect)frame
                   andTouchBlock:(JYEmptyTouchBlock)block{
     if (count == 0) {
         [self removeEmptyView];
@@ -82,7 +84,8 @@ const char kJYEmptyViewKey;
         if(imageName == nil ||  [imageName isEqualToString:@""]){
             imageName = noData ? @"jy_no_data" : @"jy_no_network";
         }
-        self.emptyView = [[JYEmptyView alloc]initWithFrame:self.bounds description:message canTouch:block andImageName:imageName];
+        NSLog(@"%@",NSStringFromCGRect(frame));
+        self.emptyView = [[JYEmptyView alloc]initWithFrame:frame description:message canTouch:block andImageName:imageName];
         [self addSubview:self.emptyView];
     }else{
         [self removeEmptyView];

@@ -11,7 +11,7 @@
 @implementation FMSyncLogs
 
 + (NSString *)primaryKeyFieldName {
-    return @"userId,photoHash";
+    return @"userId,localId";
 }
 
 

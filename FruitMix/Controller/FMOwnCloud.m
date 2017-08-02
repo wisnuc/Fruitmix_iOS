@@ -26,7 +26,7 @@
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
-    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"back"] andSEL:@selector(backbtnClick:)];
+    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"back_gray"] andHighlightButtonImage:[UIImage imageNamed:@"back_grayhighlight"] andSEL:@selector(backbtnClick:)];
 }
 
 

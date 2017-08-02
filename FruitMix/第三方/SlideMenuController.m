@@ -1060,9 +1060,12 @@ static UIGestureRecognizerState RPSLastState = UIGestureRecognizerStateEnded;
     return nil;
 }
 
--(void)addLeftBarButtonWithImage:(UIImage *)buttonImage {
+-(void)addLeftBarButtonWithImage:(UIImage *)buttonImage andHighlightButtonImage:(UIImage *)image {
     UIButton * left = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, 40, 20)];
     [left setImage:buttonImage forState:UIControlStateNormal];
+    if (image) {
+         [left setImage:image forState:UIControlStateHighlighted];
+    }
     [left addTarget:self action:@selector(toggleLeft) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:left];
     self.navigationItem.leftBarButtonItem = leftButton;

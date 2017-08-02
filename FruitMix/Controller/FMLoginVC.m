@@ -202,6 +202,7 @@
         ser.type = service.type;
         ser.displayPath = addressString;
         ser.hostName = service.hostName;
+        NSLog(@"%@",service.hostName);
         BOOL isNew = YES;
         for (FMSerachService * s in self.dataSource) {
             if (IsEquallString(s.path, ser.path)) {

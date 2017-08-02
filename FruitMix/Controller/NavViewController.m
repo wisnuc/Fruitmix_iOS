@@ -18,18 +18,24 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationBar.barTintColor = UICOLOR_RGB(0x3f51b5);
-    self.navigationBar.backgroundColor = UICOLOR_RGB(0x3f51b5);
-    self.navigationBar.titleTextAttributes=@{NSForegroundColorAttributeName:[UIColor whiteColor]};
+    self.navigationBar.barTintColor = [UIColor whiteColor];
+    self.navigationBar.backgroundColor = [UIColor whiteColor];
+//    UICOLOR_RGB(0x3f51b5);
+    self.navigationBar.titleTextAttributes=@{NSForegroundColorAttributeName:[UIColor darkTextColor]};
 //    self.currentDelegate = self.interactivePopGestureRecognizer.delegate;
     self.transferNavigationBarAttributes = YES;
     UIView * redView = [[UIView alloc]initWithFrame:CGRectMake(0, -20, __kWidth, 20)];
     redView.backgroundColor = StatusBar_Color;
     self.navigationBar.translucent = NO;
     [self.navigationBar addSubview:redView];
+    [self useClipsToBoundsRemoveBlackLine];
     
 }
-
+-(void)useClipsToBoundsRemoveBlackLine
+{
+    //设置移除黑线
+    [self.navigationController.navigationBar setShadowImage:[UIImage new]]; 
+}
 //- (void)_commonInit
 //{
 //    self.navigationBar.barTintColor = UICOLOR_RGB(0x3f51b5);
@@ -73,12 +79,16 @@
     //左按钮
     UIButton *leftBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 52, 52)];
     [leftBtn addTarget:self action:@selector(backBtnClick) forControlEvents:UIControlEventTouchUpInside];//设置按钮点击事件
-    [leftBtn setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];//设置按钮正常状态图片
+    [leftBtn setImage:[UIImage imageNamed:@"back_gray"] forState:UIControlStateNormal];
+    [leftBtn setImage:[UIImage imageNamed:@"back_grayhighlight"] forState:UIControlStateHighlighted];
+    //设置按钮正常状态图片
     UIBarButtonItem *leftBarButon = [[UIBarButtonItem alloc]initWithCustomView:leftBtn];
+//    leftBarButon.tintColor = [UIColor blueColor];
     UIBarButtonItem *negativeSpacer = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     negativeSpacer.width = -16 - 2*([UIScreen mainScreen].scale - 1);//这个数值可以根据情况自由变化
     viewController.navigationItem.leftBarButtonItems = @[negativeSpacer, leftBarButon];
-    
+    viewController.navigationItem.leftBarButtonItem.tintColor = [UIColor redColor];
+//    viewController.navigationItem.leftBarButtonItem.tintColor = [UIColor darkGrayColor];
 //    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
 //    button.frame = CGRectMake(0, 0,25, 25);
 //    [button setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];

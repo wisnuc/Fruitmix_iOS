@@ -128,7 +128,7 @@ typedef enum {
 
 -(SlideMenuController *)slideMenuController;
 
--(void)addLeftBarButtonWithImage:(UIImage *)buttonImage;
+-(void)addLeftBarButtonWithImage:(UIImage *)buttonImage andHighlightButtonImage:(UIImage *)image;
 
 -(void)addRightBarButtonWithImage:(UIImage *)buttonImage;
 

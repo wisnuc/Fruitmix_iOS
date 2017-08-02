@@ -103,7 +103,14 @@
     negativeSpacer. width = -8;
     _rightbtn = rightBtn;
     self.navigationItem.rightBarButtonItems = @[negativeSpacer,[[UIBarButtonItem alloc]initWithCustomView:rightBtn]];
+    
+    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"back"] andHighlightButtonImage:nil  andSEL:@selector(backbtnClick:)];
 }
+
+- (void)backbtnClick:(UIButton *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 
 #pragma mark - handle
 
