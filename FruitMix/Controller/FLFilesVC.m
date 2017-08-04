@@ -17,7 +17,15 @@
 #import "JYProcessView.h"
 #import "FLLocalFIleVC.h"
 
-@interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate>
+NSInteger filesNameSort(id file1, id file2, void *context)
+{
+    FLFilesModel *f1,*f2;
+    f1 = (FLFilesModel *)file1;
+    f1 = (FLFilesModel *)file2;
+    return  [f1.name localizedCompare:f2.name];
+}
+
+@interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate>
 {
     UIButton * _leftBtn;
     UILabel * _countLb;
@@ -36,7 +44,7 @@
 
 @property (strong, nonatomic) JYProcessView * progressView;
 
-@property (nonatomic) BOOL shouldDownload;
+@property (nonatomic, strong) UIDocumentInteractionController *documentController;
 
 @end
 
@@ -141,6 +149,100 @@
     [self.fileTableView reloadData];
 }
 
+
+- (void)sequenceDataSource{
+//    NSMutableArray *needSortArray = [NSMutableArray arrayWithArray:self.dataSource.dataSource];
+//    NSMutableArray *classifiedArray = [[NSMutableArray alloc] init];
+//    for(int i='A';i<='Z';i++){
+//        NSMutableArray *rulesArray = [[NSMutableArray alloc] init];
+//        NSString *indexString = [NSString stringWithFormat:@"%c",i];
+//        for(int j = 0; j < needSortArray.count; j++){
+//            FLFilesModel * model = [needSortArray objectAtIndex:j];
+//            
+//            if([[self toPinyin: model.name] isEqualToString:indexString]){
+//                //把model.name首字母相同的放到同一个数组里面
+//                [rulesArray addObject:model];
+//                [needSortArray removeObject:model];
+//                j--;
+//            }
+//        }
+//        if (rulesArray.count !=0) {
+//            [classifiedArray addObject:rulesArray];
+//        }
+//        
+//        if (needSortArray.count == 0) {
+//            break;
+//        }
+//    }
+//    
+//    // 剩下的就是非字母开头数据，加在classifiedArray的后面
+//    if (needSortArray.count !=0) {
+//        [classifiedArray addObject:needSortArray];
+//    }
+//    
+//    //最后再分别对每个数组排序
+//    NSMutableArray *sortCompleteArray = [NSMutableArray array];
+//    for (NSArray *tempArray in classifiedArray) {
+//        NSArray *sortedElement = [tempArray sortedArrayUsingFunction:filesNameSort context:NULL];
+//        [sortCompleteArray addObject:sortedElement];
+//    }
+//    
+//          [self.dataSource.dataSource removeAllObjects];
+//      NSMutableArray *isFilesArr = [NSMutableArray arrayWithCapacity:0];
+//    //sortCompleteArray就是最后排好序的二维数组了
+//    for ( NSMutableArray * arr in sortCompleteArray) {
+////        NSLog(@"🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄%@",arr);
+//  
+//        for ( FLFilesModel * model  in arr) {
+////            NSLog(@"🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄🍄%@",model);
+//            if (!model.isFile) {
+//                [self.dataSource.dataSource addObject:model];
+//            }
+//            else{
+//                [isFilesArr addObject:model];
+//            }
+//        }
+//    
+//    }
+//    
+//    [self.dataSource.dataSource addObjectsFromArray:isFilesArr];
+//    for ( FLFilesModel * model in isFilesArr) {
+////        NSLog(@"😑😑😑😑😑😑😑😑😑😑😑%d",(int)model.isFile);
+//        [self.dataSource.dataSource addObject:model];
+//    }
+       NSMutableArray *isFilesArr = [NSMutableArray arrayWithCapacity:0];
+       NSMutableArray *isNotFilesArr = [NSMutableArray arrayWithCapacity:0];
+    for ( FLFilesModel * model  in self.dataSource.dataSource) {
+        if (!model.isFile) {
+            [isNotFilesArr addObject: model];
+        }
+        else{
+            [isFilesArr addObject: model];
+        }
+    }
+    [self.dataSource.dataSource removeAllObjects];
+    [self.dataSource.dataSource addObjectsFromArray:isNotFilesArr];
+    [self.dataSource.dataSource addObjectsFromArray:isFilesArr];
+}
+
+
+
+
+- (NSString *)toPinyin:(NSString *)str{
+    NSMutableString *ms = [[NSMutableString alloc]initWithString:str];
+    if (CFStringTransform((__bridge CFMutableStringRef)ms, 0,kCFStringTransformMandarinLatin, NO)) {
+    }
+    // 去除拼音的音调
+    if (CFStringTransform((__bridge CFMutableStringRef)ms, 0,kCFStringTransformStripDiacritics, NO)) {
+        if (str.length) {
+            NSString *bigStr = [ms uppercaseString];
+            NSString *cha = [bigStr substringToIndex:1];
+            return cha;
+        }
+    }
+    return str;
+}
+
 -(void)initViews{
     [self.fileTableView registerNib:[UINib nibWithNibName:@"FLFilesCell" bundle:nil] forCellReuseIdentifier:NSStringFromClass([FLFilesCell class])];
     self.fileTableView.tableFooterView = [UIView new];
@@ -167,6 +269,7 @@
     if (datasource == self.dataSource && finish) {
         [self.fileTableView displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES  andTableViewFrame:self.view.bounds
                              andTouchBlock:nil];
+        [self sequenceDataSource];
         [self.fileTableView reloadData];
     }
 }
@@ -174,13 +277,13 @@
 #pragma mark -Delegate DataSource
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 64;
+    return 72;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     FLFilesCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FLFilesCell class])];
     FLFilesModel * model = self.dataSource.dataSource[indexPath.row];
-    [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus];
+    [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus viewController:self];
     return cell;
 }
 
@@ -211,24 +314,43 @@
             _progressView.descLb.text =@"正在下载文件";
             _progressView.subDescLb.text = [NSString stringWithFormat:@"1个项目 "];
             _progressView.cancleBlock = ^(){
-                [[FLFIlesHelper helper] cancleWithDownloadModel];
+                [[FLFIlesHelper helper] cancleDownload];
             };
-         
-            [_progressView show];
-//            TYDownloadModel * tymodel = model;
-//                [[TYDownLoadDataManager manager] startWithDownloadModel:model progress:^(TYDownloadProgress *progress) {
-//                    [_progressView setValueForProcess:progress.progress];
-////                    cell.timeLabel.text = [self detailTextForDownloadProgress:progress];
-//                } state:^(TYDownloadState state, NSString *filePath, NSError *error) {
-//                    NSLog(@"%lu",(unsigned long)state);
-//                }];
-//            
-            
-            
-//        [[FLFIlesHelper helper] downloadChooseFiles];
-            
+            [[FLFIlesHelper helper]downloadAloneFilesWithModel:model Progress:^(TYDownloadProgress *progress) {
+                if (progress.progress) {
+                    [_progressView setValueForProcess:progress.progress];
+                    [_progressView show];
+                }
+            } State:^(TYDownloadState state, NSString *filePath, NSError *error) {
+//                NSLog(@"%lu,%@,%@",(unsigned long)state,filePath,error);
+                if (state == TYDownloadStateCompleted) {
+                    [_progressView dismiss];
+                    _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+                    _documentController.delegate = self;
+                    [self presentOptionsMenu];
+                }
+            }];
         }
     }
+}
+
+#pragma mark -
+#pragma mark UIDocumentInteractionControllerDelegate
+
+- (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller
+{
+    return self;
+}
+
+- (void)presentOptionsMenu
+{
+    BOOL canOpen = [self.documentController presentPreviewAnimated:YES];
+    if (!canOpen) {
+        [MyAppDelegate.notification displayNotificationWithMessage:@"文件预览失败" forDuration:1];
+        [_documentController presentOptionsMenuFromRect:self.view.bounds inView:self.view animated:YES];
+    }
+    // display third-party apps as well as actions, such as Copy, Print, Save Image, Quick Look
+    //    [_documentController presentOptionsMenuFromRect:self.view.bounds inView:self.view animated:YES];
 }
 
 - (void)actionForChooseStatus{

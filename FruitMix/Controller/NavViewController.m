@@ -18,7 +18,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationBar.barTintColor = [UIColor whiteColor];
+//    self.navigationBar.barTintColor = [UIColor whiteColor];
     self.navigationBar.backgroundColor = [UIColor whiteColor];
 //    UICOLOR_RGB(0x3f51b5);
     self.navigationBar.titleTextAttributes=@{NSForegroundColorAttributeName:[UIColor darkTextColor]};
@@ -34,7 +34,7 @@
 -(void)useClipsToBoundsRemoveBlackLine
 {
     //设置移除黑线
-    [self.navigationController.navigationBar setShadowImage:[UIImage new]]; 
+//    [self.navigationController.navigationBar setShadowImage:[UIImage new]]; 
 }
 //- (void)_commonInit
 //{

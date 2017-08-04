@@ -358,27 +358,97 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
         self.navigationBar.shadowImage                      = self.navigationController.navigationBar.shadowImage;
         self.navigationBar.backIndicatorImage               = self.navigationController.navigationBar.backIndicatorImage;
         self.navigationBar.backIndicatorTransitionMaskImage = self.navigationController.navigationBar.backIndicatorTransitionMaskImage;
+        
     }
-    
-    [self.navigationBar dropShadowWithOffset:CGSizeMake(0, 0) radius:4 color:[UIColor blackColor] opacity:1];
-    
-    [self.view layoutIfNeeded];
-    if ([self.navigationBar respondsToSelector:@selector( setBackgroundImage:forBarMetrics:)]){
-        NSArray *list=self.navigationBar.subviews;
-        for (id obj in list) {
-            if ([obj isKindOfClass:[UIImageView class]]) {
-                UIImageView *imageView=(UIImageView *)obj;
-                NSArray *list2=imageView.subviews;
-                for (id obj2 in list2) {
+    //去掉导航栏下面黑线
+    if ([self.navigationController.navigationBar respondsToSelector:@selector( setBackgroundImage:forBarMetrics:)])
+    {
+        
+        NSArray *list=self.navigationController.navigationBar.subviews;
+        
+        for (id obj in list)
+        {
+            
+            if ([UIDevice currentDevice].systemVersion.floatValue >= 10.0)
+            {//10.0的系统字段不一样
+                UIView *view =   (UIView*)obj;
+                for (id obj2 in view.subviews) {
+                    
                     if ([obj2 isKindOfClass:[UIImageView class]]) {
-                        UIImageView *imageView2=(UIImageView *)obj2;
-                        imageView2.hidden=YES;
+                        
+                        UIImageView *image =  (UIImageView*)obj2;
+                        image.hidden = YES;
+                    }
+                }
+            }else
+            {
+                
+                if ([obj isKindOfClass:[UIImageView class]])
+                {
+                    
+                    UIImageView *imageView=(UIImageView *)obj;
+                    NSArray *list2=imageView.subviews;
+                    for (id obj2 in list2)
+                    {
+                        if ([obj2 isKindOfClass:[UIImageView class]])
+                        {
+                            
+                            UIImageView *imageView2=(UIImageView *)obj2;
+                            imageView2.hidden=YES;
+                        }
                     }
                 }
             }
         }
     }
-
+//    [UINavigationBar appearance].clipsToBounds = YES;
+    [self.navigationBar dropShadowWithOffset:CGSizeMake(0, 1) radius:1 color:[UIColor grayColor] opacity:1];
+//    [[UINavigationBar appearance]  setBackgroundImage:[[UIImage alloc] init] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
+//    [[UINavigationBar appearance] setShadowImage:[[UIImage alloc] init]];
+    //去掉导航栏下面黑线
+    if ([self.navigationController.navigationBar respondsToSelector:@selector( setBackgroundImage:forBarMetrics:)])
+    {
+        
+        NSArray *list=self.navigationController.navigationBar.subviews;
+        
+        for (id obj in list)
+        {
+            
+            if ([UIDevice currentDevice].systemVersion.floatValue >= 10.0)
+            {//10.0的系统字段不一样
+                UIView *view =   (UIView*)obj;
+                for (id obj2 in view.subviews) {
+                    
+                    if ([obj2 isKindOfClass:[UIImageView class]]) {
+                        
+                        UIImageView *image =  (UIImageView*)obj2;
+                        image.hidden = YES;
+                    }
+                }
+            }else
+            {
+                
+                if ([obj isKindOfClass:[UIImageView class]])
+                {
+                    
+                    UIImageView *imageView=(UIImageView *)obj;
+                    NSArray *list2=imageView.subviews;
+                    for (id obj2 in list2)
+                    {
+                        if ([obj2 isKindOfClass:[UIImageView class]])
+                        {
+                            
+                            UIImageView *imageView2=(UIImageView *)obj2;
+                            imageView2.hidden=YES;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    [self.view layoutIfNeeded];
+    
 }
 
 - (UITabBarController *)tabBarController

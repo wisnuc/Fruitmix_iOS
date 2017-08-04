@@ -55,6 +55,8 @@
     // app版本
     NSString *app_Version = [infoDictionary objectForKey:@"CFBundleVersion"];
     self.versionLb.text = [NSString stringWithFormat:@"WISNUC %@",app_Version];
+    
+    
 }
 - (IBAction)smallBtnClick:(id)sender {
     if (sender == _userBtn1) {
@@ -130,11 +132,11 @@
 
 -(void)layoutSubviews{
     [super layoutSubviews];
-    NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
-    [notiCenter addObserver:self selector:@selector(receiveNotification:) name:FMPhotoDatasourceLoadFinishNotify object:nil];
     [self getUserInfo];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
     self.bonjourLabel.text = _userInfo.bonjour_name;
+    NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
+    [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
 //    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@",@"100%"];
 //    NSLog(@"%@",info.bonjour_name);
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
@@ -215,7 +217,7 @@
             NSLog(@"%lu",(unsigned long)results.count);
             dispatch_async(dispatch_get_main_queue(), ^{
                 float progress = (float)results.count/(float)allPhotos;
-                NSLog(@"%d",results.count);
+                NSLog(@"%lu",(unsigned long)results.count);
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
                 self.backupProgressView.progress = progress;
                 self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];

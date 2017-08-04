@@ -1911,6 +1911,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 
 -(NSString *)getDateStringWithPhoto:(NSDate *)date{
     //    NSDate *date = [photo getPhotoCreateTime];
+    
     NSDateFormatter * formatter1 = [[NSDateFormatter alloc]init];
     formatter1.dateFormat = @"yyyy年MM月dd日";
     NSString * dateString = [formatter1 stringFromDate:date];

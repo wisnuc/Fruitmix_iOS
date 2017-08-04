@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -13,27 +16,31 @@
             <rect key="frame" x="0.0" y="0.0" width="388" height="74"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <frame key="frameInset" width="388" height="73"/>
+                <rect key="frame" x="0.0" y="0.0" width="388" height="73.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="tbT-cl-mAk" userLabel="layerView">
+                        <rect key="frame" x="16" y="17" width="40" height="40"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="40" id="mjS-fK-T4T"/>
                             <constraint firstAttribute="height" constant="40" id="qIi-Se-qHy"/>
                         </constraints>
                     </imageView>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="folder_icon.png" translatesAutoresizingMaskIntoConstraints="NO" id="8w9-wt-EEo" userLabel="f_ImageView">
+                        <rect key="frame" x="22" y="23" width="28" height="28"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="28" id="F6O-PP-0eJ"/>
                             <constraint firstAttribute="width" constant="28" id="ius-IU-Don"/>
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0DU-HI-tYw" userLabel="timeLabel">
+                        <rect key="frame" x="66" y="40" width="269" height="17"/>
                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7BD-P2-wb5" userLabel="downBtn">
+                        <rect key="frame" x="355" y="27" width="20" height="20"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="4g8-fl-qR5"/>
                             <constraint firstAttribute="width" constant="20" id="Nr2-tU-GCx"/>
@@ -46,6 +53,7 @@
                         </connections>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DyJ-oP-YOB" userLabel="nameLabel">
+                        <rect key="frame" x="66" y="17" width="269" height="18"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="18" id="ClX-6E-Pk2"/>
                         </constraints>

@@ -100,7 +100,7 @@
                 [scmd where:@"localId" containedIn:tmp];
                 [scmd fetchArrayInBackground:^(NSArray *results) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
+                        progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",(long)allPhotos,results.count];
                     });
                 }];
             }];
@@ -108,8 +108,6 @@
             [cell.contentView addSubview:progressLb];
             progressLb.hidden = !_displayProgress;
         }
-        
-        
     }
     if (indexPath.row == 1) {
         UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
@@ -203,6 +201,9 @@
 -(void)switchBtnHandleForSync:(UISwitch *)switchBtn{
     [[NSUserDefaults standardUserDefaults]setObject:switchBtn.isOn?DEF_UUID:NO_USER forKey:USER_SHOULD_SYNC_PHOTO_STR];
     [[NSUserDefaults standardUserDefaults] synchronize];
+    
+//    NSString *name= [[NSUserDefaults standardUserDefaults] objectForKey:@"USER_SHOULD_SYNC_PHOTO_STR"];
+//    NSLog(@"%@",name);
     if (switchBtn.isOn) {
         [PhotoManager shareManager].canUpload = YES;
     }else{

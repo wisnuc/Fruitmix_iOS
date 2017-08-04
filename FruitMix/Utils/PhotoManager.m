@@ -135,6 +135,10 @@ NSString * JY_UUID() {
                     if (detail.removedObjects.count || detail.insertedObjects.count) {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [[NSNotificationCenter defaultCenter]postNotificationName:PHOTO_LIBRUARY_CHANGE_NOTIFY object:nil];
+                            if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID) && detail.insertedObjects.count>0) {
+                                [PhotoManager shareManager].canUpload = YES;
+                            }
+                      
                         });
                     }
                 }];
@@ -581,7 +585,7 @@ BOOL shouldUpload = NO;
 //        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 //        
 //        [center postNotificationName:@"currentImage" object:nil userInfo:dict];
-//        
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
 
         if ([array count] >= [imageArr count]) {
             success([array copy]);

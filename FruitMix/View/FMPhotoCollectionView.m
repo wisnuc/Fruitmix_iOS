@@ -38,6 +38,7 @@ int const i = 2;//cell 距离
 }
 
 -(instancetype)initWithFrame:(CGRect)frame{
+
     _multiple = 3;
     _currentScale = 1;//初始化缩放比例为 1
     _fmCollectionViewLayout = [[TYDecorationSectionLayout alloc]init];

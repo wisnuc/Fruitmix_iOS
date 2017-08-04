@@ -134,7 +134,7 @@
 
 -(void)initView{
     self.view.backgroundColor = UICOLOR_RGB(0xe2e2e2);
-    self.collectionView = [[FMPhotoCollectionView alloc]initWithFrame:CGRectZero];
+    self.collectionView = [[FMPhotoCollectionView alloc]init];
     self.collectionView.fmDelegate = self;
     self.collectionView.userIndicator = YES;
     [self.view addSubview:self.collectionView];
@@ -592,6 +592,7 @@
 - (FMHeadView *)fm_CollectionView:(FMPhotoCollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
     FMHeadView * headView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"headView" forIndexPath:indexPath];
     NSDate * date = [self.photoDataSource.timeArr objectAtIndex:indexPath.section];
+//    NSLog(@"%@",date);
     headView.headTitle = [NSDate getDateStringWithPhoto:date];
     headView.fmState = _collectionView.fmState;
     //判断该区是否选中状态

@@ -7,11 +7,13 @@
 //
 
 #import "FLFIlesHelper.h"
+#import "FLLocalFIleVC.h"
 
 @interface FLFIlesHelper ()
 
 @property (nonatomic) NSMutableArray * chooseFiles;
 @property (nonatomic) NSMutableArray * chooseFilesUUID;
+@property (nonatomic) TYDownloadModel * downloadModel;
 
 @end
 
@@ -93,15 +95,26 @@
     
 }
 
-- (void)downloadAloneFilesWithModel:(FLFilesModel *)model{
-    [[FLDownloadManager shareManager] downloadFileWithFileModel:model];
+- (void)downloadAloneFilesWithModel:(FLFilesModel *)model Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state
+{
+    NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
+    NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
+    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@files/fruitmix/download/%@/%@",[JYRequestConfig sharedConfig].baseURL,model.parUUID,model.uuid] filePath:filePath];
+    _downloadModel = downloadModel;
+    downloadModel.jy_fileName = model.name;
+    TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
+    [manager startWithDownloadModel:downloadModel progress:progress state:state];
+     [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
 }
 
-- (void)cancleWithDownloadModel{
-    
+- (void)cancleDownload{
+    if (_downloadModel) {
+         TYDownloadModel * tymodel  = _downloadModel;
+        [[TYDownLoadDataManager manager] cancleWithDownloadModel:tymodel];
+    }
 }
 
--(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status{
+-(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController{
     cell.nameLabel.text = model.name;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     if (model.isFile) {
@@ -132,6 +145,10 @@
             if (buttonIndex == 1) {
                 [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel];
                 [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
+                if (viewController) {
+                    FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
+                    [viewController.navigationController pushViewController:downloadVC animated:YES];
+                }
             }
         };
         actionSheet.scrolling          = YES;

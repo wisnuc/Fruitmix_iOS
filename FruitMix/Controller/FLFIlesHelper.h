@@ -24,7 +24,7 @@
 
 -(void)downloadChooseFiles;
 
--(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status;
+-(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController;
 
 -(void)addChooseFile:(FLFilesModel *)model;
 
@@ -32,9 +32,9 @@
 
 -(void)removeAllChooseFile;
 
--(void)cancleWithDownloadModel;
+-(void)cancleDownload;
 
--(void)downloadAloneFilesWithModel:(FLFilesModel *)model;
+- (void)downloadAloneFilesWithModel:(FLFilesModel *)model Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state;
 //判断该文件是否已经被选择
 -(BOOL)containsFile:(FLFilesModel *)model;
 @end

@@ -59,6 +59,7 @@
              asset.localId = photo.localIdentifier;
              asset.degist = photo.degist;
              asset.createtime = photo.createDate;
+            
             if (asset.degist.length)
                 [_localphotoDigest addObject:asset.degist];
              [arr addObject:asset];
