@@ -47,16 +47,16 @@ int const i = 2;//cell 距离
     // costom xib names
     _fmCollectionViewLayout.decorationViewOfKinds = @[@"FirstDecorationSectionView"];
     _fmCollectionViewLayout.scrollDirection=UICollectionViewScrollDirectionVertical;
-    _fmCollectionViewLayout.sectionInset = UIEdgeInsetsMake(0, 0, 20, 0);
+//    _fmCollectionViewLayout.sectionInset = UIEdgeInsetsMake(0, 0, 20, 0);
     _fmCollectionViewLayout.minimumLineSpacing = i;
     if(kSystemVersion >= 9.0)
-        _fmCollectionViewLayout.sectionHeadersPinToVisibleBounds = YES;
+        _fmCollectionViewLayout.sectionHeadersPinToVisibleBounds = NO;
     _fmCollectionViewLayout.minimumInteritemSpacing = i;
     _fmCollectionViewLayout.itemSize = CGSizeMake((__kWidth- i*(_multiple-1))/_multiple, (__kWidth- i*(_multiple-1))/_multiple);
     if(self = [super initWithFrame:frame collectionViewLayout:_fmCollectionViewLayout]){
         self.showsVerticalScrollIndicator = NO;
         self.showsHorizontalScrollIndicator = NO;
-        self.backgroundColor = UICOLOR_RGB(0xe2e2e2);
+        self.backgroundColor = [UIColor whiteColor];
         [self setDataSource:self];
         [self setDelegate:self];
         self.fmState = FMPhotosCollectionViewCellStateNormal;//默认状态
@@ -88,11 +88,11 @@ int const i = 2;//cell 距离
     // costom xib names
     layout.decorationViewOfKinds = @[@"FirstDecorationSectionView"];
     layout.scrollDirection=UICollectionViewScrollDirectionVertical;
-    layout.sectionInset = UIEdgeInsetsMake(0, 0, 20, 0);
+//    layout.sectionInset = UIEdgeInsetsMake(0, 0, 20, 0);
     layout.minimumLineSpacing = i;
     layout.minimumInteritemSpacing = i;
     if(kSystemVersion >= 9.0)
-        layout.sectionHeadersPinToVisibleBounds = YES;
+        layout.sectionHeadersPinToVisibleBounds = NO;
     if (isSmall) {
         _multiple = _multiple + 1;
     }

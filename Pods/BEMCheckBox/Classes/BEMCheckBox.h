@@ -82,6 +82,10 @@ typedef NS_ENUM(NSInteger, BEMAnimationType) {
  */
 @property (nonatomic) IBInspectable CGFloat lineWidth;
 
+/** The corner radius which is applied to the box when the boxType is BEMBoxTypeSquare. Default to 3.0.
+ */
+@property (nonatomic) IBInspectable CGFloat cornerRadius;
+
 /** The duration in seconds of the animation when the check box switches from on and off. Default to 0.5.
  */
 @property (nonatomic) IBInspectable CGFloat animationDuration;
@@ -112,7 +116,7 @@ typedef NS_ENUM(NSInteger, BEMAnimationType) {
 
 /** The group this box is associated with.
  */
-@property (weak, nonatomic, nullable, readonly) BEMCheckBoxGroup *group;
+@property (strong, nonatomic, nullable, readonly) BEMCheckBoxGroup *group;
 
 /** The type of box.
  * @see BEMBoxType. 

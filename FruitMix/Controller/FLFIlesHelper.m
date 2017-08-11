@@ -122,6 +122,7 @@
         cell.timeLabel.text = [self getTimeWithTimeSecond:model.mtime/1000];
     }else
         cell.f_ImageView.image = [UIImage imageNamed:@"folder_icon"];
+        cell.timeLabel.text = [self getTimeWithTimeSecond:model.mtime/1000];
     
     cell.downBtn.hidden = ((status == FLFliesCellStatusNormal)?!model.isFile:YES);
     
@@ -135,27 +136,29 @@
     }
     
     @weakify(self);
-    cell.clickBlock = ^(FLFilesCell * cell){
-        weak_self.chooseModel = model;
-        LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
-                                                                 delegate:nil
-                                                        cancelButtonTitle:@"取消"
-                                                    otherButtonTitleArray:@[@"下载该文件"]];
-        actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
-            if (buttonIndex == 1) {
-                [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel];
-                [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
-                if (viewController) {
-                    FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
-                    [viewController.navigationController pushViewController:downloadVC animated:YES];
+    if (model.isFile) {
+        cell.clickBlock = ^(FLFilesCell * cell){
+            weak_self.chooseModel = model;
+            LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
+                                                                     delegate:nil
+                                                            cancelButtonTitle:@"取消"
+                                                        otherButtonTitleArray:@[@"下载该文件"]];
+            actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
+                if (buttonIndex == 1) {
+                    [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel];
+                    [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
+                    if (viewController) {
+                        FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
+                        [viewController.navigationController pushViewController:downloadVC animated:YES];
+                    }
                 }
-            }
+            };
+            actionSheet.scrolling          = YES;
+            actionSheet.buttonHeight       = 60.0f;
+            actionSheet.visibleButtonCount = 3.6f;
+            [actionSheet show];
         };
-        actionSheet.scrolling          = YES;
-        actionSheet.buttonHeight       = 60.0f;
-        actionSheet.visibleButtonCount = 3.6f;
-        [actionSheet show];
-    };
+    }
     
     cell.longpressBlock =^(FLFilesCell * cell){
         if (status == FLFliesCellStatusNormal) {

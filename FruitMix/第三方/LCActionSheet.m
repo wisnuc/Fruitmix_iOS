@@ -277,14 +277,15 @@
     }];
     
     UIView *divisionView         = [[UIView alloc] init];
-    divisionView.alpha           = 0.1f;
-    divisionView.backgroundColor = LC_ACTION_SHEET_COLOR(150, 150, 150);
+//    divisionView.alpha           = 0.1f;
+//    divisionView.backgroundColor = LC_ACTION_SHEET_COLOR(150, 150, 150);
+    divisionView.backgroundColor = [UIColor lightGrayColor];
     [bottomView addSubview:divisionView];
     [divisionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(bottomView);
         make.top.equalTo(tableView.mas_bottom).offset(-1.0f);
         
-        CGFloat height = self.cancelButtonTitle.length > 0 ? 6.0f : 0;
+        CGFloat height = self.cancelButtonTitle.length > 0 ? 0.7f : 0;
         make.height.equalTo(@(height));
     }];
     

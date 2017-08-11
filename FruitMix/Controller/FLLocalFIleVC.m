@@ -15,7 +15,8 @@
 #import "LCActionSheet.h"
 
 @interface FLLocalFIleVC ()<UITableViewDelegate,UITableViewDataSource,UIDocumentInteractionControllerDelegate>
-@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet FMTableView *tableview;
+
 @property (nonatomic) NSMutableArray * needDownloads;//正在下载
 @property (nonatomic) NSMutableArray * downloadeds;//已下载
 
@@ -35,17 +36,26 @@
     [self configTableView];
     [self createNavBtns];
     self.title = @"文件下载";
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(freshData:) name:@"deleteCompleteNoti" object:nil];
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
+    [self initData];
+
 }
 
+- (void)freshData:(NSNotification *)noti{
+    dispatch_async(dispatch_get_main_queue(), ^{
+          [self initData];
+    });
+}
 -(void)initData{
     _downloadeds = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     _needDownloads = [NSMutableArray arrayWithCapacity:0];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].downloadingModels];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].waitingDownloadModels];
+    [self.tableview reloadData];
 }
 
 -(void)createNavBtns{
@@ -85,12 +95,15 @@
         }
     }
     
-    for (FLDownload * down in self.downloadeds) {
+    NSMutableArray * arrayTemp = self.downloadeds;
+    
+    NSArray * array = [NSArray arrayWithArray: arrayTemp];
+    
+    for (FLDownload * down in array) {
         if ([self.chooseArr containsObject:down.uuid]) {
             [FMDBControl updateDownloadWithFile:down isAdd:NO];
         }
     }
-    [self initData];
     [self changeStatus];
     
 }
@@ -104,8 +117,10 @@
 
 -(void)configTableView{
     //注册cell
-    [_tableview registerNib:[UINib nibWithNibName:@"FLFilesCell" bundle:nil] forCellReuseIdentifier:NSStringFromClass([FLFilesCell class])];
+//    [_tableview registerNib:[UINib nibWithNibName:@"FLFilesCell" bundle:nil] forCellReuseIdentifier:NSStringFromClass([FLFilesCell class])];
     self.cellStatus = FLFliesCellStatusNormal;
+//    _tableview.contentInset = UIEdgeInsetsMake(FMDefaultOffset, 0, 0, 0);
+//      _tableview.separatorInset = UIEdgeInsetsMake(FMDefaultOffset, 0, 0, 0);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadFileChangeHandle:) name:FLDownloadFileChangeNotify object:nil];
 }
 
@@ -130,9 +145,9 @@
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     if (section == 0) {
-        return _needDownloads.count;
+        return self.needDownloads.count;
     }else
-        return _downloadeds.count;
+        return self.downloadeds.count;
 }
 
 -(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
@@ -148,8 +163,12 @@
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    FLFilesCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FLFilesCell class])];
-    cell.downBtn.hidden = YES;
+    FLFilesCell *cell;
+    cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FLFilesCell class])];
+    if (nil == cell) {
+        cell= [[[NSBundle mainBundle] loadNibNamed:@"FLFilesCell" owner:nil options:nil] lastObject];
+    }
+       cell.downBtn.hidden = YES;
     [self configCell:cell andIndexpath:indexPath];
     return cell;
 
@@ -162,12 +181,13 @@
     if (indexPath.section == 0) {
         model = self.needDownloads[indexPath.row];
         uuid = model.fileName;
-        if (model.state != TYDownloadStateRunning)
+        if (model.state != TYDownloadStateRunning){
             cell.timeLabel.text = @"等待下载";
+        }
         [[TYDownLoadDataManager manager] startWithDownloadModel:model progress:^(TYDownloadProgress *progress) {
             cell.timeLabel.text = [self detailTextForDownloadProgress:progress];
         } state:^(TYDownloadState state, NSString *filePath, NSError *error) {
-            
+
         }];
         cell.nameLabel.text = model.jy_fileName;
     }else{
@@ -207,10 +227,13 @@
             self.needDownloads[indexPath.row]:self.downloadeds[indexPath.row];
         NSString * uuid = [model isKindOfClass:[TYDownloadModel class]]?
                                 ((TYDownloadModel *)model).fileName:((FLDownload*)model).uuid;
-        if([self.chooseArr containsObject:uuid])
+        if([self.chooseArr containsObject:uuid]){
             [self.chooseArr removeObject:uuid];
+        }
         else
+        {
             [self .chooseArr addObject:uuid];
+        }
         [self.tableview reloadData];
     }else{
         if (indexPath.section == 1) {
@@ -222,7 +245,8 @@
     }
 }
 
-
+- (void)updateDataCompletedWithModel:(TYDownloadModel *)model Cell:(FLFilesCell *)cell andIndexpath:(NSIndexPath *)indexPath{
+}
 
 
 - (void)presentOptionsMenu
@@ -267,7 +291,10 @@
     return detailLabelText;
 }
 
-
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:@"deleteCompleteNoti" object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:FLDownloadFileChangeNotify object:nil];
+}
 #pragma mark - DownloadDelegate
 
 @end

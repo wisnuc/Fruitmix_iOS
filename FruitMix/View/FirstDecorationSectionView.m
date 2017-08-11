@@ -16,6 +16,7 @@
 //    self.backgroundColor = UICOLOR_RGB(0xe2e2e2);
     self.backgroundColor = [UIColor whiteColor];
     self.cardView.backgroundColor  = [UIColor whiteColor];
+    
 //    self.cardView.backgroundColor = UICOLOR_RGB(0xfafafa);
 //    self.cardView.layer.sh
 //    self.cardView.layer.shadowColor = [[UIColor blackColor]CGColor];

@@ -24,7 +24,7 @@
 @property (nonatomic, weak) IDMPhotoBrowser *photoBrowser;
 @property (nonatomic) NSString * chooseBtnImageName;
 - (void)handleSingleTap:(CGPoint)touchPoint;
-- (void)handleDoubleTap:(CGPoint)touchPoint;
+- (void)handleDoubleTap:(CGPoint)touchPoint view:(UIView *)view;
 @end
 
 @implementation IDMZoomingScrollView
@@ -406,7 +406,7 @@
 }
 
 
-- (void)handleDoubleTap:(CGPoint)touchPoint {
+- (void)handleDoubleTap:(CGPoint)touchPoint view:(UIView *)view {
     
     // Cancel any single tap handling
     [NSObject cancelPreviousPerformRequestsWithTarget:_photoBrowser];
@@ -418,14 +418,16 @@
         [self setZoomScale:self.minimumZoomScale animated:YES];
         
     } else {
-        
         // Zoom in
         CGSize targetSize = CGSizeMake(self.frame.size.width / self.maximumDoubleTapZoomScale, self.frame.size.height / self.maximumDoubleTapZoomScale);
         CGPoint targetPoint = CGPointMake(touchPoint.x - targetSize.width / 2, touchPoint.y - targetSize.height / 2);
-        
-        [self zoomToRect:CGRectMake(targetPoint.x, targetPoint.y, targetSize.width, targetSize.height) animated:YES];
+        CGPoint outTargetPoint = CGPointMake(touchPoint.x * (_photoImageView.bounds.size.width/view.bounds.size.width) - targetSize.width / 2, touchPoint.y * (_photoImageView.bounds.size.height/view.bounds.size.height) - targetSize.height / 2);
+        if (![view.superclass isEqual:_photoImageView.superclass]) {
+            [self zoomToRect:CGRectMake(outTargetPoint.x, outTargetPoint.y, targetSize.width, targetSize.height) animated:YES];
+        }else{
+            [self zoomToRect:CGRectMake(targetPoint.x, targetPoint.y, targetSize.width, targetSize.height) animated:YES];
+        }
     }
-    
     // Delay controls
     [_photoBrowser hideControlsAfterDelay];
 }
@@ -459,7 +461,7 @@
     [self handleSingleTap:[touch locationInView:imageView]];
 }
 - (void)imageView:(UIImageView *)imageView doubleTapDetected:(UITouch *)touch {
-    [self handleDoubleTap:[touch locationInView:imageView]];
+    [self handleDoubleTap:[touch locationInView:imageView] view:imageView];
 }
 
 // Background View
@@ -467,7 +469,7 @@
     [self handleSingleTap:[touch locationInView:view]];
 }
 - (void)view:(UIView *)view doubleTapDetected:(UITouch *)touch {
-    [self handleDoubleTap:[touch locationInView:view]];
+    [self handleDoubleTap:[touch locationInView:view] view:view];
 }
 
 @end

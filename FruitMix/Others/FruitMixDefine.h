@@ -89,6 +89,9 @@
 
 //间距
 #define FMPadding 10
+#define FMShadowOffset 1
+#define FMDefaultOffset 8
+
 
 #ifndef weakify
 #if DEBUG

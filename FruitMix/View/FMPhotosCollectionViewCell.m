@@ -21,7 +21,7 @@
 
 -(void)prepareForReuse{
     [super prepareForReuse];
-    self.fmPhotoImageView.image = [UIImage imageNamed:@"photo_placeholder"];
+    self.fmPhotoImageView.backgroundColor =UICOLOR_RGB(0xf5f5f5);
     self.lockBtn.hidden = YES;
     self.maskLayer.hidden =YES;
 }

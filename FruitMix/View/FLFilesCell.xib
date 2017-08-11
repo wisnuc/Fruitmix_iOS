@@ -20,26 +20,26 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="tbT-cl-mAk" userLabel="layerView">
-                        <rect key="frame" x="16" y="17" width="40" height="40"/>
+                        <rect key="frame" x="10" y="17" width="40" height="40"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="40" id="mjS-fK-T4T"/>
                             <constraint firstAttribute="height" constant="40" id="qIi-Se-qHy"/>
                         </constraints>
                     </imageView>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="folder_icon.png" translatesAutoresizingMaskIntoConstraints="NO" id="8w9-wt-EEo" userLabel="f_ImageView">
-                        <rect key="frame" x="22" y="23" width="28" height="28"/>
+                        <rect key="frame" x="16" y="23" width="28" height="28"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="28" id="F6O-PP-0eJ"/>
                             <constraint firstAttribute="width" constant="28" id="ius-IU-Don"/>
                         </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0DU-HI-tYw" userLabel="timeLabel">
-                        <rect key="frame" x="66" y="40" width="269" height="17"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0DU-HI-tYw" userLabel="timeLabel">
+                        <rect key="frame" x="76" y="40" width="259" height="17"/>
                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7BD-P2-wb5" userLabel="downBtn">
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7BD-P2-wb5" userLabel="downBtn" customClass="FLDownloadButton">
                         <rect key="frame" x="355" y="27" width="20" height="20"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="4g8-fl-qR5"/>
@@ -52,8 +52,8 @@
                             <action selector="downBtnclick:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Db5-p5-vU6"/>
                         </connections>
                     </button>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DyJ-oP-YOB" userLabel="nameLabel">
-                        <rect key="frame" x="66" y="17" width="269" height="18"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DyJ-oP-YOB" userLabel="nameLabel">
+                        <rect key="frame" x="76" y="17" width="259" height="18"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="18" id="ClX-6E-Pk2"/>
                         </constraints>
@@ -63,19 +63,19 @@
                     </label>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="tbT-cl-mAk" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="8" id="2Pn-RR-xna"/>
                     <constraint firstItem="7BD-P2-wb5" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="AoF-9T-ok6"/>
+                    <constraint firstItem="tbT-cl-mAk" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="CgE-ae-a2b"/>
                     <constraint firstItem="0DU-HI-tYw" firstAttribute="top" secondItem="DyJ-oP-YOB" secondAttribute="bottom" constant="5" id="FL4-0f-T6Y"/>
                     <constraint firstAttribute="trailingMargin" secondItem="DyJ-oP-YOB" secondAttribute="trailing" constant="45" id="NWx-Iw-wCA"/>
                     <constraint firstItem="0DU-HI-tYw" firstAttribute="leading" secondItem="DyJ-oP-YOB" secondAttribute="leading" id="Zbx-yX-3Cd"/>
                     <constraint firstAttribute="trailingMargin" secondItem="0DU-HI-tYw" secondAttribute="trailing" constant="45" id="a9G-Nk-QEk"/>
-                    <constraint firstItem="DyJ-oP-YOB" firstAttribute="leading" secondItem="8w9-wt-EEo" secondAttribute="trailing" constant="16" id="bib-0X-kPE"/>
+                    <constraint firstItem="DyJ-oP-YOB" firstAttribute="leading" secondItem="8w9-wt-EEo" secondAttribute="trailing" constant="32" id="bib-0X-kPE"/>
                     <constraint firstItem="DyJ-oP-YOB" firstAttribute="top" secondItem="tbT-cl-mAk" secondAttribute="top" id="chS-4t-xP9"/>
                     <constraint firstAttribute="trailingMargin" secondItem="7BD-P2-wb5" secondAttribute="trailing" constant="5" id="d2Q-hP-RX3"/>
-                    <constraint firstItem="8w9-wt-EEo" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="14" id="fSV-mc-Q2j"/>
                     <constraint firstItem="0DU-HI-tYw" firstAttribute="bottom" secondItem="tbT-cl-mAk" secondAttribute="bottom" id="gJV-52-GSa"/>
                     <constraint firstItem="8w9-wt-EEo" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="gOI-jb-wI7"/>
                     <constraint firstItem="tbT-cl-mAk" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="seM-se-7xY"/>
+                    <constraint firstItem="8w9-wt-EEo" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="z6G-7P-orp"/>
                 </constraints>
             </tableViewCellContentView>
             <gestureRecognizers/>

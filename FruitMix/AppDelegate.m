@@ -32,6 +32,7 @@
 
 #import <CoreTelephony/CTCellularData.h>
 #import "UIApplication+JYTopVC.h"
+#import "FMBoxViewController.h"
 
 #import <CocoaLumberjack/CocoaLumberjack.h>
 
@@ -266,19 +267,19 @@
 
 -(void)initWithTabBar:(RDVTabBarController *)tabbar{
     /* 页面 */
-    FMShareViewController * shareVC = [[FMShareViewController alloc]init];
+    FMBoxViewController * boxVC = [[FMBoxViewController alloc]init];
     FMPhotosViewController * photosVC = [[FMPhotosViewController alloc]init];
 //    FMAlbumsViewController * albumsVC = [[FMAlbumsViewController alloc]init];
         FLFilesVC * filesVC = [[FLFilesVC alloc]init];
     /* 导航 */
-    NavViewController *nav0 = [[NavViewController alloc] initWithRootViewController:shareVC];
-    
-    NavViewController *nav1 = [[NavViewController alloc]initWithRootViewController:photosVC];
+    NavViewController *nav0 = [[NavViewController alloc] initWithRootViewController:boxVC];
+    NavViewController *nav1 = [[NavViewController alloc] initWithRootViewController:photosVC];
     NavViewController *nav2 = [[NavViewController alloc] initWithRootViewController:filesVC];
     
-    shareVC.title = @"分享";
+    boxVC.title = @"分享";
     photosVC.title = @"照片";
     filesVC.title = @"文件";
+    
     NSMutableArray *viewControllersMutArr = [[NSMutableArray alloc] initWithObjects:nav0, nav1,nav2,nil];
     [tabbar setViewControllers:viewControllersMutArr];
    

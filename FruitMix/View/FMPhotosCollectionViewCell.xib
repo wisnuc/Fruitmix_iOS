@@ -18,9 +18,9 @@
                 <rect key="frame" x="0.0" y="0.0" width="193" height="178"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="photo_placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="7Vc-dT-thz">
+                    <imageView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="7Vc-dT-thz">
                         <rect key="frame" x="0.0" y="0.0" width="193" height="178"/>
-                        <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <gestureRecognizers/>
                     </imageView>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j82-eb-ZEO">
@@ -83,7 +83,6 @@
     </objects>
     <resources>
         <image name="mask-layer.png" width="366" height="145"/>
-        <image name="photo_placeholder.png" width="125" height="124"/>
         <image name="select.png" width="24" height="24"/>
         <image name="share_photo.png" width="16" height="17"/>
     </resources>

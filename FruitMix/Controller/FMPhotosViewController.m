@@ -78,6 +78,8 @@
 
 @property (nonatomic) JYAlertView * shareView;
 
+@property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *edgeGesture;
+
 @end
 
 @implementation FMPhotosViewController{
@@ -90,6 +92,10 @@
     [super viewDidAppear:animated];
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateNormal) {
         [self.rdv_tabBarController setTabBarHidden:NO animated:YES];
+        if (_edgeGesture) {
+            [self.view removeGestureRecognizer:_edgeGesture];
+            _edgeGesture = nil;
+        }
     }else{
         [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     }
@@ -107,8 +113,19 @@
     [self initView];
     [self initData];
     [self registNotify];
+
 }
 
+-(void)gesture:(id)sender
+{
+    UIScreenEdgePanGestureRecognizer *edge = sender;
+   if (self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose) {
+    if (edge.edges == UIRectEdgeLeft)
+    {
+        [self leftBtnClick:nil];
+    }
+   }
+}
 -(void)registNotify{
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataSourceFinishToLoadPhotos) name:FMPhotoDatasourceLoadFinishNotify object:nil];
 }
@@ -135,6 +152,7 @@
 -(void)initView{
     self.view.backgroundColor = UICOLOR_RGB(0xe2e2e2);
     self.collectionView = [[FMPhotoCollectionView alloc]init];
+  
     self.collectionView.fmDelegate = self;
     self.collectionView.userIndicator = YES;
     [self.view addSubview:self.collectionView];
@@ -153,6 +171,8 @@
         make.top.mas_equalTo(self.view.mas_top);
         make.bottom.mas_equalTo(self.view.mas_bottom);
     }];
+    
+      self.collectionView.contentInset = UIEdgeInsetsMake(FMDefaultOffset, 0, 0, 0);
 }
 
 -(void)createControlbtn{
@@ -183,9 +203,13 @@
     UIButton * rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 40)];
     [rightBtn setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
     [rightBtn setImage:[UIImage imageNamed:@"more_highlight"] forState:UIControlStateHighlighted];
+    UIBarButtonItem *negativeSpacer = [[UIBarButtonItem alloc]
+                                       initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
+                                       target:nil action:nil];
+    negativeSpacer.width = -14;
     [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
-    self.navigationItem.rightBarButtonItem = rightItem;
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:negativeSpacer,rightItem,nil];
 
 //    UIBarButtonItem *negativeSpacer = [[ UIBarButtonItem alloc ]
 //                                       
@@ -266,7 +290,15 @@
     _rightbtn.userInteractionEnabled = NO;
     [self addLeftBtn];
     _addButton.hidden = NO;
-}
+    if (!_edgeGesture) {
+        _edgeGesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(gesture:)];
+        // 指定左边缘滑动
+        _edgeGesture.edges = UIRectEdgeLeft;
+        [self.view addGestureRecognizer:_edgeGesture];
+        // 如果ges的手势与collectionView手势都识别的话,指定以下代码,代表是识别传入的手势
+        [self.collectionView.panGestureRecognizer requireGestureRecognizerToFail:_edgeGesture];
+    }
+  }
 
 -(void)leftBtnClick:(id)sender{
     
@@ -282,6 +314,10 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self tabBarAnimationWithHidden:NO];
     });
+    if (_edgeGesture) {
+        [self.view removeGestureRecognizer:_edgeGesture];
+        _edgeGesture = nil;
+    }
 //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 //        [self.collectionView reloadData];
 //    });
@@ -670,6 +706,9 @@
             }
         }
         _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)self.choosePhotos.count];
+        if (self.choosePhotos.count < 1) {
+            [self leftBtnClick:nil];
+        }
     }
 }
 
@@ -706,6 +745,10 @@
             [self.choosePhotos removeObjectsInArray:items];
         }
         _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)self.choosePhotos.count];
+        if (self.choosePhotos.count < 1) {
+            [self leftBtnClick:nil];
+        }
+
         [self.collectionView reloadData];
     }
 }
@@ -723,6 +766,7 @@
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose) {
         return;
     }
+    
     NSIndexPath * indexPath = [self.collectionView indexPathForCell:cell];
     [self rightBtnClick:_rightbtn];
     FMPhotoAsset * asset = self.photoDataSource.dataSource[indexPath.section][indexPath.row];
@@ -737,6 +781,14 @@
         [self.choosePhotos addObject:asset];
     }
     [self.collectionView reloadData];
+    if (!_edgeGesture) {
+        _edgeGesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(gesture:)];
+        // 指定左边缘滑动
+        _edgeGesture.edges = UIRectEdgeLeft;
+        [self.view addGestureRecognizer:_edgeGesture];
+        // 如果ges的手势与collectionView手势都识别的话,指定以下代码,代表是识别传入的手势
+        [self.collectionView.panGestureRecognizer requireGestureRecognizerToFail:_edgeGesture];
+    }
 }
 
 #pragma mark - IDMPhotoBrowserDelegate

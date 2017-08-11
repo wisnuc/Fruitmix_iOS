@@ -204,13 +204,13 @@
                         [obj setValue:data forKeyPath:entry.objName];
                     }
                 } else if (FMDT_IsDateObject(entry.objType)) {
-                    NSNumber *dateNum = [set objectForColumnName:entry.name];
+                    NSNumber *dateNum = [set objectForColumn:entry.name];
                     NSDate *date = [NSDate dateWithTimeIntervalSince1970:[dateNum doubleValue]];
                     if (date) {
                         [obj setValue:date forKeyPath:entry.objName];
                     }
                 } else {
-                    id val = [set objectForColumnName:entry.name];
+                    id val = [set objectForColumn:entry.name];
                     [obj setValue:val forKeyPath:entry.objName];
                 }
             }

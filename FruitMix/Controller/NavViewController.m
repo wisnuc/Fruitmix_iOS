@@ -30,9 +30,33 @@
     [self.navigationBar addSubview:redView];
     [self useClipsToBoundsRemoveBlackLine];
     
+    
 }
 -(void)useClipsToBoundsRemoveBlackLine
 {
+    if ([self.navigationController.navigationBar respondsToSelector:@selector( setBackgroundImage:forBarMetrics:)])
+    {
+        
+        NSArray *list=self.navigationController.navigationBar.subviews;
+        
+        for (id obj in list)
+        {
+            
+            if ([UIDevice currentDevice].systemVersion.floatValue >= 10.0)
+            {//10.0的系统字段不一样
+                UIView *view =   (UIView*)obj;
+                for (id obj2 in view.subviews) {
+                    
+                    if ([obj2 isKindOfClass:[UIImageView class]])
+                    {
+                        
+                        UIImageView *image =  (UIImageView*)obj2;
+                        image.hidden = YES;
+                    }
+                }
+            }
+        }
+    }
     //设置移除黑线
 //    [self.navigationController.navigationBar setShadowImage:[UIImage new]]; 
 }

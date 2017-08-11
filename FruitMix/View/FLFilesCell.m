@@ -7,6 +7,7 @@
 //
 
 #import "FLFilesCell.h"
+#import "UIButton+EnlargeEdge.h"
 
 @implementation FLFilesCell
 
@@ -15,7 +16,10 @@
     UILongPressGestureRecognizer * longPress = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handlelongPress:)];
     longPress.minimumPressDuration = 0.5f;
     [self.contentView addGestureRecognizer:longPress];
+    [self.downBtn setEnlargeEdgeWithTop:6 right:12 bottom:6 left:6];
 }
+
+
 
 -(void)layoutSubviews{
     [super layoutSubviews];

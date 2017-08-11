@@ -108,17 +108,17 @@
 }
 
 // override
-- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-{
-    NSMutableArray *attributes = [NSMutableArray arrayWithArray:[super layoutAttributesForElementsInRect:rect]];
-    for (UICollectionViewLayoutAttributes *attribute in _decorationAttributes)
-    {
-        if (!CGRectIntersectsRect(rect, attribute.frame))
-            continue;
-        
-        [attributes addObject:attribute];
-    }
-    return attributes;
-}
+//- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+//{
+//    NSMutableArray *attributes = [NSMutableArray arrayWithArray:[super layoutAttributesForElementsInRect:rect]];
+//    for (UICollectionViewLayoutAttributes *attribute in _decorationAttributes)
+//    {
+//        if (!CGRectIntersectsRect(rect, attribute.frame))
+//            continue;
+//        
+//        [attributes addObject:attribute];
+//    }
+//    return attributes;
+//}
 
 @end

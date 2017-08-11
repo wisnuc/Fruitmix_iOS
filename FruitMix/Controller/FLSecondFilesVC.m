@@ -88,8 +88,8 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 
 -(void)createControlbtn{
     if(!_addButton){
-        CGRect floatFrame = CGRectMake(self.view.jy_Width-135 , __kHeight - 64 - 56 - 88, 56, 56);
-        NSLog(@"%f",self.view.jy_Width);
+        CGRect floatFrame = CGRectMake(JYSCREEN_WIDTH-80 , __kHeight - 64 - 56 - 88, 56, 56);
+//        NSLog(@"%f",self.view.jy_Width);
         _addButton = [[VCFloatingActionButton alloc]initWithFrame:floatFrame normalImage:[UIImage imageNamed:@"add_album"] andPressedImage:[UIImage imageNamed:@"icon_close"] withScrollview:_tableview];
         _addButton.automaticallyInsets = YES;
         _addButton.imageArray = @[@"download"];
@@ -104,9 +104,13 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     UIButton * rightBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 40)];
     [rightBtn setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
     [rightBtn setImage:[UIImage imageNamed:@"more_highlight"] forState:UIControlStateHighlighted];
+    UIBarButtonItem *negativeSpacer = [[UIBarButtonItem alloc]
+                                       initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
+                                       target:nil action:nil];
+    negativeSpacer.width = -14;
     [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
-    self.navigationItem.rightBarButtonItem = rightItem;
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:negativeSpacer,rightItem,nil];
 }
 
 - (void)leftBtnClick:(id)sender{
@@ -189,6 +193,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     [self.tableview registerNib:[UINib nibWithNibName:@"FLFilesCell" bundle:nil] forCellReuseIdentifier:NSStringFromClass([FLFilesCell class])];
     self.tableview.tableFooterView = [UIView new];
     self.tableview.noDataImageName = @"no_file";
+    self.tableview.contentInset = UIEdgeInsetsMake(FMDefaultOffset, 0, 0, 0);
 }
 
 - (void)sequenceDataSource{

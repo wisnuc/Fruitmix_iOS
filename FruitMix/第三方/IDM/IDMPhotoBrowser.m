@@ -707,7 +707,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 #pragma mark - View Lifecycle
 
 - (void)viewDidLoad {
-    
+   
     // View
     self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
     
@@ -741,7 +741,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     
     //jy view CGRectMake(0, 0, __kWidth, 64)
     _jyTitleView = [[UIView alloc]initWithFrame:CGRectZero];
-    _jyTitleView.backgroundColor = UICOLOR_RGB(0x03a9f4);
+    _jyTitleView.backgroundColor = [UIColor blackColor];
     _jyBackBtn = [[UIButton alloc]initWithFrame:CGRectZero]; //CGRectMake(10, 30, 40, 20)
     [_jyBackBtn setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];
 //    [_jyBackBtn setImage:[UIImage imageNamed:@"back_grayhightlight"] forState:UIControlStateHighlighted];
@@ -879,10 +879,13 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     
     // Update UI
     [self hideControlsAfterDelay];
+     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
+     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -2048,6 +2051,8 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     }
     
 }
+
+
 
 //-(BOOL)shouldAutorotate
 //{

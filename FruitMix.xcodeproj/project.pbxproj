@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C75D1961F3837DF00E99419 /* FLDownloadButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C75D1951F3837DF00E99419 /* FLDownloadButton.m */; };
+		9C75D1991F383A6E00E99419 /* UIButton+EnlargeEdge.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C75D1981F383A6E00E99419 /* UIButton+EnlargeEdge.m */; };
+		9C75D19E1F38544800E99419 /* UITableView+FMTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C75D19D1F38544800E99419 /* UITableView+FMTableView.m */; };
+		9C75D1A51F38552A00E99419 /* FMTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C75D1A41F38552A00E99419 /* FMTableView.m */; };
+		9C85B8F51F3D594C0035114B /* FMBoxTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C85B8F41F3D594C0035114B /* FMBoxTableViewController.m */; };
+		9C85B8F91F3D5A430035114B /* FMBoxViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C85B8F71F3D5A430035114B /* FMBoxViewController.m */; };
+		9C85B8FA1F3D5A430035114B /* FMBoxViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C85B8F81F3D5A430035114B /* FMBoxViewController.xib */; };
+		9C85B8FF1F3D60A00035114B /* FMBoxTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C85B8FD1F3D60A00035114B /* FMBoxTableViewCell.m */; };
+		9C85B9001F3D60A00035114B /* FMBoxTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C85B8FE1F3D60A00035114B /* FMBoxTableViewCell.xib */; };
+		9C85B9041F3D85590035114B /* FMBoxTwiterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C85B9021F3D85590035114B /* FMBoxTwiterViewController.m */; };
+		9C85B9051F3D85590035114B /* FMBoxTwiterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C85B9031F3D85590035114B /* FMBoxTwiterViewController.xib */; };
 		9CAB3F041F2740680037E0FE /* FMAccountUsersAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAB3F031F2740680037E0FE /* FMAccountUsersAPI.m */; };
 		9CCACE6D1F2EDAF400E84801 /* storage_select.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CCACE671F2EDAF400E84801 /* storage_select.png */; };
 		9CCACE6E1F2EDAF400E84801 /* storage_select@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CCACE681F2EDAF400E84801 /* storage_select@2x.png */; };
@@ -713,6 +724,25 @@
 
 /* Begin PBXFileReference section */
 		7F807713083ABE0F68BF0E4A /* Pods_FruitMix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FruitMix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C75D1941F3837DF00E99419 /* FLDownloadButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLDownloadButton.h; sourceTree = "<group>"; };
+		9C75D1951F3837DF00E99419 /* FLDownloadButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLDownloadButton.m; sourceTree = "<group>"; };
+		9C75D1971F383A6E00E99419 /* UIButton+EnlargeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+EnlargeEdge.h"; sourceTree = "<group>"; };
+		9C75D1981F383A6E00E99419 /* UIButton+EnlargeEdge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+EnlargeEdge.m"; sourceTree = "<group>"; };
+		9C75D19C1F38544800E99419 /* UITableView+FMTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+FMTableView.h"; sourceTree = "<group>"; };
+		9C75D19D1F38544800E99419 /* UITableView+FMTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+FMTableView.m"; sourceTree = "<group>"; };
+		9C75D1A31F38552A00E99419 /* FMTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMTableView.h; sourceTree = "<group>"; };
+		9C75D1A41F38552A00E99419 /* FMTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMTableView.m; sourceTree = "<group>"; };
+		9C85B8F31F3D594C0035114B /* FMBoxTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMBoxTableViewController.h; sourceTree = "<group>"; };
+		9C85B8F41F3D594C0035114B /* FMBoxTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMBoxTableViewController.m; sourceTree = "<group>"; };
+		9C85B8F61F3D5A430035114B /* FMBoxViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMBoxViewController.h; sourceTree = "<group>"; };
+		9C85B8F71F3D5A430035114B /* FMBoxViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMBoxViewController.m; sourceTree = "<group>"; };
+		9C85B8F81F3D5A430035114B /* FMBoxViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMBoxViewController.xib; sourceTree = "<group>"; };
+		9C85B8FC1F3D60A00035114B /* FMBoxTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMBoxTableViewCell.h; sourceTree = "<group>"; };
+		9C85B8FD1F3D60A00035114B /* FMBoxTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMBoxTableViewCell.m; sourceTree = "<group>"; };
+		9C85B8FE1F3D60A00035114B /* FMBoxTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMBoxTableViewCell.xib; sourceTree = "<group>"; };
+		9C85B9011F3D85590035114B /* FMBoxTwiterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMBoxTwiterViewController.h; sourceTree = "<group>"; };
+		9C85B9021F3D85590035114B /* FMBoxTwiterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMBoxTwiterViewController.m; sourceTree = "<group>"; };
+		9C85B9031F3D85590035114B /* FMBoxTwiterViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMBoxTwiterViewController.xib; sourceTree = "<group>"; };
 		9CAB3F021F2740680037E0FE /* FMAccountUsersAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMAccountUsersAPI.h; sourceTree = "<group>"; };
 		9CAB3F031F2740680037E0FE /* FMAccountUsersAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMAccountUsersAPI.m; sourceTree = "<group>"; };
 		9CCACE671F2EDAF400E84801 /* storage_select.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = storage_select.png; sourceTree = "<group>"; };
@@ -1800,6 +1830,58 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		9C75D19A1F383A7B00E99419 /* UIButton */ = {
+			isa = PBXGroup;
+			children = (
+				9C75D1971F383A6E00E99419 /* UIButton+EnlargeEdge.h */,
+				9C75D1981F383A6E00E99419 /* UIButton+EnlargeEdge.m */,
+			);
+			name = UIButton;
+			sourceTree = "<group>";
+		};
+		9C75D19B1F38525200E99419 /* UITableView */ = {
+			isa = PBXGroup;
+			children = (
+				9C75D19C1F38544800E99419 /* UITableView+FMTableView.h */,
+				9C75D19D1F38544800E99419 /* UITableView+FMTableView.m */,
+			);
+			name = UITableView;
+			sourceTree = "<group>";
+		};
+		9C75D19F1F3854E800E99419 /* tableView */ = {
+			isa = PBXGroup;
+			children = (
+				9C75D1A31F38552A00E99419 /* FMTableView.h */,
+				9C75D1A41F38552A00E99419 /* FMTableView.m */,
+			);
+			name = tableView;
+			sourceTree = "<group>";
+		};
+		9C85B8EF1F3D44510035114B /* Box */ = {
+			isa = PBXGroup;
+			children = (
+				9C85B8F31F3D594C0035114B /* FMBoxTableViewController.h */,
+				9C85B8F41F3D594C0035114B /* FMBoxTableViewController.m */,
+				9C85B8F61F3D5A430035114B /* FMBoxViewController.h */,
+				9C85B8F71F3D5A430035114B /* FMBoxViewController.m */,
+				9C85B8F81F3D5A430035114B /* FMBoxViewController.xib */,
+				9C85B9011F3D85590035114B /* FMBoxTwiterViewController.h */,
+				9C85B9021F3D85590035114B /* FMBoxTwiterViewController.m */,
+				9C85B9031F3D85590035114B /* FMBoxTwiterViewController.xib */,
+			);
+			name = Box;
+			sourceTree = "<group>";
+		};
+		9C85B8FB1F3D60790035114B /* box */ = {
+			isa = PBXGroup;
+			children = (
+				9C85B8FC1F3D60A00035114B /* FMBoxTableViewCell.h */,
+				9C85B8FD1F3D60A00035114B /* FMBoxTableViewCell.m */,
+				9C85B8FE1F3D60A00035114B /* FMBoxTableViewCell.xib */,
+			);
+			path = box;
+			sourceTree = "<group>";
+		};
 		9CFFC6E51F29C33200FA135B /* GetUserInfo */ = {
 			isa = PBXGroup;
 			children = (
@@ -2388,6 +2470,7 @@
 		C15C9B8B1D76C04200CD8225 /* FruitMix */ = {
 			isa = PBXGroup;
 			children = (
+				9C85B8EF1F3D44510035114B /* Box */,
 				C15212F11CB357ED00EF61CF /* Base */,
 				C1A959F71CBCBD84007A1DC9 /* LeftMenu */,
 				F65931A61C99530800AD10D1 /* Login */,
@@ -2452,6 +2535,7 @@
 		C15C9B901D76C40F00CD8225 /* FruitMix */ = {
 			isa = PBXGroup;
 			children = (
+				9C85B8FB1F3D60790035114B /* box */,
 				F6F259051E2DBFC40074F521 /* Public */,
 				C178B5FC1D34C90F00445FE4 /* Utils */,
 				C1F44A521D12B1BA00A8FD34 /* Login */,
@@ -3524,6 +3608,8 @@
 				C1955F5C1DB0BD8900B4A057 /* FLFilesCell.h */,
 				C1955F5D1DB0BD8900B4A057 /* FLFilesCell.m */,
 				C1955F5E1DB0BD8900B4A057 /* FLFilesCell.xib */,
+				9C75D1941F3837DF00E99419 /* FLDownloadButton.h */,
+				9C75D1951F3837DF00E99419 /* FLDownloadButton.m */,
 			);
 			name = FileCell;
 			sourceTree = "<group>";
@@ -4146,6 +4232,7 @@
 		F62A06111E25F5FE00DBD7E9 /* public */ = {
 			isa = PBXGroup;
 			children = (
+				9C75D19F1F3854E800E99419 /* tableView */,
 				F62A06121E25F60A00DBD7E9 /* progressView */,
 			);
 			name = public;
@@ -4375,6 +4462,8 @@
 		F66741321CA1336700324692 /* Category */ = {
 			isa = PBXGroup;
 			children = (
+				9C75D19B1F38525200E99419 /* UITableView */,
+				9C75D19A1F383A7B00E99419 /* UIButton */,
 				C1133C2C1D73E26400D6370F /* Badge */,
 				C1133C291D73E1A900D6370F /* UIView +ViewCon */,
 				C1133C281D73E10D00D6370F /* NSString */,
@@ -4682,6 +4771,7 @@
 				C17615FA1D0EAD3100FDFE1B /* photo_placeholder@2x.png in Resources */,
 				C11A27241D2D0E410033764F /* comment@2x.png in Resources */,
 				C17615DA1D0D2A8200FDFE1B /* check-box_select@3x.png in Resources */,
+				9C85B8FA1F3D5A430035114B /* FMBoxViewController.xib in Resources */,
 				C11FE93D1DEED338008F73D8 /* local_select@2x.png in Resources */,
 				9CCACECB1F2F272400E84801 /* set@3x.png in Resources */,
 				C1A959251CB7C47F007A1DC9 /* About@2x.png in Resources */,
@@ -4736,6 +4826,7 @@
 				9CCACE941F2F08FF00E84801 /* fab_share.png in Resources */,
 				C1B98C4B1E24AFAE00CF7762 /* small_3@3x.png in Resources */,
 				C1A959B61CBB7F96007A1DC9 /* head-portrait@3x.png in Resources */,
+				9C85B9001F3D60A00035114B /* FMBoxTableViewCell.xib in Resources */,
 				C179704F1CD372F0002B7EAA /* send-_select.png in Resources */,
 				9CCACE711F2EDAF400E84801 /* storage@2x.png in Resources */,
 				9CCACEE31F2F2ABD00E84801 /* back_gray@3x.png in Resources */,
@@ -4892,6 +4983,7 @@
 				F6F2594F1E2E02D20074F521 /* open_in@3x.png in Resources */,
 				C1A959261CB7C47F007A1DC9 /* About@3x.png in Resources */,
 				C16A50DD1DC6F28200172CE0 /* Default@2x.png in Resources */,
+				9C85B9051F3D85590035114B /* FMBoxTwiterViewController.xib in Resources */,
 				C19E8B231DDC0EBD00DB3CBE /* Roboto-Bold.ttf in Resources */,
 				C176156D1D01818200FDFE1B /* praise.png in Resources */,
 				C19DDE321CE04F0E00E958D1 /* lock_line.png in Resources */,
@@ -4969,7 +5061,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -5052,6 +5144,7 @@
 				C17747FF1D34F7E4008684E1 /* YYControl.m in Sources */,
 				C18871651DF90D8A0087FF6A /* NSOperationStack.m in Sources */,
 				C1F44A421D12A88000A8FD34 /* RATableView.m in Sources */,
+				9C75D1A51F38552A00E99419 /* FMTableView.m in Sources */,
 				C1A95A401CBCD648007A1DC9 /* FMSlideMenuController.m in Sources */,
 				C1880E921D1FAFC4001CB99D /* FMNeedUploadComments.m in Sources */,
 				F62A06151E25F62C00DBD7E9 /* JYProcessView.m in Sources */,
@@ -5145,7 +5238,9 @@
 				C19136331CC8BE4A008BAB93 /* IDMCaptionView.m in Sources */,
 				C1880E851D1F94BA001CB99D /* FMQuickUploader.m in Sources */,
 				C1A95A441CBCF920007A1DC9 /* FMShareLikeView.m in Sources */,
+				9C75D19E1F38544800E99419 /* UITableView+FMTableView.m in Sources */,
 				C15213011CB35E6C00EF61CF /* FMBaseViewController.m in Sources */,
+				9C85B9041F3D85590035114B /* FMBoxTwiterViewController.m in Sources */,
 				C19136141CC7A96E008BAB93 /* FMPhotoAsset.m in Sources */,
 				C1C52AD51D24F3C7007A04F8 /* FMQuickMSManager.m in Sources */,
 				C16A2C0C1CC620A900AB4A7C /* UICustomTabBarItem.m in Sources */,
@@ -5173,6 +5268,7 @@
 				C11A2B631D2FB7520033764F /* MXScrollViewController.m in Sources */,
 				C19A3CD91D98EFCF00D81503 /* FMUpdateSharesAPI.m in Sources */,
 				C1F44A4D1D12A88000A8FD34 /* RATreeView.m in Sources */,
+				9C75D1991F383A6E00E99419 /* UIButton+EnlargeEdge.m in Sources */,
 				C1F44A561D12B1E900A8FD34 /* FMDeviceCell.m in Sources */,
 				C17615C91D08147600FDFE1B /* FMOwnerSet.m in Sources */,
 				C1F44A9B1D13F3C000A8FD34 /* UIImage+MFTint.m in Sources */,
@@ -5206,6 +5302,7 @@
 				C17970011CD32B00002B7EAA /* UIImage+ImageEffects.m in Sources */,
 				C15470CC1D5B0D1B00D0DFEF /* floatTableViewCell.m in Sources */,
 				C17748021D34F945008684E1 /* YYGestureRecognizer.m in Sources */,
+				9C85B8FF1F3D60A00035114B /* FMBoxTableViewCell.m in Sources */,
 				C1E8F32C1CAE1CC400E1F1FC /* NSBKeyframeAnimationFunctions.c in Sources */,
 				C19136051CC73F36008BAB93 /* FMGetUsersAPI.m in Sources */,
 				C1BD17AC1CD9A3A10001DF05 /* FMShareScrollComment.m in Sources */,
@@ -5244,10 +5341,13 @@
 				C1133B041D5DBA7900D6370F /* FMAlbumSwipeCell.m in Sources */,
 				C125E1BB1D922B84004F726A /* FMComment.m in Sources */,
 				F65931AF1C996BAE00AD10D1 /* SXLoadingView.m in Sources */,
+				9C75D1961F3837DF00E99419 /* FLDownloadButton.m in Sources */,
+				9C85B8F51F3D594C0035114B /* FMBoxTableViewController.m in Sources */,
 				C1009B5A1DFEA738006ADA84 /* FMChangePwdVC.m in Sources */,
 				C1AAF1361DCB268000590F4E /* FMDTSchema.m in Sources */,
 				C1F44A851D13AC0300A8FD34 /* FMUserLoginVC.m in Sources */,
 				C17615D01D0D1A3E00FDFE1B /* FirstDecorationSectionView.m in Sources */,
+				9C85B8F91F3D5A430035114B /* FMBoxViewController.m in Sources */,
 				C1A959F61CBCBC85007A1DC9 /* SlideMenuController.m in Sources */,
 				C1576DC71D5347200005B58B /* UIView+JY_ExtendTouchRect.m in Sources */,
 				C1F44A401D12A88000A8FD34 /* RABatchChangeEntity.m in Sources */,

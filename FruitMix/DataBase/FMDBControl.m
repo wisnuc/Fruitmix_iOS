@@ -532,7 +532,7 @@
 +(void)asyncUserHome{
     FMAccountUsersAPI * usersApi = [FMAccountUsersAPI new];
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSLog(@"😈😈😈😈%@",request.responseJsonObject);
+//        NSLog(@"😈😈😈😈%@",request.responseJsonObject);
 //        NSArray * userArr = request.responseJsonObject;
 //        NSLog(@"%lu",(unsigned long)userArr);
 //        if (userArr.count>0) {
@@ -649,9 +649,9 @@
             [icmd saveChangesInBackground:nil];
             NSLog(@"成功添加一条记录：%@",download.name);
         }
-        else
+        else{
             NSLog(@"已下载的问题，不能重复添加");
-        
+        }
     }else{
         FMDTSelectCommand * cmd = FMDT_SELECT(set.download);
         [cmd where:@"uuid" equalTo:download.uuid];
@@ -662,6 +662,7 @@
                 [FMFileManagerInstance removeFileWithFileName:download.name andCompleteBlock:^(BOOL isSuccess) {
                     if (isSuccess) {
                         [self _removeDownloadColum:download.uuid];
+//                        NSLog(@"👎%@😁%@",download.uuid,download.name);
                     }
                 }];
             }else
@@ -677,7 +678,9 @@
     FMDTDeleteCommand * dcmd = FMDT_DELETE(set.download);
     [dcmd where:@"uuid" equalTo:uuid];
     [dcmd where:@"userId" equalTo:DEF_UUID];
-    [dcmd saveChangesInBackground:nil];
+    [dcmd saveChangesInBackground:^{
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"deleteCompleteNoti" object:nil];
+    }];
 }
 
 @end
