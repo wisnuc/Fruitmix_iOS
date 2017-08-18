@@ -622,7 +622,7 @@ BOOL shouldUpload = NO;
                 return ;
             }
             //检查是否为已上传
-            @weakify(self);
+            @weaky(self);
             FMDTSelectCommand * scmd = [[FMDBSet shared].photo createSelectCommand];
             [scmd where:@"localIdentifier" equalTo:photo.localIdentifier];
             [scmd fetchArrayInBackground:^(NSArray *result) {
@@ -657,7 +657,7 @@ BOOL shouldUpload = NO;
 
 
 -(void)_uploadPhotoWithAsset:(PHAsset *)asset success:(void (^)(NSString *url))success failure:(void (^)())failure{
-    @weakify(self);
+    @weaky(self);
     dispatch_async([FMUtil setterBackGroundQueue], ^{
         [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
             if (filePath) {
@@ -668,8 +668,9 @@ BOOL shouldUpload = NO;
                     return ;
                 }
                 
-//                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
                 NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
+//                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
+//                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
                 
                 // 前台上传

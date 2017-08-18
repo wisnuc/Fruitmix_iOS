@@ -34,7 +34,7 @@
         FMDTSelectCommand * cmd = FMDT_SELECT([FMDBSet shared].photo);
         [cmd whereIsNotNull:@"degist"];
         NSArray * hashsPhoto = [cmd fetchArray];
-        @weakify(self);
+        @weaky(self);
         [hashsPhoto enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             [weak_self.hashToLocalIdMap setObject:((FMLocalPhoto *)obj).localIdentifier forKey:((FMLocalPhoto *)obj).degist];
             [weak_self.localIdToHashMap setObject:((FMLocalPhoto *)obj).degist forKey:((FMLocalPhoto *)obj).localIdentifier];

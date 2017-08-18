@@ -52,7 +52,7 @@ caption = _caption;
 -(void)setCreatetime:(NSDate *)createtime{
     _createtime = createtime;
      NSDateFormatter * formatter1 = [[NSDateFormatter alloc]init];
-    formatter1.dateFormat = @"yyyy-MM-dd";
+    formatter1.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     [formatter1 setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
     _createTimeString = [formatter1 stringFromDate:createtime];
 }
@@ -69,6 +69,7 @@ caption = _caption;
 
 -(NSString *)getPhotoHash{
     if (IsNilString(self.degist))
+    
         self.degist = [[FMLocalPhotoStore shareStore] getPhotoHashWithLocalId:self.localId];
     return _degist;
 }
@@ -127,7 +128,7 @@ caption = _caption;
             
         } else if(_localId){
                 // 图片原尺寸
-            @weakify(self);
+            @weaky(self);
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 PHAsset * asset = [[FMLocalPhotoStore shareStore]checkPhotoIsLocalWithLocalId:_localId];
                 if (asset) {

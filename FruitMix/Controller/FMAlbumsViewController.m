@@ -344,7 +344,7 @@
     swipeSettings.enableSwipeBounces = NO;
     expansionSettings.buttonIndex = -1;
     
-    @weakify(self);
+    @weaky(self);
     if (direction == MGSwipeDirectionLeftToRight) {
         expansionSettings.fillOnTrigger = NO;
         NSString * btnTitle =  album.viewers.count< 2?@"分享":@"私密";

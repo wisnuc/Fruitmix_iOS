@@ -78,6 +78,7 @@
         FMMediaAPI * api = [FMMediaAPI new];
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
             [self analysisPhotos:request.responseJsonObject];
+                NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
             NSLog(@"载入Media失败,%@",request.error);
         }];
@@ -89,16 +90,18 @@
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         @autoreleasepool {
             NSMutableArray * photoArr = [NSMutableArray arrayWithCapacity:0];
-            for (NSArray * contentArr in userArr) {
+            for (NSDictionary *dic in userArr) {
                 @autoreleasepool {
-                    if (contentArr.count>0) {
-                        NSString *photoHash = contentArr[0];
-                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:contentArr[1]];
-                        nasPhoto.digest = photoHash;
-                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
+//                    NSLog(@"😁%@",dic);
+                    
+//                    if (contentArr.count>0) {
+//                        NSString *photoHash = contentArr[0];
+                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+//                        nasPhoto.digest = photoHash;
+//                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
                             [photoArr addObject:nasPhoto];
-                        NSLog(@"%@",photoArr);
-                    }
+//                        NSLog(@"%@",photoArr);
+//                    }
                 }
             }
             if (photoArr.count) {
@@ -117,14 +120,14 @@
 
 -(void)initPhotosIsRefrash{
     @synchronized (self) {
-        @weakify(self);
+        @weaky(self);
         NSCondition *condition = [[NSCondition alloc] init];
         [condition lock];
         NSLog(@"来了");
         [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
             for (FMLocalPhoto * photo in result) {
-                if(![_photosLocalIds containsObject:photo.localIdentifier]){
+        if(![_photosLocalIds containsObject:photo.localIdentifier]){
                     [_photosLocalIds addObject:photo.localIdentifier];
                     FMPhotoAsset * asset = [FMPhotoAsset new];
                     asset.localId = photo.localIdentifier;
@@ -145,8 +148,12 @@
 
 -(void)sequencePhotosAndCompleteBlock:(void(^)())block{
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        
         NSComparator cmptr = ^(IDMPhoto * photo1, IDMPhoto * photo2){
+//            NSLog(@"%@", [photo1 class]);
+//            NSLog(@"%@", [photo2 class]);
             NSDate * tempDate = [[photo1 getPhotoCreateTime]laterDate:[photo2 getPhotoCreateTime]];
+//            NSLog(@"%@😁",tempDate);
             if ([tempDate isEqualToDate:[photo1 getPhotoCreateTime]]) {
                 return (NSComparisonResult)NSOrderedAscending;
             }
@@ -156,7 +163,8 @@
             return (NSComparisonResult)NSOrderedSame;
         };
         [self.imageArr sortUsingComparator:cmptr];
-        @weakify(self);
+//        NSLog(@"%@😁",self.imageArr);
+        @weaky(self);
         [self getTimeArrAndPhotoGroupArrWithCompleteBlock:^(NSMutableArray *tGroup, NSMutableArray *pGroup) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 weak_self.timeArr = tGroup;

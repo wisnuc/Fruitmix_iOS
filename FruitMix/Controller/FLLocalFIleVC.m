@@ -68,7 +68,7 @@
 }
 
 -(void)rightBtnClick:(UIButton *)btn{
-     @weakify(self);
+     @weaky(self);
     if (!self.cellStatus) {
         [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
             if (buttonIndex == 1) {
@@ -205,7 +205,7 @@
         cell.f_ImageView.hidden = NO;
         cell.layerView.image = [UIImage imageNamed:@"check_circle"];
     }
-    @weakify(self);
+    @weaky(self);
     cell.longpressBlock =^(FLFilesCell * cell){
         if (_cellStatus == FLFliesCellStatusNormal) {
             NSString * uuid = [model isKindOfClass:[TYDownloadModel class]]?

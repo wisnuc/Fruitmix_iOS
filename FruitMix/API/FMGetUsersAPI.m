@@ -15,7 +15,7 @@
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-    return @"login";
+    return @"users";
 }
 //-(NSDictionary *)requestHeaderFieldValueDictionary{
 //    

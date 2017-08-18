@@ -51,7 +51,7 @@
 }
 
 -(void)getMetaData{
-    @weakify(self);
+    @weaky(self);
 //    [FMUpdateShareTool getMediaShares:^(NSArray *shares) {
 //        @autoreleasepool {
 //            NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];

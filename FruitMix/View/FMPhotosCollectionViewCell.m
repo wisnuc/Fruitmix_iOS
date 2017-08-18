@@ -72,10 +72,10 @@
 -(void)setBtnHiddenWithAsset:(id<IDMPhoto>)asset{
     if ([asset isKindOfClass:[FMNASPhoto class]]) {
         if (!self.state) {
-            if(![((FMNASPhoto *)asset).permittedToShare boolValue]){
-                self.lockBtn.hidden = NO;
-                self.maskLayer.hidden = NO;
-            }
+//            if(![((FMNASPhoto *)asset).permittedToShare boolValue]){
+//                self.lockBtn.hidden = NO;
+//                self.maskLayer.hidden = NO;
+//            }
         }
     }
 }
@@ -86,14 +86,16 @@
     asset.shouldRequestThumbnail = YES;
     NSString * hash = [asset getPhotoHash];
     [self setBtnHiddenWithAsset:asset];
-    @weakify(self);
+    @weaky(self);
 //    self.fmPhotoImageView.image = [UIImage imageNamed:@"photo_placeholder"];
     FMGetThumbImageCompleteBlock _block = ^(UIImage *image, NSString * tag) {
         if (IsEquallString(tag, weak_self.imageTag)) {
             weak_self.fmPhotoImageView.image = image;
         }
     };
+       NSLog(@"%@😆%@",[asset class],hash);
     if (IsNilString(hash)) _imageTag = ((FMPhotoAsset *)asset).localId;
+ 
     else  _imageTag = hash; //有 digest
     [asset getThumbnailWithCompleteBlock:_block];
 }

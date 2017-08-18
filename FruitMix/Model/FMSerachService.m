@@ -28,7 +28,7 @@
     __weak typeof(self) weakSelf = self;
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSLog(@"%@",_path);
-    [manager GET:[NSString stringWithFormat:@"%@login",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+    [manager GET:[NSString stringWithFormat:@"%@users",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray * userArr = responseObject;
         NSMutableArray * tempArr = [NSMutableArray arrayWithCapacity:0];

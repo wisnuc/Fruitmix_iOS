@@ -135,7 +135,7 @@
         cell.layerView.image = [UIImage imageNamed:@"check_circle"];
     }
     
-    @weakify(self);
+    @weaky(self);
     if (model.isFile) {
         cell.clickBlock = ^(FLFilesCell * cell){
             weak_self.chooseModel = model;

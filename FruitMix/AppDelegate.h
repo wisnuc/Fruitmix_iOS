@@ -14,6 +14,7 @@
 #import "RDVTabBarController.h"
 #import "FMPhotoDataSource.h"
 #import "FMMediaShareDataSource.h"
+#import "FMLoginViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate,NSURLSessionTaskDelegate>
 
@@ -27,7 +28,7 @@
 @property (retain, nonatomic) UIViewController *Setting;
 @property (retain, nonatomic) UIViewController *Help;
 @property (retain, nonatomic) UIViewController *downAndUpLoadManager;
-@property (retain, nonatomic) FMLoginVC * zhuxiao;
+@property (retain, nonatomic) FMLoginViewController * zhuxiao;
 @property (nonatomic) MenuView * menu;
 
 @property (assign, nonatomic) BOOL isBackground; //判读是否是后台运行

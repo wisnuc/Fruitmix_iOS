@@ -113,7 +113,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 -(void)rightBtnClick:(UIButton *)btn{
     if (!self.cellStatus) {
-        @weakify(self);
+        @weaky(self);
         [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
             if (buttonIndex == 1) {
                 [weak_self changeStatus];

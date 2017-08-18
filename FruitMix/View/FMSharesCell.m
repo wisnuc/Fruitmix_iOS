@@ -54,7 +54,7 @@
         frame.size.width = __kWidth - kSharesCellPaddingIMG*2;
         frame.size.height = 0;
     }
-    @weakify(self);
+    @weaky(self);
     self = [super initWithFrame:frame];
     _imgCountLabel = [UILabel new];
     _imgCountLabel.textColor = UICOLOR_RGB(0x404040);
@@ -175,7 +175,7 @@
     _contentView.layer.shadowRadius = 3;//阴影半径，默认3
 //    _contentView.layer.masksToBounds = YES;
     
-    @weakify(self);
+    @weaky(self);
     static UIImage *topLineBG, *bottomLineBG;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -389,7 +389,7 @@
                 if(item.thumbImage){
                     imageView.image = item.thumbImage;
                 }else{
-                    @weakify(imageView);
+                    @weaky(imageView);
                     imageView.block = ^(UIImage *image, NSString *tag) {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             if (IsEquallString(tag, weak_imageView.imgTag)) {

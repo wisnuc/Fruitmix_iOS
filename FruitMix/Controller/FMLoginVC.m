@@ -84,7 +84,7 @@
 
 -(void)rightBtnClick{
     FMHandLoginVC * vc = [[FMHandLoginVC alloc]init];
-    @weakify(self)
+    @weaky(self)
     vc.block = ^(FMSerachService * ser){
         ser.isReadly = YES;
         [_dataSource addObject:ser];
@@ -110,6 +110,7 @@
         [self.treeView reloadData];
         [self.treeView expandRowForItem:self.expandCell];
     }
+//     NSLog(@"😆%@,😜%@",_dataSource,_tempDataSource);
 }
 
 -(void)initView{
@@ -192,7 +193,7 @@
 
 
 -(void)findIpToCheck:(NSString *)addressString andService:(NSNetService *)service{
-    NSString* urlString = [NSString stringWithFormat:@"http://%@:3721/", addressString];
+    NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
     NSLog(@"%@", urlString);
 //    if ([service.name rangeOfString:@"WISNUC"].location !=NSNotFound ||[service.name rangeOfString:@"wisnuc"].location !=NSNotFound) {
         FMSerachService * ser = [FMSerachService new];

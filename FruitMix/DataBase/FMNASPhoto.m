@@ -70,41 +70,40 @@
 
 //主键
 + (NSString *)primaryKeyFieldName {
-    return @"digest";
+    return @"fmhash";
 }
 
--(void)setExifDateTime:(NSString *)exifDateTime{
-    _exifDateTime = exifDateTime;
-    NSString * createDate = _exifDateTime;
+-(void)setDatetime:(NSString *)datetime{
+    _datetime = datetime;
+    NSString * createDate = _datetime;
     NSDateFormatter *inputFormatter = [[NSDateFormatter alloc] init];
     [inputFormatter setDateFormat:@"yyyy:MM:dd HH:mm:ss"];
     _createDate = [inputFormatter dateFromString:createDate];
 }
-- (void)setDigest:(NSString *)digest{
-//     NSLog(@"😜😜😜😜%@",digest);
-    _digest = digest;
+- (void)setFmhash:(NSString *)fmhash{
+     NSLog(@"😜😜😜😜%@",fmhash);
+    _fmhash = fmhash;
 }
 //yymodel
-//+ (NSDictionary *)modelCustomPropertyMapper {
-//    return @{@"hashid" : @"hash",
-//             @"createtime":@"createtime",
-//             @"exifinfo":@"detail"
-//             };
-//}
-
 + (NSDictionary *)modelCustomPropertyMapper {
-    return @{
-             @"format":@"metadata.format",
-             @"exifDateTime":@"metadata.exifDateTime",
-             @"exifMake":@"metadata.exifMake",
-             @"exifModel":@"metadata.exifModel",
-             @"exifOrientation":@"metadata.exifOrientation",
-             
-             @"size":@"metadata.size",
-             @"height":@"metadata.height",
-             @"width":@"metadata.width"
-     };
+    return @{@"fmlong" : @"long",
+             @"fmhash": @"hash"
+             };
 }
+
+//+ (NSDictionary *)modelCustomPropertyMapper {
+//    return @{
+//             @"format":@"metadata.format",
+//             @"exifDateTime":@"metadata.exifDateTime",
+//             @"exifMake":@"metadata.exifMake",
+//             @"exifModel":@"metadata.exifModel",
+//             @"exifOrientation":@"metadata.exifOrientation",
+//             
+//             @"size":@"metadata.size",
+//             @"height":@"metadata.height",
+//             @"width":@"metadata.width"
+//     };
+//}
 
 
 -(instancetype)init{
@@ -126,7 +125,9 @@
 }
 
 -(NSString *)getPhotoHash{
-    return self.digest;
+//    NSLog(@"🍄%@",self.fmhash);
+    return self.fmhash;
+    
 }
 
 -(void)getThumbnailWithCompleteBlock:(void(^)(UIImage *image, NSString *tag))block{
@@ -150,9 +151,9 @@
         if (_photoPath) {
             // Load async from file
             [self performSelectorInBackground:@selector(loadImageFromFileAsync) withObject:nil];
-        } else if (_digest) {
+        } else if (_fmhash) {
             
-            [FMGetImage getFullScreenImageWithPhotoHash:_digest andCompleteBlock:^(UIImage *image, NSString *tag) {
+            [FMGetImage getFullScreenImageWithPhotoHash:_fmhash andCompleteBlock:^(UIImage *image, NSString *tag) {
                 if (image) {
                     self.underlyingImage = image;
                     
@@ -171,7 +172,7 @@
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
     
-    if (self.underlyingImage && (_photoPath || _digest)) {
+    if (self.underlyingImage && (_photoPath || _fmhash)) {
         self.underlyingImage = nil;
         self.thumbImage = nil;
     }
@@ -265,13 +266,13 @@
 }
 
 -(UIImage *)placeholderImage{
-    UIImage * img = [[FMGetThumbImage defaultGetThumbImage].cache getImageForKey:_digest];
+    UIImage * img = [[FMGetThumbImage defaultGetThumbImage].cache getImageForKey:_fmhash];
     return img?img:[UIImage imageNamed:@"photo_placeholder"];
 }
 
 
 -(NSString *)description{
-    return [NSString stringWithFormat:@"* NAS Photo * digest:%@ ** time:%@ *",_digest,_createDate];
+    return [NSString stringWithFormat:@"* NAS Photo * digest:%@ ** time:%@ *",_fmhash,_createDate];
 }
 
 @end

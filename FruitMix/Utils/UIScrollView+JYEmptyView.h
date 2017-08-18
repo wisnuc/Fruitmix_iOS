@@ -11,7 +11,6 @@
 #define JYDescriptionFontSize 14.f
 #define JYDescriptionHeight 15.f
 #define JYDescriptionTopSpace 10.f
-#define JYSCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define JYColor_RGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 

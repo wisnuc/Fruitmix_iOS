@@ -127,7 +127,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 // 上传完成
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error{
     // 这里继续做下一个任务
-    @weakify(self);
+    @weaky(self);
     self.completeBlock(error,session,weak_self.filePath,weak_self.tempFilePath);
 //    [self BgUploadBeginNextTask];
 }
@@ -135,7 +135,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 
 // 后台传输完成，处理URLSession完成事件
 -(void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session{
-    @weakify(self);
+    @weaky(self);
     [self.session getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
         if ([uploadTasks count] == 0) {
             if (MyAppDelegate.backgroundSessionCompletionHandler != nil) {

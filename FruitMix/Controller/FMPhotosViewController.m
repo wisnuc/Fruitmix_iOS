@@ -32,6 +32,9 @@
 #import "FMPersonsCell.h"
 #import "FMPersonCell.h"
 
+
+#import "FMUploadFileAPI.h"
+
 @interface FMPhotoDownloadHelper : NSObject
 
 +(instancetype)defaultHelper;
@@ -113,6 +116,10 @@
     [self initView];
     [self initData];
     [self registNotify];
+    [FMUploadFileAPI getDriveInfo];
+    [FMUploadFileAPI getDirectories];
+    [FMUploadFileAPI getDirEntry];
+    [FMUploadFileAPI getDir];
 
 }
 
@@ -387,7 +394,7 @@
             FMPhotoDownloadHelper  * helper = [FMPhotoDownloadHelper defaultHelper];
             __weak typeof(helper) weakHelper = helper;
             __block NSUInteger allCount = items.count;
-            @weakify(self);
+            @weaky(self);
             NSMutableArray * tempDownArr = [NSMutableArray arrayWithCapacity:0];
             helper.downloadCompleteBlock = ^(BOOL success ,UIImage *image){
                 complete ++;finish ++;
@@ -526,7 +533,7 @@
 //其他分享
 -(void)shareToOtherApp{
     //准备照片
-    @weakify(self);
+    @weaky(self);
     [self clickDownloadWithShare:YES andCompleteBlock:^(NSArray *images) {
         UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:images applicationActivities:nil];
         //初始化回调方法
@@ -583,10 +590,10 @@
     BOOL isShouldSelect = YES;
     for (FMPhoto * photo in items) {
         if(![self.choosePhotos containsObject:photo]){
-            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).permittedToShare boolValue]) {
-                isShouldSelect = NO;
-                break;
-            }
+//            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).permittedToShare boolValue]) {
+//                isShouldSelect = NO;
+//                break;
+//            }
         }
     }
     return isShouldSelect;
@@ -678,10 +685,10 @@
     }
     else if(self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose){
         
-        if([photo isKindOfClass:[FMNASPhoto class]] && ![((FMNASPhoto *)photo).permittedToShare boolValue]){
-            [SXLoadingView showAlertHUD:@"非本人照片，不能操作" duration:0.5];
-            return ;
-        }
+//        if([photo isKindOfClass:[FMNASPhoto class]] && ![((FMNASPhoto *)photo).permittedToShare boolValue]){
+//            [SXLoadingView showAlertHUD:@"非本人照片，不能操作" duration:0.5];
+//            return ;
+//        }
         
         if ([self.choosePhotos indexOfObject:photo] == NSNotFound) {
             [self.choosePhotos addObject:photo];
@@ -728,8 +735,8 @@
             for (FMPhoto * photo in items) {
                 if ([self.photoDataSource.netphotoArr containsObject:photo]) {
                     FMNASPhoto * p = (FMNASPhoto *)photo;
-                    if(![p.permittedToShare boolValue])
-                        continue;
+//                    if(![p.permittedToShare boolValue])
+//                        continue;
                 }
                 if ([self.choosePhotos indexOfObject:photo] == NSNotFound) {
                     [self.choosePhotos addObject:photo];
@@ -774,7 +781,7 @@
     BOOL shouldChoose = YES;
     if ([self.photoDataSource.netphotoArr containsObject:asset]) {
         FMNASPhoto * p = (FMNASPhoto *)asset;
-        shouldChoose = [p.permittedToShare boolValue];
+//        shouldChoose = [p.permittedToShare boolValue];
     }
     
     if (shouldChoose) {
@@ -931,7 +938,7 @@ static BOOL waitingForReload = NO;
         }
         return personcell;
     }];
-    @weakify(self);
+    @weaky(self);
     cell.selectItemBlock = ^(NSInteger index){
         [weak_self checkItemWithIndexPath:[NSIndexPath indexPathForRow:index inSection:indexPath.row]];
     };

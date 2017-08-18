@@ -141,10 +141,10 @@
     BOOL isShouldSelect = YES;
     for (FMPhoto * photo in items) {
         if([self.choosePhotos indexOfObject:photo] == NSNotFound){
-            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).permittedToShare boolValue]) {
-                isShouldSelect = NO;
-                break;
-            }
+//            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).permittedToShare boolValue]) {
+//                isShouldSelect = NO;
+//                break;
+//            }
         }
     }
     return isShouldSelect;
@@ -216,11 +216,11 @@
     FMPhoto * photo = datas[indexPath.row];
     if(self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose){
         
-        if([photo isKindOfClass:[FMNASPhoto class]] && ![((FMNASPhoto *)photo).permittedToShare boolValue]){
-            [SXLoadingView showAlertHUD:@"非本人照片，不能操作" duration:0.5];
-            return ;
-        }
-        
+//        if([photo isKindOfClass:[FMNASPhoto class]] && ![((FMNASPhoto *)photo).permittedToShare boolValue]){
+//            [SXLoadingView showAlertHUD:@"非本人照片，不能操作" duration:0.5];
+//            return ;
+//        }
+       
         if ([self.choosePhotos indexOfObject:photo] == NSNotFound) {
             [self.choosePhotos addObject:photo];
             [cell setIsChoose:YES];
@@ -261,9 +261,9 @@
         for (FMPhoto * photo in items) {
             if ([self.photoDatasource.netphotoArr containsObject:photo]) {
                 FMNASPhoto * p = (FMNASPhoto *)photo;
-                if (![p.permittedToShare boolValue]) {
-                    continue;
-                }
+//                if (![p.permittedToShare boolValue]) {
+//                    continue;
+//                }
             }
             if ([self.choosePhotos indexOfObject:photo] == NSNotFound) {
                 [self.choosePhotos addObject:photo];

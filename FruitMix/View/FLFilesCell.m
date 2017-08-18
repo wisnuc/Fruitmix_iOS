@@ -27,7 +27,7 @@
 }
 - (void)handlelongPress:(id)sender {
     if (self.longpressBlock) {
-        @weakify(self);
+        @weaky(self);
         _longpressBlock(weak_self);
     }
 
@@ -45,7 +45,7 @@
 
 - (IBAction)downBtnclick:(id)sender {
     if (self.clickBlock) {
-        @weakify(self);
+        @weaky(self);
         _clickBlock(weak_self);
     }
 }

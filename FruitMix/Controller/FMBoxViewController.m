@@ -53,6 +53,9 @@ floatMenuDelegate
 
 - (void)initData{
    
+    
+    
+    
 }
 
 #pragma mark - TableViewDelegate
@@ -85,14 +88,14 @@ floatMenuDelegate
 
 - (VCFloatingActionButton *)fabButton{
     if (!_fabButton) {
-        CGRect floatFrame = CGRectMake(self.view.jy_Width-80 , __kHeight - 64 - 56 - 88, 56, 56);
+        CGRect floatFrame = CGRectMake(JYSCREEN_WIDTH - 80 , __kHeight - 64 - 56 - 88, 56, 56);
         NSLog(@"%f",self.view.jy_Width);
         _fabButton = [[VCFloatingActionButton alloc]initWithFrame:floatFrame normalImage:[UIImage imageNamed:@"add_album"] andPressedImage:[UIImage imageNamed:@"icon_close"] withScrollview:_boxTableView];
         _fabButton.automaticallyInsets = YES;
         _fabButton.imageArray = @[@"fab_share"];
         _fabButton.labelArray = @[@""];
         _fabButton.delegate = self;
-        _fabButton.hidden = YES;
+//        _fabButton.hidden = YES;
     }
     return _fabButton;
 }

@@ -63,8 +63,8 @@
     FMUsersLoginMangeCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FMUsersLoginMangeCell class]) forIndexPath:indexPath];
     cell.userHeaderIV.image = [UIImage imageForName:((FMUserLoginInfo *)(_dataSource[indexPath.section][indexPath.row])).userName size:cell.userHeaderIV.bounds.size];
     cell.userNameLb.text = ((FMUserLoginInfo *)(_dataSource[indexPath.section][indexPath.row])).userName;
-    @weakify(MyAppDelegate);
-    @weakify(self);
+    @weaky(MyAppDelegate);
+    @weaky(self);
     cell.deleteBtnClick = ^(UIButton * btn){
        FMUserLoginInfo * info =  (FMUserLoginInfo *)(_dataSource[indexPath.section][indexPath.row]);
         [SXLoadingView showProgressHUD:@"正在删除数据"];

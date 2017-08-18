@@ -35,7 +35,7 @@
     
     _settingTabelView.scrollEnabled = NO;
     _settingTabelView.tableFooterView = [UIView new];
-    @weakify(self);
+    @weaky(self);
     _usersTableView.tableFooterView = [FMLeftUserFooterView footerViewWithTouchBlock:^{
         if(weak_self.delegate){
             [weak_self.delegate LeftMenuViewClickSettingTable:-1 andTitle:@"USER_FOOTERVIEW_CLICK"];
@@ -94,7 +94,7 @@
 
 - (IBAction)dropDownBtnClick:(id)sender {
     _isUserTableViewShow = !_isUserTableViewShow;
-    @weakify(self);
+    @weaky(self);
     if (_isUserTableViewShow) {
         ((UIButton *)sender).transform = CGAffineTransformMakeRotation(M_PI);
         [UIView animateWithDuration:0.3 animations:^{

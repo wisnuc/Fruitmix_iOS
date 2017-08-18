@@ -195,7 +195,7 @@
     _UserSetting = [[FMUserSetting alloc]init];
     _Setting = [[FMSetting alloc]init];
     _Help = [[FMHelp alloc]init];
-    _zhuxiao = [[FMLoginVC alloc]init];
+    _zhuxiao = [[FMLoginViewController alloc]init];
     _downAndUpLoadManager = [[FLLocalFIleVC alloc]init];
     self.menu = [MenuView MenuViewWithDependencyView:self.window MenuView:leftMenu isShowCoverView:YES];
 //    @weakify(self);
@@ -358,7 +358,7 @@
     [self _hiddenMenu];
     [SXLoadingView showProgressHUD:@"正在切换"];
 //    FMConfigInstance.userToken = @"";
-    @weakify(MyAppDelegate);
+    @weaky(MyAppDelegate);
     [[FMCheckManager shareCheckManager] beginSearchingWithBlock:^(NSArray *discoveredServers) {
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             BOOL canFindDevice = NO;
@@ -381,7 +381,7 @@
                         FMConfigInstance.userUUID = info.uuid;
                         
                         JYRequestConfig * config = [JYRequestConfig sharedConfig];
-                        config.baseURL = [NSString stringWithFormat:@"%@:3721/",addressIP];
+                        config.baseURL = [NSString stringWithFormat:@"%@:3000/",addressIP];
                         //重置数据
                         [weak_MyAppDelegate resetDatasource];
 

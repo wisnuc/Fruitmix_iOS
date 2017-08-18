@@ -21,12 +21,15 @@
 #define UserToken_STR  @"usertoken"
 #define UUID_STR @"uuid"
 #define DEVICE_UUID_STR @"deviceuuid"
+#define DRIVE_UUID_STR @"driveuuid"
+#define DIR_UUID_STR    @"diruuid"
 #define LAST_REQUEST_TIME_STR @"last_request_time"
 #define BASE_URL_STR @"base_url"
 #define EXCEPTION_HANDLER_STR @"EXCEPTION_HANDLER"
 #define USER_HOME_STR @"user_home"
 #define SHOULD_UPLOAD_STR @"SHOULD_UPLOAD_STR"
 #define SHOULD_WLNN_UPLOAD_STR @"SHOULD_WLNN_UPLOAD_STR"
+
 
 
 #define USER_SHOULD_SYNC_PHOTO_STR @"USER_SHOULD_SYNC_PHOTO_STR"
@@ -41,7 +44,8 @@
 #define DEF_Token [[NSUserDefaults standardUserDefaults]objectForKey:UserToken_STR]
 #define DEF_UUID [[NSUserDefaults standardUserDefaults]objectForKey:UUID_STR]
 #define DEF_HOME [[NSUserDefaults standardUserDefaults]objectForKey:USER_HOME_STR]
-
+#define DRIVE_UUID  [[NSUserDefaults standardUserDefaults]objectForKey:DRIVE_UUID_STR]
+#define DIR_UUID  [[NSUserDefaults standardUserDefaults]objectForKey:DIR_UUID_STR]
 #define DEVICE_UUID [[NSUserDefaults standardUserDefaults]objectForKey:DEVICE_UUID_STR]
 
 #define LAST_REQUEST_TIME [[NSUserDefaults standardUserDefaults]objectForKey:LAST_REQUEST_TIME_STR]//最后请求时间
@@ -86,25 +90,26 @@
 
 #define UICOLOR_RGB(RGB)     ([UIColor colorWithRed:((float)((RGB & 0xFF0000) >> 16))/255.0 green:((float)((RGB & 0xFF00) >> 8))/255.0 blue:((float)(RGB & 0xFF))/255.0 alpha:1.0])
 
-
+#define JYSCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
+#define JYSCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
 //间距
 #define FMPadding 10
 #define FMShadowOffset 1
 #define FMDefaultOffset 8
 
 
-#ifndef weakify
+#ifndef weaky
 #if DEBUG
 #if __has_feature(objc_arc)
-#define weakify(object) autoreleasepool{} __weak __typeof__(object) weak##_##object = object;
+#define weaky(object) autoreleasepool{} __weak __typeof__(object) weak##_##object = object;
 #else
-#define weakify(object) autoreleasepool{} __block __typeof__(object) block##_##object = object;
+#define weaky(object) autoreleasepool{} __block __typeof__(object) block##_##object = object;
 #endif
 #else
 #if __has_feature(objc_arc)
-#define weakify(object) try{} @finally{} {} __weak __typeof__(object) weak##_##object = object;
+#define weaky(object) try{} @finally{} {} __weak __typeof__(object) weak##_##object = object;
 #else
-#define weakify(object) try{} @finally{} {} __block __typeof__(object) block##_##object = object;
+#define weaky(object) try{} @finally{} {} __block __typeof__(object) block##_##object = object;
 #endif
 #endif
 #endif

@@ -57,7 +57,7 @@
  *
  */
 -(void)getLocalThumbWithLocalId:(NSString *)localId andCompleteBlock:(FMGetThumbImageCompleteBlock)block andQueue:(dispatch_queue_t)queue{
-    @weakify(self);
+    @weaky(self);
     [_createQueue addOperationAtFrontOfQueueWithBlock:^{
         @autoreleasepool {
             UIImage * image;
@@ -171,8 +171,8 @@
 
 +(void)_getThumbImageWithPhotoHash:(NSString * )hash andAsset:(id<IDMPhoto>)asset andCompleteBlock:(FMGetThumbImageCompleteBlock)block{
     NSAssert(hash != nil, @"degist 不能为空");
-    @weakify(asset);
-    @weakify(self);
+    @weaky(asset);
+    @weaky(self);
     [[FMGetThumbImage defaultGetThumbImage].getImageQueue addOperationAtFrontOfQueueWithBlock:^{
         if([[FMGetThumbImage defaultGetThumbImage].cache containsImageForKey:hash]){
             @autoreleasepool {
@@ -222,7 +222,7 @@
                     andAsset:(id<IDMPhoto>)asset
                andPressBlock:(SDWebImageDownloaderProgressBlock)progress
              andCompletBlock:(getImageComplete)block{
-    @weakify(self);
+    @weaky(self);
     NSInteger H = 200;
     NSInteger W = 200;
     [weak_self getThumbImageWithHash:hash andHeight:H andWidth:W andCount:0 andAsset:asset andPressBlock:^(NSInteger receivedSize, NSInteger expectedSize) {
@@ -247,7 +247,7 @@
              andCompletBlock:(getImageComplete)block{
     if(IsNilString(hash))
         return;
-    @weakify(self);
+    @weaky(self);
     SDWebImageManager * _manager = [SDWebImageManager sharedManager];
     _manager.imageDownloader.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
     _manager.imageDownloader.maxConcurrentDownloads = 2;
@@ -256,7 +256,8 @@
         [dic setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];
         return dic;
     };
-    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@/thumbnail?width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
+    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=thumbnail&width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
+//    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@/thumbnail?width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
     id <SDWebImageOperation> op = [_manager downloadImageWithURL:url options:SDWebImageRetryFailed|SDWebImageCacheMemoryOnly progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         if (progress) {
             if (!asset.shouldRequestThumbnail) {

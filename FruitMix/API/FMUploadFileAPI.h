@@ -11,5 +11,8 @@
 @interface FMUploadFileAPI : NSObject
 
 +(void)uploadAddressFileWithFilePath:(NSString *)filePath andCompleteBlock:(void(^)(BOOL success))completeBlock;
-
++ (void)getDriveInfo;
++ (void)getDirectories;
++ (void)getDir;
++ (void)getDirEntry;
 @end

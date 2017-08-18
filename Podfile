@@ -19,6 +19,7 @@ pod 'CHTCollectionViewWaterfallLayout', '~> 0.9.4'
 pod 'MarqueeLabel', '~> 2.7.1'
 pod 'CocoaLumberjack'
 pod 'BEMCheckBox'
+pod 'ReactiveObjC'
 end
 
 post_install do |installer|

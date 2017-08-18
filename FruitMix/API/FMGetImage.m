@@ -53,7 +53,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
         return;
     
     //TODO cache NAS Photo
-    @weakify(self);
+    @weaky(self);
     //全小写
     NSString * lowHash = [hash lowercaseString];
     FMDTSelectCommand * scmd = FMDT_SELECT([FMDBSet shared].nasPhoto);
@@ -63,10 +63,10 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
     NSInteger W = 200;
     if (result.count>0) {
         FMNASPhoto * photo = result[0];
-        if (photo.width&&photo.width<=200)
-            W = photo.width;
-        if (photo.height)
-            H = W*photo.height/photo.width;
+        if (photo.w&&photo.w<=200)
+            W = photo.w;
+        if (photo.h)
+            H = W*photo.h/photo.w;
     }
     [weak_self getThumbImageWithHash:lowHash andHeight:H andWidth:W andCount:0 andPressBlock:^(NSInteger receivedSize, NSInteger expectedSize) {
         if (progress) {
@@ -148,7 +148,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
     
     NSString * lowHash = [hash lowercaseString];
     
-    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@/download",[JYRequestConfig sharedConfig].baseURL,lowHash]];
+    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=data",[JYRequestConfig sharedConfig].baseURL,lowHash]];
     [_manager downloadImageWithURL:url options:SDWebImageRetryFailed|SDWebImageHandleCookies progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         if (progress) {
             progress(receivedSize,expectedSize);

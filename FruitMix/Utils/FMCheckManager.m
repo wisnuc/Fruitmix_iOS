@@ -61,7 +61,7 @@
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
     manager.requestSerializer.timeoutInterval = 10.f;
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",token] forHTTPHeaderField:@"Authorization"];
-    [manager GET:[NSString stringWithFormat:@"%@:3721/users",ip] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [manager GET:[NSString stringWithFormat:@"%@:3000/users",ip] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         alive = YES;
         completed = YES;
         [condition signal];

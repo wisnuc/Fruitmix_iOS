@@ -237,7 +237,7 @@
 #pragma mark - 排序数据源。
 //排序
 -(void)sequencePhotos{
-    @weakify(self);
+    @weaky(self);
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSComparator cmptr = ^(IDMPhoto * photo1, IDMPhoto * photo2){
             if ([[[photo1 getPhotoCreateTime]laterDate:[photo2 getPhotoCreateTime]] isEqualToDate:[photo1 getPhotoCreateTime]]) {

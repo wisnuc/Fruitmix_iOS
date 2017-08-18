@@ -216,7 +216,7 @@
             [self removeSettingView];
             //删除本地记录
             if ([self.album.maintainers containsObject:DEF_UUID] || [self.album.author isEqualToString:DEF_UUID]) {
-                @weakify(self);
+                @weaky(self);
                 
                 [[LCActionSheet sheetWithTitle:@"确认删除？" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
                     if (buttonIndex == 1 ) {
