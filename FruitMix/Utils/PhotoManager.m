@@ -28,6 +28,7 @@
 
 #import "FMFileUploadInfo.h"
 
+#import "FMUploadFileAPI.h"
 NSString * const UploadFinishNotifi = @"uploadfinish";
 
 static NSString * const kBackgroundSessionIdentifier = @"com.fruitmix.backgroundsession";
@@ -658,6 +659,7 @@ BOOL shouldUpload = NO;
 
 -(void)_uploadPhotoWithAsset:(PHAsset *)asset success:(void (^)(NSString *url))success failure:(void (^)())failure{
     @weaky(self);
+   
     dispatch_async([FMUtil setterBackGroundQueue], ^{
         [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
             if (filePath) {
@@ -667,43 +669,83 @@ BOOL shouldUpload = NO;
                         success(@"123");
                     return ;
                 }
-                
-                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
-//                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
-//                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
-                NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
-                
-                // 前台上传
-                NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:url parameters:dic constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-                    [formData appendPartWithFileURL:[NSURL fileURLWithPath:filePath] name:@"file" fileName:@"file" mimeType:@"image/jpeg" error:nil];
-                } error:nil];
-                [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-                _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
-                NSURLSessionUploadTask *uploadTask;
-                uploadTask = [_afManager
-                              uploadTaskWithStreamedRequest:request
-                              progress:^(NSProgress *uploadProgress){
-                                  
+//                NSString *driveUUID = DRIVE_UUID;
+//                NSString *dirUUID = DIR_UUID;
+                NSString *entryUUID = ENTRY_UUID;
+                if (entryUUID.length==0) {
+                  [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL success) {
+                      if (success) {
+                          [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL success) {
+                              if (success) {
+                                  [FMUploadFileAPI getDirEntryCompleteBlock:^(BOOL success) {
+                                      if (success) {
+                                          [FMUploadFileAPI uploadDirEntryWithFilePath:filePath completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+                                              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
+                                              
+                                              [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+                                                              andSha256:str
+                                                           withFilePath:filePath
+                                                               andAsset:asset
+                                                        andSuccessBlock:success
+                                                                Failure:failure];
+
+                                          }];
+                                      }
+                                  }];
                               }
-                              completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                  NSLog(@"%@",responseObject);
-                                  NSData *responseData = [NSData dataWithData:responseObject];
-                                
-                                
-                                  NSString *result = [[NSString alloc] initWithData:responseData  encoding:NSUTF8StringEncoding];
-                                  
-                                    NSLog(@"%@",result);
-//                                  NSDictionary *dicFromResponseData = [NSDictionary ]
-                                  NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
-                                  NSLog(@"%ld",(long)rep.statusCode);
-                                  [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
-                                             andSha256:str
-                                          withFilePath:filePath
-                                              andAsset:asset
-                                       andSuccessBlock:success
-                                               Failure:failure];
-                              }];
-                [uploadTask resume];
+                        }];
+                      }
+                  }];
+                }else{
+                    [FMUploadFileAPI uploadDirEntryWithFilePath:filePath completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+                        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
+                       
+                            [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+                                                                     andSha256:str
+                                                                  withFilePath:filePath
+                                                                      andAsset:asset
+                                                               andSuccessBlock:success
+                                                                       Failure:failure];
+                    }];
+                }
+
+                
+//                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
+////                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
+////                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
+//                NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
+//                
+//                // 前台上传
+//                NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:url parameters:dic constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+//                    [formData appendPartWithFileURL:[NSURL fileURLWithPath:filePath] name:@"file" fileName:@"file" mimeType:@"image/jpeg" error:nil];
+//                } error:nil];
+//                [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//                _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+//                NSURLSessionUploadTask *uploadTask;
+//                uploadTask = [_afManager
+//                              uploadTaskWithStreamedRequest:request
+//                              progress:^(NSProgress *uploadProgress){
+//                                  
+//                              }
+//                              completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+//                                  NSLog(@"%@",responseObject);
+//                                  NSData *responseData = [NSData dataWithData:responseObject];
+//                                
+//                                
+//                                  NSString *result = [[NSString alloc] initWithData:responseData  encoding:NSUTF8StringEncoding];
+//                                  
+//                                    NSLog(@"%@",result);
+////                                  NSDictionary *dicFromResponseData = [NSDictionary ]
+//                                  NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
+//                                  NSLog(@"%ld",(long)rep.statusCode);
+//                                  [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+//                                             andSha256:str
+//                                          withFilePath:filePath
+//                                              andAsset:asset
+//                                       andSuccessBlock:success
+//                                               Failure:failure];
+//                              }];
+//                [uploadTask resume];
             }
             else{
 //                [weak_self _uploadFailedWithNotFoundAsset:NO andLocalId:asset.localIdentifier];

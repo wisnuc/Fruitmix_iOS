@@ -31,6 +31,7 @@
     [manager GET:[NSString stringWithFormat:@"%@users",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray * userArr = responseObject;
+//        NSLog(@"%@",responseObject);
         NSMutableArray * tempArr = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in userArr) {
             UserModel * model = [UserModel yy_modelWithJSON:dic];

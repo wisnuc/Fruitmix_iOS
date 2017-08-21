@@ -20,6 +20,7 @@
 		9C75D1A51F38552A00E99419 /* FMTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C75D1A41F38552A00E99419 /* FMTableView.m */; };
 		9C840AFD1F46D42000B2F765 /* DriveModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C840AFC1F46D42000B2F765 /* DriveModel.m */; };
 		9C840B011F46DC8300B2F765 /* DirectoriesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C840B001F46DC8300B2F765 /* DirectoriesModel.m */; };
+		9C840B041F4A761800B2F765 /* EntriesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C840B031F4A761800B2F765 /* EntriesModel.m */; };
 		9C85B8F51F3D594C0035114B /* FMBoxTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C85B8F41F3D594C0035114B /* FMBoxTableViewController.m */; };
 		9C85B8F91F3D5A430035114B /* FMBoxViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C85B8F71F3D5A430035114B /* FMBoxViewController.m */; };
 		9C85B8FA1F3D5A430035114B /* FMBoxViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C85B8F81F3D5A430035114B /* FMBoxViewController.xib */; };
@@ -777,6 +778,8 @@
 		9C840AFC1F46D42000B2F765 /* DriveModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DriveModel.m; sourceTree = "<group>"; };
 		9C840AFF1F46DC8300B2F765 /* DirectoriesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoriesModel.h; sourceTree = "<group>"; };
 		9C840B001F46DC8300B2F765 /* DirectoriesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoriesModel.m; sourceTree = "<group>"; };
+		9C840B021F4A761800B2F765 /* EntriesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntriesModel.h; sourceTree = "<group>"; };
+		9C840B031F4A761800B2F765 /* EntriesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntriesModel.m; sourceTree = "<group>"; };
 		9C85B8F31F3D594C0035114B /* FMBoxTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMBoxTableViewController.h; sourceTree = "<group>"; };
 		9C85B8F41F3D594C0035114B /* FMBoxTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMBoxTableViewController.m; sourceTree = "<group>"; };
 		9C85B8F61F3D5A430035114B /* FMBoxViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMBoxViewController.h; sourceTree = "<group>"; };
@@ -1954,6 +1957,8 @@
 				9C840AFC1F46D42000B2F765 /* DriveModel.m */,
 				9C840AFF1F46DC8300B2F765 /* DirectoriesModel.h */,
 				9C840B001F46DC8300B2F765 /* DirectoriesModel.m */,
+				9C840B021F4A761800B2F765 /* EntriesModel.h */,
+				9C840B031F4A761800B2F765 /* EntriesModel.m */,
 			);
 			name = Drive;
 			sourceTree = "<group>";
@@ -5476,6 +5481,7 @@
 				C1AAF1371DCB268000590F4E /* FMDTObject.m in Sources */,
 				C1FB83EF1DBF029A00D09541 /* APContact.m in Sources */,
 				C19136671CCA1494008BAB93 /* FMGetImage.m in Sources */,
+				9C840B041F4A761800B2F765 /* EntriesModel.m in Sources */,
 				C1B55EA81DF66B2D006781A2 /* RTRootNavigationController.m in Sources */,
 				C17970011CD32B00002B7EAA /* UIImage+ImageEffects.m in Sources */,
 				C15470CC1D5B0D1B00D0DFEF /* floatTableViewCell.m in Sources */,

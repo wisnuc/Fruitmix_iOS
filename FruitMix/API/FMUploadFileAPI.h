@@ -11,8 +11,12 @@
 @interface FMUploadFileAPI : NSObject
 
 +(void)uploadAddressFileWithFilePath:(NSString *)filePath andCompleteBlock:(void(^)(BOOL success))completeBlock;
-+ (void)getDriveInfo;
-+ (void)getDirectories;
-+ (void)getDir;
-+ (void)getDirEntry;
++ (void)getDriveInfoCompleteBlock:(void(^)(BOOL success))completeBlock;
++ (void)getDirectoriesCompleteBlock:(void(^)(BOOL success))completeBlock;
++ (void)getDirUploadDirEntryWithFilePath:(NSString *)filePath;
+//+ (void)getDirEntry;
++ (long long)fileSizeAtPath:(NSString*) filePath;
++ (void)uploadDirEntryWithFilePath:(NSString *)filePath  completionHandler:(void (^)(NSURLResponse *response, id responseObject, NSError *error))completionHandler ;
++ (void)getDirEntryCompleteBlock:(void(^)(BOOL success))completeBlock;
++(NSString *)JSONString:(NSString *)aString;
 @end

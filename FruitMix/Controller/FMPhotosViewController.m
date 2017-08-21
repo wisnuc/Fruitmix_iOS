@@ -116,10 +116,7 @@
     [self initView];
     [self initData];
     [self registNotify];
-    [FMUploadFileAPI getDriveInfo];
-    [FMUploadFileAPI getDirectories];
-    [FMUploadFileAPI getDirEntry];
-    [FMUploadFileAPI getDir];
+
 
 }
 

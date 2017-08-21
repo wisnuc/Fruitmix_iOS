@@ -10,6 +10,7 @@
 #import "FMBoxTableViewCell.h"
 #import "FMBoxTwiterViewController.h"
 #import "VCFloatingActionButton.h"
+#import "JYExceptionHandler.h"
 
 @interface FMBoxViewController ()
 <
@@ -25,6 +26,7 @@ floatMenuDelegate
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self asynAnyThings];
     [self initView];
     [self initData];
 //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(handleChangeIsAdminNotify:) name:FM_USER_ISADMIN object:nil];
@@ -38,6 +40,22 @@ floatMenuDelegate
 //    [self reloadLeftMenuIsAdmin:isAdmin];
 //}
 
+-(void)asynAnyThings{
+    //上传照片
+    //    shouldUplod(^{
+    [PhotoManager checkNetwork];
+    //    });
+    //监听奔溃
+    //    [FMABManager shareManager];
+    [JYExceptionHandler installExceptionHandler];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        //初始化 DeviceUUID
+        [PhotoManager getUUID];
+        //        [FMDBControl asynOwnerSet];//更新ownerSet
+        [FMDBControl asynUsers];
+    });
+    
+}
 
 
 - (void)viewWillAppear:(BOOL)animated{

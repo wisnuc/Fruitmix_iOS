@@ -23,6 +23,7 @@
 #define DEVICE_UUID_STR @"deviceuuid"
 #define DRIVE_UUID_STR @"driveuuid"
 #define DIR_UUID_STR    @"diruuid"
+#define ENTRY_UUID_STR      @"entryuuid"
 #define LAST_REQUEST_TIME_STR @"last_request_time"
 #define BASE_URL_STR @"base_url"
 #define EXCEPTION_HANDLER_STR @"EXCEPTION_HANDLER"
@@ -46,6 +47,7 @@
 #define DEF_HOME [[NSUserDefaults standardUserDefaults]objectForKey:USER_HOME_STR]
 #define DRIVE_UUID  [[NSUserDefaults standardUserDefaults]objectForKey:DRIVE_UUID_STR]
 #define DIR_UUID  [[NSUserDefaults standardUserDefaults]objectForKey:DIR_UUID_STR]
+#define ENTRY_UUID [[NSUserDefaults standardUserDefaults]objectForKey:ENTRY_UUID_STR]
 #define DEVICE_UUID [[NSUserDefaults standardUserDefaults]objectForKey:DEVICE_UUID_STR]
 
 #define LAST_REQUEST_TIME [[NSUserDefaults standardUserDefaults]objectForKey:LAST_REQUEST_TIME_STR]//最后请求时间

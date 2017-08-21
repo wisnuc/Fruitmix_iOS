@@ -124,6 +124,8 @@
         info.jwt_token = token;
         info.bonjour_name = _service.hostName;
         [FMDBControl addUserLoginInfo:info];
+        
+        NSLog(@"%@",info.userName);
     });
     
     //组装UI
