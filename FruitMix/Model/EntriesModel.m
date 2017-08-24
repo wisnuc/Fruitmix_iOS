@@ -9,5 +9,9 @@
 #import "EntriesModel.h"
 
 @implementation EntriesModel
-
++ (NSDictionary *)modelCustomPropertyMapper {
+    return @{
+             @"photoHash": @"hash"
+             };
+}
 @end

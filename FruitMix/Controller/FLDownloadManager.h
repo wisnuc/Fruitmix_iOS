@@ -19,6 +19,6 @@
 @interface FLDownloadManager : NSObject
 
 +(instancetype)shareManager;
--(void)downloadFileWithFileModel:(FLFilesModel *)model;
+-(void)downloadFileWithFileModel:(FLFilesModel *)model parentUUID:(NSString *)uuid;
 
 @end

@@ -11,4 +11,5 @@
 @interface LoginTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
 
+@property (weak, nonatomic) IBOutlet UIImageView *userNameImageView;
 @end

@@ -22,8 +22,8 @@
 
 @property (nonatomic) NSInteger * size; //文件大小
 
-@property (readonly,nonatomic) BOOL isFile;
-
+//@property (readonly,nonatomic) BOOL isFile;
+@property (nonatomic) NSString * parent;
 @property (nonatomic) NSString * parUUID;
 
 @end

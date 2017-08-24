@@ -138,8 +138,9 @@
     NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
     [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
 //    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@",@"100%"];
-//    NSLog(@"%@",info.bonjour_name);
+ 
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
+//       NSLog(@"======>%@",self.nameLabel.text);
         self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
     
 //===================================优雅的分割线/备份详情==========================================
@@ -148,23 +149,34 @@
     progressLb.textAlignment = NSTextAlignmentCenter;
     [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
         NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+        NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
         for (FMLocalPhoto * p in result) {
             [tmp addObject:p.localIdentifier];
-            NSLog(@"%@",p.degist);
+            [localPhotoHashArr addObject:p.degist];
+//            NSLog(@"%@",p.degist);
         }
-        NSInteger allPhotos = result.count;
+//        NSInteger allPhotos = result.count;
         FMDBSet * dbSet = [FMDBSet shared];
         FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
         [scmd where:@"userId" equalTo:DEF_UUID];
         [scmd where:@"localId" containedIn:tmp];
         [scmd fetchArrayInBackground:^(NSArray *results) {
 //            NSLog(@"%@",results);
+            NSMutableArray *resultPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+            for (FMSyncLogs *logs in results) {
+//                NSLog(@"😑😑😑😑%@",logs.photoHash);
+                [resultPhotoHashArr addObject:logs.photoHash];
+            }
+            NSSet *resultSet = [NSSet setWithArray:resultPhotoHashArr];
+            NSArray * resultDataSource  = [resultSet allObjects];
+            NSSet *loacalSet = [NSSet setWithArray:localPhotoHashArr];
+            NSArray * localDataSource = [loacalSet allObjects];
+            float progress = (float)resultDataSource.count/(float)localDataSource.count;
+//    NSLog(@"%f",progress);
             dispatch_async(dispatch_get_main_queue(), ^{
-                float progress = (float)results.count/(float)allPhotos;
-                NSLog(@"%f",progress);
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
                 self.backupProgressView.progress = progress;
-                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)resultDataSource.count,(long)localDataSource.count];
 //                for (FMLocalPhoto * px in result) {
 //                    for ( FMSyncLogs * logs in results) {
 //                        if ([logs.photoHash isEqualToString:px.degist]) {
@@ -186,8 +198,6 @@
 
 - (void)receiveNotification:(NSNotification *)noti
 {
-    
-    // NSNotification 有三个属性，name, object, userInfo，其中最关键的object就是从第三个界面传来的数据。name就是通知事件的名字， userInfo一般是事件的信息。
     NSLog(@"%@ === %@ === %@", noti.object, noti.userInfo, noti.name);
 //    NSString *currentImage = [noti.userInfo objectForKey:@"currentImage"];
 //    NSString *allImage = [noti.userInfo objectForKey:@"allImage"];
@@ -214,7 +224,7 @@
         [scmd where:@"userId" equalTo:DEF_UUID];
         [scmd where:@"localId" containedIn:tmp];
         [scmd fetchArrayInBackground:^(NSArray *results) {
-            NSLog(@"%lu",(unsigned long)results.count);
+            NSLog(@"%@",results);
             dispatch_async(dispatch_get_main_queue(), ^{
                 float progress = (float)results.count/(float)allPhotos;
                 NSLog(@"%lu",(unsigned long)results.count);

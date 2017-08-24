@@ -6,7 +6,7 @@
 //  Copyright (c) 2014年 SunX. All rights reserved.
 //
 #import "SXLoadingView.h"
-
+#import "sys/utsname.h"
 UIWindow *_mainWindow() {
     id appDelegate = [UIApplication sharedApplication].delegate;
     if (appDelegate && [appDelegate respondsToSelector:@selector(window)]) {
@@ -63,6 +63,7 @@ static MBProgressHUD  *s_progressHUD = nil;
         [_mainWindow() addSubview:s_progressHUD];
         s_progressHUD.removeFromSuperViewOnHide = YES;
         s_progressHUD.animationType = MBProgressHUDAnimationZoom;
+        s_progressHUD.dimBackground = YES;
         if ([aString length]>0) {
             s_progressHUD.labelText = aString;
         }
@@ -94,6 +95,7 @@ static MBProgressHUD  *s_progressHUD = nil;
     if (s_progressHUD) {
         dispatch_async(dispatch_get_main_queue(), ^{
            [s_progressHUD hide:YES];
+            [s_progressHUD removeFromSuperview];
         });
     }
 }

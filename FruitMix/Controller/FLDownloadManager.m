@@ -26,10 +26,11 @@
 }
 
 
--(void)downloadFileWithFileModel:(FLFilesModel *)model{
+-(void)downloadFileWithFileModel:(FLFilesModel *)model parentUUID:(NSString *)uuid{
     NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
-    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@files/fruitmix/download/%@/%@",[JYRequestConfig sharedConfig].baseURL,model.parUUID,model.uuid] filePath:filePath];
+     NSString * exestr = [filePath lastPathComponent];
+       TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr] filePath:filePath];
 
     downloadModel.jy_fileName = model.name;
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];

@@ -9,9 +9,9 @@
 #import "FMUsers.h"
 
 @implementation Users
-+ (NSDictionary *)modelContainerPropertyGenericClass {
-    return @{@"users" : [Users class]};
-}
+//+ (NSDictionary *)modelContainerPropertyGenericClass {
+//    return @{@"users" : [Users class]};
+//}
 @end
 
 @implementation FMUsers

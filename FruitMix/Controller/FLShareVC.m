@@ -89,11 +89,11 @@ andTableViewFrame:self.view.bounds andTouchBlock:nil];
 
 - (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 1) {
-        FLFilesModel * model = [FLFilesModel new];
-        model.name = _chooseModel.name;
-        model.uuid = _chooseModel.uuid;
-        [[FLDownloadManager shareManager] downloadFileWithFileModel:model];
-        [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
+//        FLFilesModel * model = [FLFilesModel new];
+//        model.name = _chooseModel.name;
+//        model.uuid = _chooseModel.uuid;
+//        [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:];
+//        [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
     }
 }
 @end

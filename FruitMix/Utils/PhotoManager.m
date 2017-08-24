@@ -29,6 +29,8 @@
 #import "FMFileUploadInfo.h"
 
 #import "FMUploadFileAPI.h"
+
+#import "EntriesModel.h"
 NSString * const UploadFinishNotifi = @"uploadfinish";
 
 static NSString * const kBackgroundSessionIdentifier = @"com.fruitmix.backgroundsession";
@@ -549,15 +551,101 @@ BOOL shouldUpload = NO;
     @autoreleasepool {
         __weak typeof(self) weakSelf = self;
         [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-            if (result.count>0) {
+//            if (result.count>0) {
+            
                 NSLog(@"%ld 张照片等待上传",(unsigned long)result.count);
-                [weakSelf uploadImages:result success:^(NSArray *arr) {
-                    NSLog(@"%@",arr);
-                } failure:^{
-                    
-                }];
-            }
-            result = nil;
+//                NSString *entryUUID = ENTRY_UUID;
+//                NSLog(@"%@",entryUUID);
+//                if (entryUUID.length==0) {
+//                    [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+//                        if (successful) {
+//                            [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL successful) {
+//                                if (successful) {
+//                                    [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+//                                        if (successful) {
+//                                             NSString *entryuuid = ENTRY_UUID;
+//                                            [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+//                                              
+//                                                    NSLog(@"%@",responseObject);
+//                                                    NSDictionary * dic = responseObject;
+//                                                    NSArray * arr = [dic objectForKey:@"entries"];
+//                                                if (arr.count>0) {
+//                                                        NSMutableArray *resultArr =[NSMutableArray arrayWithArray:result];
+//                                                    for (NSDictionary *entriesDic in arr) {
+//                                                        EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+//                                                        NSLog(@"🍄%@",model.photoHash);
+//                                                        for (FMLocalPhoto *photo in result) {
+//                                                            NSLog(@"😁%@",photo.degist);
+//                                                            if ([photo.degist isEqualToString:model.photoHash]) {
+//                                                                [resultArr removeObject:photo];
+//                                                            }
+//                                                        }
+//                                                    }
+////                                                     NSLog(@"🍄%@",resultArr);
+//                                                    if (resultArr.count==0) {
+//                                                        
+//                                                        return ;
+//                                                    }
+//
+//                                                    [weakSelf uploadImages:resultArr success:^(NSArray *arr) {
+//                                                        NSLog(@"%@",arr);
+//                                                    } failure:^{
+//                                                        
+//                                                    }];
+//
+//                                                   }
+//                                                
+//                                            } failure:^(NSURLSessionDataTask *task, NSError *error) {
+//                                                
+//                                            }];
+//                                        }
+//                                    }];
+//                                }
+//                            }];
+//                        }
+//                    }];
+//                }else{
+//                    
+//                    
+//                    [FMUploadFileAPI getDirEntryWithUUId:entryUUID success:^(NSURLSessionDataTask *task, id responseObject) {
+//                        
+//                        NSLog(@"%@",responseObject);
+//                        NSDictionary * dic = responseObject;
+//                        NSArray * arr = [dic objectForKey:@"entries"];
+//                        if (arr.count>0) {
+//                            NSMutableArray *resultArr =[NSMutableArray arrayWithArray:result];
+//                            for (NSDictionary *entriesDic in arr) {
+//                                EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+////                                NSLog(@"%@",model.photoHash);
+//                                for (FMLocalPhoto *photo in result) {
+//                                    NSLog(@"😁%@",photo.degist);
+//                                    if ([photo.degist isEqualToString:model.photoHash]) {
+//                                        [resultArr removeObject:photo];
+//                                    }
+//                                }
+//                            }
+//                            NSLog(@"🍄%@",resultArr);
+//                            if (resultArr.count==0) {
+//                                
+//                                return ;
+//                            }
+                            [weakSelf uploadImages:result success:^(NSArray *arr) {
+                                NSLog(@"%@",arr);
+                            } failure:^{
+                                
+                            }];
+                            
+//                        }
+//                        
+//                    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+//                        
+//                    }];
+//  
+//                    
+//                }
+            
+//        }
+//            result = nil;
         }];
     }
 }
@@ -659,12 +747,13 @@ BOOL shouldUpload = NO;
 
 -(void)_uploadPhotoWithAsset:(PHAsset *)asset success:(void (^)(NSString *url))success failure:(void (^)())failure{
     @weaky(self);
-   
+//typedef void(^successBlock)(NSString *url);
+//    successBlock = success;
     dispatch_async([FMUtil setterBackGroundQueue], ^{
         [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
             if (filePath) {
-                NSString * str = [FileHash sha256HashOfFileAtPath:filePath];
-                if (!str) {
+                NSString * hashStr = [FileHash sha256HashOfFileAtPath:filePath];
+                if (!hashStr) {
                     if (success)
                         success(@"123");
                     return ;
@@ -672,23 +761,58 @@ BOOL shouldUpload = NO;
 //                NSString *driveUUID = DRIVE_UUID;
 //                NSString *dirUUID = DIR_UUID;
                 NSString *entryUUID = ENTRY_UUID;
+                NSLog(@"%@",entryUUID);
                 if (entryUUID.length==0) {
-                  [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL success) {
-                      if (success) {
-                          [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL success) {
-                              if (success) {
-                                  [FMUploadFileAPI getDirEntryCompleteBlock:^(BOOL success) {
-                                      if (success) {
-                                          [FMUploadFileAPI uploadDirEntryWithFilePath:filePath completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-                                              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
+                  [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+                      if (successful) {
+                          [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL successful) {
+                              if (successful) {
+                                  [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                                      if (successful) {
+                                            NSString *entryuuid = ENTRY_UUID;
+                                          [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+                                              NSLog(@"%@",responseObject);
+                                              NSDictionary * dic = responseObject;
+                                              NSArray * arr = [dic objectForKey:@"entries"];
+                                              if (arr.count >0) {
+                                                  [FMUploadFileAPI uploadsSiftWithDataSouce:arr  Asset:asset LocalPhotoHash:hashStr  filePath:filePath SuccessBlock:success Failure:failure CopmleteBlock:^(BOOL upload) {
+                                                      if (upload) {
+                                                          [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                                                              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                                              
+                                                              [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+                                                                              andSha256:hashStr
+                                                                           withFilePath:filePath
+                                                                               andAsset:asset
+                                                                        andSuccessBlock:success
+                                                                                Failure:failure];
+                                                          } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                                          }];
+                                                      }
+                                                  }];
+                                              }else{
+                                                  [FMUploadFileAPI uploadsSiftWithDataSouce:arr Asset:asset LocalPhotoHash:hashStr  filePath:filePath SuccessBlock:success Failure:failure CopmleteBlock:^(BOOL upload)  {
+                                                      if (upload) {
+                                                          [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                                                              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                                              
+                                                              [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+                                                                              andSha256:hashStr
+                                                                           withFilePath:filePath
+                                                                               andAsset:asset
+                                                                        andSuccessBlock:success
+                                                                                Failure:failure];
+                                                          } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                                          }];
+                                                      }else{
+                                                          
+                                                      }
+                                                  }];
+  
+                                              }
+                                         
+                                          } failure:^(NSURLSessionDataTask *task, NSError *error) {
                                               
-                                              [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
-                                                              andSha256:str
-                                                           withFilePath:filePath
-                                                               andAsset:asset
-                                                        andSuccessBlock:success
-                                                                Failure:failure];
-
                                           }];
                                       }
                                   }];
@@ -697,17 +821,47 @@ BOOL shouldUpload = NO;
                       }
                   }];
                 }else{
-                    [FMUploadFileAPI uploadDirEntryWithFilePath:filePath completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-                        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)response;
-                       
-                            [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
-                                                                     andSha256:str
-                                                                  withFilePath:filePath
-                                                                      andAsset:asset
-                                                               andSuccessBlock:success
-                                                                       Failure:failure];
+                    [FMUploadFileAPI getDirEntryWithUUId:entryUUID success:^(NSURLSessionDataTask *task, id responseObject) {
+//                        NSLog(@"%@",responseObject);
+                        NSDictionary * dic = responseObject;
+                        NSArray * arr = [dic objectForKey:@"entries"];
+                        if (arr.count == 0) {
+                            [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                                NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                
+                                [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+                                                andSha256:hashStr
+                                             withFilePath:filePath
+                                                 andAsset:asset
+                                          andSuccessBlock:success
+                                                  Failure:failure];
+                            } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                
+                            }];
+                        }else{
+                            
+                            [FMUploadFileAPI uploadsSiftWithDataSouce:arr Asset:asset LocalPhotoHash:hashStr filePath:filePath SuccessBlock:success Failure:failure  CopmleteBlock:^(BOOL upload) {
+                                if (upload) {
+                                    [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                                        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                        
+                                        [weak_self uploadComplete:(rep.statusCode == 200 || rep.statusCode == 500)
+                                                        andSha256:hashStr
+                                                     withFilePath:filePath
+                                                         andAsset:asset
+                                                  andSuccessBlock:success
+                                                          Failure:failure];
+                                    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                    }];
+                                }
+                            }];
+                        
+                        }
+
+                    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                        NSLog(@"%@",error);
                     }];
-                }
+            }
 
                 
 //                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
@@ -817,33 +971,33 @@ BOOL shouldUpload = NO;
     }
 }
 
-+(NSString *)getUUID{
-    __block NSString * uuid = DEVICE_UUID;
-    if (uuid.length<=0) {
-        __block BOOL completed = NO;
-        NSCondition *condition = [[NSCondition alloc] init];
-        AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
-        manager.requestSerializer = [AFJSONRequestSerializer serializer];
-        [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-        [manager POST:[NSString stringWithFormat:@"%@libraries",[JYRequestConfig sharedConfig].baseURL] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSString * str = responseObject[@"uuid"];
-            FMConfigInstance.deviceUUID = str;
-            uuid = str;
-            completed = YES;
-            [condition signal];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"获取DeviceUUID失败,%@",error);
-            completed = YES;
-            [condition signal];
-        }];
-        [condition lock];
-        while (!completed) {
-            [condition wait];
-        }
-        [condition unlock];
-    }
-    return uuid;
-}
+//+(NSString *)getUUID{
+//    __block NSString * uuid = DEVICE_UUID;
+//    if (uuid.length<=0) {
+//        __block BOOL completed = NO;
+//        NSCondition *condition = [[NSCondition alloc] init];
+//        AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+//        manager.requestSerializer = [AFJSONRequestSerializer serializer];
+//        [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//        [manager POST:[NSString stringWithFormat:@"%@libraries",[JYRequestConfig sharedConfig].baseURL] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//            NSString * str = responseObject[@"uuid"];
+//            FMConfigInstance.deviceUUID = str;
+//            uuid = str;
+//            completed = YES;
+//            [condition signal];
+//        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//            NSLog(@"获取DeviceUUID失败,%@",error);
+//            completed = YES;
+//            [condition signal];
+//        }];
+//        [condition lock];
+//        while (!completed) {
+//            [condition wait];
+//        }
+//        [condition unlock];
+//    }
+//    return uuid;
+//}
 
 
 +(void)managerCheckPhotoIsLocalWithPhotohash:(NSString *)degist

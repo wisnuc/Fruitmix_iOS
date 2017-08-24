@@ -28,6 +28,7 @@ ServerBrowserDelegate
     ServerBrowser* _browser;
     AFNetworkReachabilityManager * _manager;
     NSTimer* _reachabilityTimer;
+    NSMutableArray *_userDataSource;
 }
 @property (strong, nonatomic) UIScrollView *stationScrollView;
 @property (strong, nonatomic) UIView *stationCardView;
@@ -43,6 +44,7 @@ ServerBrowserDelegate
 @property (strong, nonatomic) UIView *wechatView;
 @property (strong, nonatomic) NSMutableArray *tempDataSource;
 @property (nonatomic) FMSerachService * expandCell;
+@property (nonatomic) NSInteger userDataCount;
 @end
 
 @implementation FMLoginViewController
@@ -76,22 +78,29 @@ ServerBrowserDelegate
     [self.view addSubview:self.logoImageView];
     [self.view addSubview:self.userView];
     [self.view addSubview:self.userListTableViwe];
-    [self.view addSubview:self.wechatView];
+//    [self.view addSubview:self.wechatView];
      _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(refreshDatasource) userInfo:nil repeats:YES];
 }
 
 - (void)beginSearching {
-//    [self viewOfSeaching:YES];
+    [self viewOfSeaching:YES];
     _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
     _browser.delegate = self;
-    double delayInSeconds = 6.0;
+    double delayInSeconds = 3.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-//        [self viewOfSeaching:NO];
+        [self viewOfSeaching:NO];
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
     });
 }
-
+-(void)viewOfSeaching:(BOOL)seaching{
+    if(seaching){
+        [SXLoadingView showProgressHUD:@"正在搜索..."];
+    
+    }else{
+        [SXLoadingView hideProgressHUD];
+    }
+}
 - (void)serverBrowserFoundService:(NSNetService *)service {
     for (NSData * address in service.addresses) {
         NSString* addressString = [GCDAsyncSocket hostFromAddress:address];
@@ -131,6 +140,7 @@ ServerBrowserDelegate
 
 -(void)refreshDatasource{
     NSMutableArray * temp = [NSMutableArray arrayWithCapacity:0];
+    _userDataSource = [NSMutableArray arrayWithCapacity:0];
     for (FMSerachService * ser in _dataSource) {
         if (ser.isReadly) {
             [temp addObject:ser];
@@ -148,20 +158,23 @@ ServerBrowserDelegate
     }
     [self updateInfo];
     [self setStationCardView];
-     NSLog(@"😆%@,😜%@🍄",_dataSource,_tempDataSource);
+//     NSLog(@"😆%@,😜%@🍄",_dataSource,_tempDataSource);
 }
 
 - (void)updateInfo{
-    for (FMSerachService *ser in self.tempDataSource) {
-        _stationIpLabel.text = ser.displayPath;
-    }
-  
+//    for (FMSerachService *ser in self.tempDataSource) {
+//        _stationIpLabel.text = ser.displayPath;
+//        NSLog(@"%@",ser.name);
+////        ser.name
+//    }
     _stationScrollView.contentSize = CGSizeMake(self.tempDataSource.count * JYSCREEN_WIDTH, 0);
+    _stationPageControl.numberOfPages = self.tempDataSource.count;
 }
 
 - (void)setStationCardView{
 
     for (int i = 0; i<self.tempDataSource.count; i++) {
+       
         _stationCardView = [[UIView alloc]init];
         _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
         _stationCardView.frame = CGRectMake(i*JYSCREEN_WIDTH + 32,64,JYSCREEN_WIDTH - 32*2, 166);
@@ -172,7 +185,27 @@ ServerBrowserDelegate
         [self setInfoButton];
         [self setStationLogoImageView];
         [self setInfo];
+         FMSerachService *ser = _tempDataSource[i];
+
+        if ([NSThread isMainThread]){
+            [self reloadDataWithService:ser];
+        }else{
+            dispatch_sync(dispatch_get_main_queue(), ^{
+             
+                [self reloadDataWithService:ser];
+                
+            });  
+        }
     }
+    FMSerachService *serforUser;
+    if (_userDataCount > 0) {
+      serforUser  = _tempDataSource[_userDataCount];
+    
+    }else{
+      serforUser  = _tempDataSource[0];
+    }
+     _userDataSource = serforUser.users;
+    [_userListTableViwe reloadData];
 }
 
 - (void)setInfoButton{
@@ -242,6 +275,13 @@ ServerBrowserDelegate
     }];
 }
 
+- (void)reloadDataWithService:(FMSerachService *)ser{
+    _stationTypeLabel.text = ser.name;
+    _stationNameLabel.text = ser.name;
+     _stationIpLabel.text = ser.displayPath;
+//    NSLog(@"%@",ser.displayPath);
+}
+
 - (void)applicationWillResignActive:(NSNotification*)notification {
     _browser = nil;
     [self.userListTableViwe reloadData];
@@ -269,8 +309,14 @@ ServerBrowserDelegate
 #pragma mark ScrollView delegate
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+//    _userDataCount ++;
     int page = scrollView.contentOffset.x/CGRectGetWidth(self.view.frame);
     _stationPageControl.currentPage = page;
+    FMSerachService *ser = _tempDataSource[page];
+    _userDataSource = ser.users;
+      _userDataCount = page;
+    [_userListTableViwe reloadData];
+   
 //    if (_stationPageControl.currentPage) {
 //        _stationPageControl.transform=CGAffineTransformScale(CGAffineTransformIdentity, 2, 2);
 //    }
@@ -287,7 +333,7 @@ ServerBrowserDelegate
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return _dataSource.count;
+    return _userDataSource.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -303,19 +349,33 @@ ServerBrowserDelegate
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    FMSerachService *ser ;
-    ser.users = _dataSource;
-    UserModel *userModel = ser.users[indexPath.row];
-    cell.userNameLabel.text = userModel.username;
+
+    UserModel *model = _userDataSource[indexPath.row];
     
+//    NSLog(@"%@======%lu",model.username,(unsigned long)_userDataSource.count);
+    cell.userNameLabel.text = model.username;
+    cell.userNameImageView.image = [UIImage imageForName:model.username size:cell.userNameImageView.bounds.size];
+  
     return cell;
 }
 
 #pragma mark tableView delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+     UserModel *model = _userDataSource[indexPath.row];;
+
     FMUserLoginViewController *userLoginVC = [[FMUserLoginViewController alloc]init];
+    FMSerachService * ser;
+    if (_userDataCount >0) {
+       ser  = _tempDataSource[_userDataCount];
+    }else{
+      ser = _tempDataSource[0];
+    }
+    userLoginVC.service = ser;
+    userLoginVC.user = model;
+    
     [self.navigationController pushViewController:userLoginVC animated:YES];
+    [self applicationWillResignActive:nil];
 }
 
 - (UIScrollView *)stationScrollView{
@@ -334,7 +394,7 @@ ServerBrowserDelegate
 - (UIPageControl *)stationPageControl{
     if (!_stationPageControl) {
         _stationPageControl = [[StationPageControl alloc] initWithFrame:CGRectMake(0,self.stationScrollView.frame.size.height - 36 , JYSCREEN_WIDTH, 30)];
-        _stationPageControl.numberOfPages = self.tempDataSource.count;
+//        _stationPageControl.numberOfPages = self.tempDataSource.count;
         _stationPageControl.currentPage = 0;
     }
     return _stationPageControl;
@@ -365,7 +425,7 @@ ServerBrowserDelegate
 
 - (UITableView *)userListTableViwe{
     if (!_userListTableViwe) {
-        _userListTableViwe = [[UITableView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.userView.frame), JYSCREEN_WIDTH, JYSCREEN_HEIGHT - _stationScrollView.frame.size.height - 8 - 48 - _userView.frame.size.height) style:UITableViewStylePlain];
+        _userListTableViwe = [[UITableView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.userView.frame), JYSCREEN_WIDTH, JYSCREEN_HEIGHT - _stationScrollView.frame.size.height - 8 - _userView.frame.size.height) style:UITableViewStylePlain];
         _userListTableViwe.delegate = self;
         _userListTableViwe.dataSource = self;
     }
@@ -382,7 +442,7 @@ ServerBrowserDelegate
         _wechatView.layer.shadowOpacity = 0.4;
         _wechatView.userInteractionEnabled = YES;
         
-        UIImage *wechatImage = [UIImage imageNamed:@"weChat"];
+        UIImage *wechatImage = [UIImage imageNamed:@"WeChat"];
         UIImageView *wechatImageView = [[UIImageView alloc]initWithImage:wechatImage];
         [_wechatView addSubview:wechatImageView];
         [wechatImageView mas_makeConstraints:^(MASConstraintMaker *make) {

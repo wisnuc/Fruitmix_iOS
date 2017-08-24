@@ -20,7 +20,6 @@
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="nG5-AE-4ji">
                         <rect key="frame" x="16" y="10" width="35" height="35"/>
-                        <color key="backgroundColor" red="0.38655040834093823" green="1" blue="0.93877926584515148" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="35" id="KJa-dW-dSv"/>
                             <constraint firstAttribute="width" constant="35" id="ulm-nh-ydQ"/>
@@ -42,6 +41,7 @@
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="userNameImageView" destination="nG5-AE-4ji" id="swI-Hl-cdI"/>
                 <outlet property="userNameLabel" destination="3HV-mG-txR" id="gwn-nb-jcA"/>
             </connections>
             <point key="canvasLocation" x="34" y="60"/>

@@ -19,7 +19,7 @@
 
 @end
 @interface FMUsers : FMDTObject
-@property (nonatomic) NSMutableArray *users;
+//@property (nonatomic) NSMutableArray *users;
 
 //用户名
 @property (nonatomic) NSString * username;
@@ -27,7 +27,11 @@
 @property (nonatomic) NSString * uuid;
 //用户头像url
 @property (nonatomic) NSString * avatar;
+@property (nonatomic) BOOL isAdmin;
+@property (nonatomic) BOOL isFirstUser;
+//isAdmin = 1;
+//isFirstUser = 1;
 
-@property (nonatomic) int unixUID;
+//@property (nonatomic) int unixUID;
 
 @end

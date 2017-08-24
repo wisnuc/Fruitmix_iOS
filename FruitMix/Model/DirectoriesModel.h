@@ -10,4 +10,8 @@
 
 @interface DirectoriesModel : NSObject
 @property (nonatomic,copy) NSString *uuid;
+@property (nonatomic,copy) NSString *name;
+@property (nonatomic,copy) NSString *parent;
+@property (nonatomic) long long mtime;
+
 @end

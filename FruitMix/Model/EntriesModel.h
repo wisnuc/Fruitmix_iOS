@@ -12,4 +12,5 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *type;
 @property (nonatomic, strong) NSString *uuid;
+@property (nonatomic, strong) NSString *photoHash;
 @end

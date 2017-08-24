@@ -93,7 +93,7 @@
             weak_self.fmPhotoImageView.image = image;
         }
     };
-       NSLog(@"%@😆%@",[asset class],hash);
+//       NSLog(@"%@😆%@",[asset class],hash);
     if (IsNilString(hash)) _imageTag = ((FMPhotoAsset *)asset).localId;
  
     else  _imageTag = hash; //有 digest

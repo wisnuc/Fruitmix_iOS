@@ -84,10 +84,10 @@
     return _chooseFilesUUID;
 }
 
--(void)downloadChooseFiles{
+-(void)downloadChooseFilesParentUUID:(NSString *)uuid{
     for (FLFilesModel * model in [FLFIlesHelper helper].chooseFiles) {
-        if (model.isFile) {
-            [[FLDownloadManager shareManager] downloadFileWithFileModel:model];
+        if ([model.type isEqualToString:@"file"]) {
+            [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:uuid];
         }
     }
     [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%ld个文件已添加到下载",(unsigned long)[FLFIlesHelper helper].chooseFiles.count] forDuration:1];
@@ -95,11 +95,14 @@
     
 }
 
-- (void)downloadAloneFilesWithModel:(FLFilesModel *)model Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state
+- (void)downloadAloneFilesWithModel:(FLFilesModel *)model parentUUID:(NSString *)uuid Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state
 {
     NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
-    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@files/fruitmix/download/%@/%@",[JYRequestConfig sharedConfig].baseURL,model.parUUID,model.uuid] filePath:filePath];
+    
+//    /drives/{driveUUID}/dirs/{dirUUID}/entries/{entryUUID}
+     NSString * exestr = [filePath lastPathComponent];
+    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr] filePath:filePath];
     _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
@@ -114,17 +117,17 @@
     }
 }
 
--(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController{
+-(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController parentUUID:(NSString *)uuid{
     cell.nameLabel.text = model.name;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    if (model.isFile) {
+    if ([model.type isEqualToString:@"file"]) {
         cell.f_ImageView.image = [UIImage imageNamed:@"file_icon"];
         cell.timeLabel.text = [self getTimeWithTimeSecond:model.mtime/1000];
     }else
         cell.f_ImageView.image = [UIImage imageNamed:@"folder_icon"];
         cell.timeLabel.text = [self getTimeWithTimeSecond:model.mtime/1000];
     
-    cell.downBtn.hidden = ((status == FLFliesCellStatusNormal)?!model.isFile:YES);
+    cell.downBtn.hidden = ((status == FLFliesCellStatusNormal)?![model.type isEqualToString:@"file"]:YES);
     
     
     if ([self containsFile:model]) {
@@ -136,7 +139,7 @@
     }
     
     @weaky(self);
-    if (model.isFile) {
+    if ([model.type isEqualToString:@"file"]) {
         cell.clickBlock = ^(FLFilesCell * cell){
             weak_self.chooseModel = model;
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
@@ -145,7 +148,7 @@
                                                         otherButtonTitleArray:@[@"下载该文件"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
-                    [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel];
+                    [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel parentUUID:uuid];
                     [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
                     if (viewController) {
                         FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
@@ -162,7 +165,7 @@
     
     cell.longpressBlock =^(FLFilesCell * cell){
         if (status == FLFliesCellStatusNormal) {
-            if (model.isFile)
+            if ([model.type isEqualToString:@"file"])
                 [weak_self addChooseFile:model];
         }
     };

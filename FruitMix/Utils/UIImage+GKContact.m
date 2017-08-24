@@ -91,6 +91,33 @@ static inline NSString *GKContactKey(NSString *initials, CGSize size, UIColor *b
 #pragma mark -
 #pragma mark Public Methods
 
++ (instancetype)imageWhiteForName:(NSString *)name size:(CGSize)size {
+    
+    // Default colors.
+    UIColor *defaultBackgroundColor = [UIColor whiteColor];
+    UIColor *defaultTextColor = COR1;
+    
+    // Default font.
+    CGFloat r = size.width / 2;
+    UIFont *font = [UIFont systemFontOfSize:r - 6];
+    
+    return [self imageWhiteForName:name  size:size backgroundColor:defaultBackgroundColor textColor:defaultTextColor font:font];
+}
+
++ (instancetype)imageWhiteForName:(NSString *)name size:(CGSize)size backgroundColor:(UIColor *)backgroundColor textColor:(UIColor *)textColor font:(UIFont *)font
+{
+    NSString *initials = [GKInitials(name) uppercaseString];
+    NSString *key = GKContactKey(initials, size, backgroundColor, textColor, font);
+    
+    UIImage *image = [self imageForKey:key];
+    if (!image) {
+        //修改颜色
+        image = [self drawImageForInitials:initials size:size backgroundColor:[UIColor whiteColor] textColor:textColor font:font];
+        [self setImage:image forKey:key];
+    }
+    
+    return image;
+}
 + (instancetype)imageForName:(NSString *)name size:(CGSize)size {
 
     // Default colors.

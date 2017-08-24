@@ -74,7 +74,7 @@
 //        animation.removedOnCompletion = YES;
 //        animation.type = @"push";
 //        animation.subtype = @"fromBottom";
-//        
+//
 //        [view.layer addAnimation:animation forKey:nil];
         self.navigationItem.titleView  = view;
     }else{

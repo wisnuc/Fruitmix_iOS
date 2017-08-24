@@ -35,6 +35,7 @@
 #import "FMBoxViewController.h"
 
 #import <CocoaLumberjack/CocoaLumberjack.h>
+#import "JYExceptionHandler.h"
 
 // Log levels: off, error, warn, info, verbose
 //static const DDLogLevel ddLogLevel = DDLogLevelVerbose;
@@ -61,7 +62,7 @@
     [self configNotify];
     //配置 行为统计 /检测网络权限
     [self configUmeng];
-    
+    [self asynAnyThings];
     return YES;
 }
 
@@ -115,7 +116,7 @@
     }else{
         NSLog(@"上次未登录, 重新登录");
         
-        FMLoginVC * vc = [[FMLoginVC alloc]init];
+        FMLoginViewController * vc = [[FMLoginViewController alloc]init];
         vc.title = @"搜索附近设备";
         NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
         self.window.rootViewController = nav;
@@ -175,6 +176,7 @@
     [[SDWebImageManager sharedManager] cancelAll];
     
     [[PhotoManager shareManager].getImageQueue cancelAllOperations];
+
 }
 
 //配置侧拉
@@ -272,19 +274,19 @@
 //    FMAlbumsViewController * albumsVC = [[FMAlbumsViewController alloc]init];
         FLFilesVC * filesVC = [[FLFilesVC alloc]init];
     /* 导航 */
-    NavViewController *nav0 = [[NavViewController alloc] initWithRootViewController:boxVC];
+//    NavViewController *nav0 = [[NavViewController alloc] initWithRootViewController:boxVC];
     NavViewController *nav1 = [[NavViewController alloc] initWithRootViewController:photosVC];
     NavViewController *nav2 = [[NavViewController alloc] initWithRootViewController:filesVC];
     
-    boxVC.title = @"分享";
+//    boxVC.title = @"分享";
     photosVC.title = @"照片";
     filesVC.title = @"文件";
     
-    NSMutableArray *viewControllersMutArr = [[NSMutableArray alloc] initWithObjects:nav0, nav1,nav2,nil];
+    NSMutableArray *viewControllersMutArr = [[NSMutableArray alloc] initWithObjects:nav1,nav2,nil];
     [tabbar setViewControllers:viewControllersMutArr];
    
 //    tabbar.tabBar.backgroundView.backgroundColor = UICOLOR_RGB(0x3f51b5);
-    NSArray *tabBarItemImages = @[@"share", @"photo", @"storage"];
+    NSArray *tabBarItemImages = @[ @"photo", @"storage"];
 //    NSArray *tabBarItemTitles = @[@"分享", @"照片", @"文件"];
     NSInteger index = 0;
     for (RDVTabBarItem *item in [[tabbar tabBar] items]) {
@@ -472,8 +474,12 @@
         [PhotoManager shareManager].canUpload = NO;//停止上传
         FMConfigInstance.userToken = @"";
         [self resetDatasource];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:DRIVE_UUID_STR];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
+        [SXLoadingView hideProgressHUD];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [SXLoadingView hideProgressHUD];
+          
             [self skipToLogin];
         });
     }else if(IsEquallString(title,@"USER_FOOTERVIEW_CLICK")){
@@ -487,8 +493,8 @@
 -(void)skipToLogin{
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reloadLeftMenuIsAdmin:NO];
-        FMLoginVC * vc = [[FMLoginVC alloc]init];
-        vc.title = @"搜索附近设备";
+        FMLoginViewController * vc = [[FMLoginViewController alloc]init];
+//        vc.title = @"搜索附近设备";
         NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
         self.window.rootViewController = nav;
         [self.window makeKeyAndVisible];
@@ -551,4 +557,20 @@
     return view;
 }
 
+-(void)asynAnyThings{
+    //上传照片
+    //    shouldUplod(^{
+    [PhotoManager checkNetwork];
+    //    });
+    //监听奔溃
+    //    [FMABManager shareManager];
+    [JYExceptionHandler installExceptionHandler];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        //初始化 DeviceUUID
+//        [PhotoManager getUUID];
+        //        [FMDBControl asynOwnerSet];//更新ownerSet
+        [FMDBControl asynUsers];
+    });
+    
+}
 @end

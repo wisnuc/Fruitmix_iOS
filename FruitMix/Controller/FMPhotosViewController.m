@@ -83,6 +83,7 @@
 
 @property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *edgeGesture;
 
+@property (nonatomic, strong) NSMutableDictionary *cellIdentifierDic;
 @end
 
 @implementation FMPhotosViewController{
@@ -95,6 +96,7 @@
     [super viewDidAppear:animated];
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateNormal) {
         [self.rdv_tabBarController setTabBarHidden:NO animated:YES];
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
         if (_edgeGesture) {
             [self.view removeGestureRecognizer:_edgeGesture];
             _edgeGesture = nil;
@@ -161,7 +163,7 @@
     self.collectionView.userIndicator = YES;
     [self.view addSubview:self.collectionView];
     self.collectionView.fmState = FMPhotosCollectionViewCellStateNormal;
-    [self.collectionView registerNib:[UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"photocell"];
+//    [self.collectionView registerNib:[UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"photocell"];
     [self addRightBtn];
     [self createControlbtn];
     [self addPinchGesture];
@@ -601,7 +603,38 @@
 #pragma mark - FMPhotoCollectionViewDelegate
 
 -(UICollectionViewCell *)fm_CollectionView:(FMPhotoCollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
-    FMPhotosCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"photocell" forIndexPath:indexPath];
+    NSString *identifier = [_cellIdentifierDic objectForKey:[NSString stringWithFormat:@"%@", indexPath]];
+    
+    if(identifier == nil){
+        
+        identifier = [NSString stringWithFormat:@"selectedBtn%@", [NSString stringWithFormat:@"%@", indexPath]];
+        
+        [_cellIdentifierDic setObject:identifier forKey:[NSString  stringWithFormat:@"%@",indexPath]];
+        
+        // 注册Cell（把对cell的注册写在此处）
+        UINib *nib = [UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle: [NSBundle mainBundle]];
+            [_collectionView registerNib:nib forCellWithReuseIdentifier:identifier];
+//        [_collectionView registerClass:[FMPhotosCollectionViewCell class] forCellWithReuseIdentifier:identifier];
+        
+    }
+    
+    FMPhotosCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
+    
+    if(!cell){
+        
+        
+        
+//        cell = [[[NSBundle mainBundle]loadNibNamed:@"FMPhotosCollectionViewCell" owner:self options:nil]lastObject];
+        
+    }
+//    static NSString *HLChoosePhotoActionSheetCellIdentifier = @"HLChoosePhotoActionSheetCellID";
+//    
+//    //在这里注册自定义的XIBcell 否则会提示找不到标示符指定的cell
+//    UINib *nib = [UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle: [NSBundle mainBundle]];
+//    [_collectionView registerNib:nib forCellWithReuseIdentifier:HLChoosePhotoActionSheetCellIdentifier];
+//    
+//    FMPhotosCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:HLChoosePhotoActionSheetCellIdentifier forIndexPath:indexPath];
+    
     NSArray * datas = [self.photoDataSource.dataSource objectAtIndex:indexPath.section];
     // 请求图片
     cell.fmDelegate = self;

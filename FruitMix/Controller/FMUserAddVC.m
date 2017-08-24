@@ -60,7 +60,7 @@
     else{
         FMCreateUserAPI * api = [FMCreateUserAPI new];
         NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
-         [dic setObject:@"local" forKey:@"type"];
+//         [dic setObject:@"local" forKey:@"type"];
         [dic setObject:self.userNameTF.text forKey:@"username"];
         [dic setObject:IsNilString(self.passwordTF.text)?@"":self.passwordTF.text forKey:@"password"];
         api.param = dic;

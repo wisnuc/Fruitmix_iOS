@@ -26,7 +26,7 @@ floatMenuDelegate
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self asynAnyThings];
+//    [self asynAnyThings];
     [self initView];
     [self initData];
 //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(handleChangeIsAdminNotify:) name:FM_USER_ISADMIN object:nil];

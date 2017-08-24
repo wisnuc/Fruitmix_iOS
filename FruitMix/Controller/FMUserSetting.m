@@ -74,8 +74,8 @@
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.responseJsonObject);
      
-        FMUsers * model = [FMUsers yy_modelWithJSON:request.responseJsonObject];
-           NSArray * userArr = model.users;
+//        FMUsers * model = [FMUsers yy_modelWithJSON:request.responseJsonObject];
+           NSArray * userArr = request.responseJsonObject;
         NSMutableArray *tempDataSource = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in userArr) {
             FMUsers * model = [FMUsers yy_modelWithJSON:dic];

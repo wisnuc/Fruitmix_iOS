@@ -238,9 +238,14 @@
                 NSMutableArray * temp = [NSMutableArray arrayWithCapacity:0];
                 for (FMSyncLogs * log in result) {
                     [temp addObject:log.localId];
+//                    NSLog(@"%@",log.localId);
                 }
+                NSSet *resultSet = [NSSet setWithArray:temp];
+                NSArray * resultDataSource  = [resultSet allObjects];
+//                NSLog(@"%@",temp);
                 FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
-                [cmd where:@"localIdentifier" notContainedIn:temp];
+                [cmd where:@"localIdentifier" notContainedIn:resultDataSource];
+                NSLog(@"%@",[cmd fetchArray]);
                 block([cmd fetchArray]);
             }];
             
@@ -500,6 +505,7 @@
 +(void)asynUsers{
     FMGetUsersAPI * api = [FMGetUsersAPI new];
     [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.responseJsonObject);
         NSMutableDictionary * usersDic = [NSMutableDictionary dictionaryWithCapacity:0];
         NSMutableArray * usersArr = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in request.responseJsonObject) {
@@ -532,12 +538,14 @@
 +(void)asyncUserHome{
     FMAccountUsersAPI * usersApi = [FMAccountUsersAPI new];
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-//        NSLog(@"😈😈😈😈%@",request.responseJsonObject);
-//        NSArray * userArr = request.responseJsonObject;
+        NSLog(@"😈😈😈😈%@",request.responseJsonObject);
+        NSArray * userArr = request.responseJsonObject;
+        
 //        NSLog(@"%lu",(unsigned long)userArr);
 //        if (userArr.count>0) {
-//            for (NSDictionary * dic in userArr) {
-          NSDictionary * dic = request.responseJsonObject;
+            for (NSDictionary * dic in userArr) {
+//          NSDictionary * dic = request.responseJsonObject;
+       
                 if (IsEquallString(dic[UUIDKey], DEF_UUID)) {
                     if ([dic[@"isAdmin"] boolValue]) {
                         [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(1)];
@@ -545,16 +553,16 @@
                         [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(0)];
                     FMConfigInstance.userHome = dic[@"home"];
                     //更新 UsrInfo 信息
-                    //                FMUserInfo * info = [FMUserInfo new];
-                    //                info.userId = DEF_UUID;
-                    //                info.home = dic[@"home"];
-                    //                info.library = dic[@"library"];
-                    //                FMDTUpdateObjectCommand * ucmd = FMDT_UPDATE_OBJECT([FMDBSet shared].userInfo);
-                    //                [ucmd add:info];
-                    //                [ucmd saveChanges];
+//                                    FMUserInfo * info = [FMUserInfo new];
+//                                    info.userId = DEF_UUID;
+//                                    info.home = dic[@"home"];
+//                                    info.library = dic[@"library"];
+//                                    FMDTUpdateObjectCommand * ucmd = FMDT_UPDATE_OBJECT([FMDBSet shared].userInfo);
+//                                    [ucmd add:info];
+//                                    [ucmd saveChanges];
 //                }
-//            }
-            NSLog(@"userhome表更新完成"); 
+            }
+            NSLog(@"userhome表更新完成");
         }
      
     } failure:^(__kindof JYBaseRequest *request) {

@@ -22,9 +22,9 @@
 
 +(instancetype)helper;
 
--(void)downloadChooseFiles;
+-(void)downloadChooseFilesParentUUID:(NSString *)uuid;
 
--(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController;
+-(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController parentUUID:(NSString *)uuid;
 
 -(void)addChooseFile:(FLFilesModel *)model;
 
@@ -34,7 +34,7 @@
 
 -(void)cancleDownload;
 
-- (void)downloadAloneFilesWithModel:(FLFilesModel *)model Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state;
+- (void)downloadAloneFilesWithModel:(FLFilesModel *)model parentUUID:(NSString *)uuid Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state;
 //判断该文件是否已经被选择
 -(BOOL)containsFile:(FLFilesModel *)model;
 @end

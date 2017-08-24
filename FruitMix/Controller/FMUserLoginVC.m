@@ -80,7 +80,7 @@
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [SXLoadingView hideProgressHUD];
         NSHTTPURLResponse * res = (NSHTTPURLResponse *)task.response;
-        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",res.statusCode] duration:1];
+        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",(long)res.statusCode] duration:1];
         sender.userInteractionEnabled = YES;
         NSLog(@"%@",error);
     }];
@@ -120,7 +120,7 @@
         FMUserLoginInfo * info = [FMUserLoginInfo new];
         info.userName = _user.username;
         info.uuid = _user.uuid;
-        info.deviceId = [PhotoManager getUUID];
+//        info.deviceId = [PhotoManager getUUID];
         info.jwt_token = token;
         info.bonjour_name = _service.hostName;
         [FMDBControl addUserLoginInfo:info];

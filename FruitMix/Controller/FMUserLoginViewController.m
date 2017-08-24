@@ -8,13 +8,14 @@
 
 #import "FMUserLoginViewController.h"
 #import "FMLoginTextField.h"
+#import "UIButton+EnlargeEdge.h"
 
 #define  MainColor  UICOLOR_RGB(0x03a9f4)
 
-@interface FMUserLoginViewController ()
+@interface FMUserLoginViewController ()<UITextFieldDelegate>
 @property (strong, nonatomic) UIView *navigationView;
 @property (strong, nonatomic) UIView *userNameBackgroudView;
-@property (strong, nonatomic) UIView *userNameView;
+@property (strong, nonatomic) UIImageView *userNameView;
 @property (strong, nonatomic) UIButton *loginButton;
 @property (strong, nonatomic) UIImageView *leftTextFieldImageView;
 @property (strong, nonatomic) FMLoginTextField *loginTextField;
@@ -26,6 +27,16 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:animated];
+    [self.loginTextField becomeFirstResponder];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self.loginTextField resignFirstResponder];
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    [self.loginTextField resignFirstResponder];
 }
 
 - (void)viewDidLoad {
@@ -41,6 +52,13 @@
     [self.view addSubview:[self setTextFieldLine]];
     [self.view addSubview:self.eyeButton];
 }
+
+#pragma mark textFiledDelegate
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+     [self.view endEditing:YES];
+    return YES;
+}
+
 - (void)eyeButtonAction:(UIButton *)sender{
       sender.selected = !sender.selected;
     if (!sender.selected) {
@@ -51,6 +69,75 @@
 }
 
 - (void)loginButtonClick:(UIButton *)sender{
+    [self.view endEditing:YES];
+    sender.userInteractionEnabled = NO;
+    [SXLoadingView showProgressHUD:@"正在登陆"];
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
+    NSString * Basic = [UUID base64EncodedString];
+    NSLog(@"%@, %@", UUID, Basic);
+    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
+    [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [SXLoadingView hideProgressHUD];
+        [self loginToDoWithResponse:responseObject];
+        sender.userInteractionEnabled = YES;
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [SXLoadingView hideProgressHUD];
+        NSHTTPURLResponse * res = (NSHTTPURLResponse *)task.response;
+        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",(long)res.statusCode] duration:1];
+        sender.userInteractionEnabled = YES;
+        NSLog(@"%@",error);
+    }];
+}
+
+//登录完成 做的事
+-(void)loginToDoWithResponse:(id)response{
+    NSString * token = response[@"token"];
+    
+    //判断是否为同一用户退出后登录
+    if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
+        [FMDBControl reloadTables];
+        [FMDBControl asyncLoadPhotoToDB];
+        //清除deviceID
+        FMConfigInstance.deviceUUID = @"";//清除deviceUUID
+    }
+    FMConfigInstance.userToken = token;
+    FMConfigInstance.userUUID = _user.uuid;
+    //更新图库
+    JYRequestConfig * config = [JYRequestConfig sharedConfig];
+    config.baseURL = self.service.path;
+    
+    if(IsNilString(USER_SHOULD_SYNC_PHOTO) || IsEquallString(USER_SHOULD_SYNC_PHOTO, _user.uuid)){
+        //设置   可备份用户为
+        [[NSUserDefaults standardUserDefaults] setObject:_user.uuid forKey:USER_SHOULD_SYNC_PHOTO_STR];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        //重启photoSyncer
+        [PhotoManager shareManager].canUpload = YES;
+    }
+    
+    //重置数据
+    [MyAppDelegate resetDatasource];
+    
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        //保存用户信息
+        FMUserLoginInfo * info = [FMUserLoginInfo new];
+        info.userName = _user.username;
+        info.uuid = _user.uuid;
+        //        info.deviceId = [PhotoManager getUUID];
+        info.jwt_token = token;
+        info.bonjour_name = _service.hostName;
+        [FMDBControl addUserLoginInfo:info];
+        
+        NSLog(@"%@",info.userName);
+    });
+    
+    //组装UI
+    MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
+    [MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
+    [MyAppDelegate.sharesTabBar setSelectedIndex:0];
+    MyAppDelegate.filesTabBar = nil;
+    [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
     
 }
 
@@ -82,6 +169,7 @@
         UIImage *image = [UIImage imageNamed:@"back"];
         UIButton *backButton = [[UIButton alloc]initWithFrame:CGRectMake(16, CGRectGetMidY(_navigationView.frame), image.size.width, image.size.height)];
         [backButton setImage:image forState:UIControlStateNormal];
+        [backButton setEnlargeEdgeWithTop:5 right:5 bottom:5 left:5];
         [backButton addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];
         [_navigationView addSubview:backButton];
     }
@@ -96,14 +184,15 @@
     return _userNameBackgroudView;
 }
 
-- (UIView *)userNameView{
+- (UIImageView *)userNameView{
     if (!_userNameView) {
-        _userNameView = [[UIView alloc]init];
+        _userNameView = [[UIImageView alloc]init];
         _userNameView.frame = CGRectMake(0, 0, 88, 88);
         _userNameView.center = CGPointMake(JYSCREEN_WIDTH/2, _userNameBackgroudView.frame.size.height/2 - 25);
         _userNameView.backgroundColor = [UIColor whiteColor];
         _userNameView.layer.masksToBounds = YES;
         _userNameView.layer.cornerRadius = 44;
+        _userNameView.image = [UIImage imageWhiteForName:_user.username size:_userNameView.bounds.size];
     }
     return _userNameView;
 }
@@ -138,7 +227,8 @@
     if (!_loginTextField) {
         _loginTextField = [[FMLoginTextField alloc]initWithFrame:CGRectMake(CGRectGetMinX(_passwordLabel.frame), CGRectGetMaxY(_passwordLabel.frame) + 8, JYSCREEN_WIDTH - CGRectGetMinX(_passwordLabel.frame) - 16, 20)];
         _loginTextField.secureTextEntry = YES;
-        
+        _loginTextField.returnKeyType = UIReturnKeyDone;
+        _loginTextField.delegate = self;
     }
     return _loginTextField;
 }
@@ -148,6 +238,7 @@
         UIImage *imageEye = [UIImage imageNamed:@"eye"];
         UIImage *imageEyeOff = [UIImage imageNamed:@"eye_off"];
         _eyeButton = [[UIButton alloc]initWithFrame:CGRectMake(JYSCREEN_WIDTH - 16 - imageEye.size.width, CGRectGetMinY(_leftTextFieldImageView.frame),imageEye.size.width , imageEye.size.height)];
+        [_eyeButton setEnlargeEdgeWithTop:3 right:3 bottom:3 left:3];
         [_eyeButton setImage:imageEye forState:UIControlStateSelected];
         [_eyeButton setImage:imageEyeOff forState:UIControlStateNormal];
         [_eyeButton addTarget:self action:@selector(eyeButtonAction:) forControlEvents:UIControlEventTouchUpInside];

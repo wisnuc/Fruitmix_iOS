@@ -47,4 +47,6 @@
 
 
 + (UIImage *)imageWithImage:(UIImage *)image scaledToFillSize:(CGSize)size;
+
++ (instancetype)imageWhiteForName:(NSString *)name size:(CGSize)size;
 @end

@@ -46,12 +46,15 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 @property (nonatomic, strong) UIDocumentInteractionController *documentController;
 
+
+
 @end
 
 @implementation FLFilesVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.parentUUID = DIR_UUID;
     [self initViews];
     [self initData];
     [self createNavBtns];
@@ -112,23 +115,26 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 }
 
 -(void)rightBtnClick:(UIButton *)btn{
-    if (!self.cellStatus) {
-        @weaky(self);
-        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
-            if (buttonIndex == 1) {
-                [weak_self changeStatus];
-            }
-        } otherButtonTitles:@"选择文件", nil] show];
-    }else{
-        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
-            if (buttonIndex == 1) {
-                [[FLFIlesHelper helper] removeAllChooseFile];
-            }else if ( buttonIndex == 2){
-                [[FLFIlesHelper helper] downloadChooseFiles];
-                [self.rdv_tabBarController setSelectedIndex:2];
-            }
-        } otherButtonTitles:@"清除选择",@"下载所选项", nil] show];
+    if (self.cellStatus != FLFliesCellStatusCanChoose) {
+        [self actionForChooseStatus];
     }
+ 
+//        @weaky(self);
+//        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+//            if (buttonIndex == 1) {
+//                [weak_self changeStatus];
+//            }
+//        } otherButtonTitles:@"选择文件", nil] show];
+//    }else{
+//        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+//            if (buttonIndex == 1) {
+//                [[FLFIlesHelper helper] removeAllChooseFile];
+//            }else if ( buttonIndex == 2){
+//                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+//                [self.rdv_tabBarController setSelectedIndex:2];
+//            }
+//        } otherButtonTitles:@"清除选择",@"下载所选项", nil] show];
+
 }
 
 
@@ -218,7 +224,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
        NSMutableArray *isFilesArr = [NSMutableArray arrayWithCapacity:0];
        NSMutableArray *isNotFilesArr = [NSMutableArray arrayWithCapacity:0];
     for ( FLFilesModel * model  in self.dataSource.dataSource) {
-        if (!model.isFile) {
+        if (![model.type isEqualToString:@"file"]) {
             [isNotFilesArr addObject: model];
         }
         else{
@@ -262,7 +268,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             if ([FLFIlesHelper helper].chooseFiles.count == 0) {
                 [SXLoadingView showAlertHUD:@"请先选择文件" duration:1];
             }else{
-                  [[FLFIlesHelper helper] downloadChooseFiles];
+                  [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
                 FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
                  [self.navigationController pushViewController:downloadVC animated:YES];
                 }
@@ -289,7 +295,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     FLFilesCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FLFilesCell class])];
     FLFilesModel * model = self.dataSource.dataSource[indexPath.row];
-    [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus viewController:self];
+    [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus viewController:self parentUUID:_parentUUID];
     return cell;
 }
 
@@ -299,7 +305,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     FLFilesModel * model = self.dataSource.dataSource[indexPath.row];
-    if (!model.isFile){
+    if (![model.type isEqualToString:@"file"]){
         FLSecondFilesVC * vc = [FLSecondFilesVC new];
         vc.parentUUID = model.uuid;
         vc.cellStatus = self.cellStatus;
@@ -322,7 +328,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             _progressView.cancleBlock = ^(){
                 [[FLFIlesHelper helper] cancleDownload];
             };
-            [[FLFIlesHelper helper]downloadAloneFilesWithModel:model Progress:^(TYDownloadProgress *progress) {
+            [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DIR_UUID Progress:^(TYDownloadProgress *progress) {
                 if (progress.progress) {
                     [_progressView setValueForProcess:progress.progress];
                     [_progressView show];

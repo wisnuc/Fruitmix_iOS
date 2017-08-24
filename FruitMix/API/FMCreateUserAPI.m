@@ -15,7 +15,7 @@
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-    return @"admin/users";
+    return @"users";
 }
 
 -(id)requestArgument{

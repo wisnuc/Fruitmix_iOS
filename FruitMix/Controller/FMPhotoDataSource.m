@@ -1,4 +1,4 @@
-
+//
 //
 //  FMPhotoDataSource.m
 //  FruitMix
@@ -196,8 +196,15 @@
                 NSMutableArray * photoDateGroup2 = photoDateGroup1;//最近的一组
                 for (int i = 1 ; i < self.imageArr.count; i++) {
                     @autoreleasepool {
+                        IDMPhoto * photoNull = self.imageArr[i];
+                        if ([photoNull getPhotoCreateTime]==nil) {
+                            [self.imageArr removeObject:photoNull];
+                        }
                         IDMPhoto * photo1 =  self.imageArr[i];
                         IDMPhoto * photo2 = self.imageArr[i-1];
+//                         NSLog(@"%@😁%@",[photo1 getPhotoCreateTime],[photo2 getPhotoCreateTime]);
+                        
+                       
                         if ([self isSameDay:[photo1 getPhotoCreateTime] date2:[photo2 getPhotoCreateTime]]) {
                             [photoDateGroup2 addObject:photo1];
                         }
