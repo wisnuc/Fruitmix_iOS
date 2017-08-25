@@ -36,7 +36,7 @@
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didFindService:(NSNetService *)aNetService moreComing:(BOOL)moreComing {
     aNetService.delegate = self;
     [_discoveredServers addObject:aNetService];
-    [aNetService resolveWithTimeout:2.0];
+    [aNetService resolveWithTimeout:6.0];
 }
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {

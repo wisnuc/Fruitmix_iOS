@@ -16,7 +16,7 @@
 @property (nonatomic) NSMutableArray * users;
 @property (nonatomic) NSString * displayPath;
 @property (nonatomic) NSString * hostName;
-
+@property (nonatomic) NSString * ws215i;
 @property (nonatomic) BOOL isReadly;
 
 @end

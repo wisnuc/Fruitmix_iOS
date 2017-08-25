@@ -56,6 +56,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     self.title = self.name;
     [self createControlbtn];
     [self.navigationController.view addSubview:self.chooseHeadView];
+    [self initMjRefresh];
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -70,6 +71,18 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
             [[FLFIlesHelper helper] removeChooseFile:model];
         }
     }
+}
+
+- (void)initMjRefresh{
+    __weak __typeof(self) weakSelf = self;
+    
+    // 设置回调（一旦进入刷新状态就会调用这个refreshingBlock）
+    self.tableview.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [weakSelf loadNewData];
+    }];
+    self.tableview.mj_header.ignoredScrollViewContentInsetTop = 8;
+    // 马上进入刷新状态
+    [self.tableview.mj_header beginRefreshing];
 }
 
 -(void)handlerStatusChangeNotify:(NSNotification *)notify{
@@ -111,6 +124,15 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:negativeSpacer,rightItem,nil];
+}
+
+- (void)loadNewData{
+    [self.dataSource.dataSource removeAllObjects];
+   [_dataSource getFilesWithUUID:_parentUUID];
+    NSLog(@"%lu",(unsigned long)_dataSource.dataSource.count);
+    _cellStatus = FLFliesCellStatusNormal;
+    [self.tableview reloadData];
+//    self.tableview.mj_header.hidden = YES;
 }
 
 - (void)leftBtnClick:(id)sender{
@@ -163,8 +185,10 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 }
 
 - (void)actionForChooseStatus{
-    //     if (self.cellStatus == FLFliesCellStatusNormal) {
-    
+         if (self.cellStatus == FLFliesCellStatusCanChoose) {
+             return;
+         }
+     [self.tableview.mj_header setHidden:YES];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, 64);
     }];
@@ -176,6 +200,10 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 }
 
 - (void)actionForNormalStatus{
+    if (self.cellStatus == FLFliesCellStatusNormal) {
+        return;
+    }
+    [self.tableview.mj_header setHidden:NO];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, -64);
     }];
@@ -290,7 +318,9 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 #pragma mark - FLDataSourceDelegate
 
 -(void)fl_Datasource:(FLDataSource *)datasource finishLoading:(BOOL)finish{
+ 
     if (datasource == self.dataSource && finish) {
+        [self.tableview.mj_header endRefreshing];
         [self.tableview displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES andTableViewFrame:self.view.bounds andTouchBlock:nil];
         [self sequenceDataSource];
         [self.tableview reloadData];

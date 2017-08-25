@@ -61,7 +61,21 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     [self.navigationController.view addSubview:self.chooseHeadView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlerStatusChangeNotify:) name:FLFilesStatusChangeNotify object:nil];
     [self createControlbtn];
+    [self initMjRefresh];
 
+}
+- (void)initMjRefresh{
+    __weak __typeof(self) weakSelf = self;
+ 
+    // 设置回调（一旦进入刷新状态就会调用这个refreshingBlock）
+    self.fileTableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+      
+        [weakSelf loadNewData];
+    }];
+   self.fileTableView.mj_header.ignoredScrollViewContentInsetTop = 8;
+    // 马上进入刷新状态
+    [self.fileTableView.mj_header beginRefreshing];
+  
 }
 
 -(void)handlerStatusChangeNotify:(NSNotification *)notify{
@@ -114,6 +128,13 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     }
 }
 
+- (void)loadNewData{
+    _dataSource = [FLDataSource new];
+    _dataSource.delegate = self;
+    _cellStatus = FLFliesCellStatusNormal;
+    [self.fileTableView reloadData];
+}
+
 -(void)rightBtnClick:(UIButton *)btn{
     if (self.cellStatus != FLFliesCellStatusCanChoose) {
         [self actionForChooseStatus];
@@ -154,8 +175,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 -(void)initData
 {
-    _dataSource = [FLDataSource new];
-    _dataSource.delegate = self;
+    [_dataSource getDataSource];
+    
     _cellStatus = FLFliesCellStatusNormal;
     [self.fileTableView reloadData];
 }
@@ -279,6 +300,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 -(void)fl_Datasource:(FLDataSource *)datasource finishLoading:(BOOL)finish{
     
     if (datasource == self.dataSource && finish) {
+        [_fileTableView.mj_header endRefreshing];
         [self.fileTableView displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES  andTableViewFrame:self.view.bounds
                              andTouchBlock:nil];
         [self sequenceDataSource];
@@ -366,8 +388,10 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 }
 
 - (void)actionForChooseStatus{
-//     if (self.cellStatus == FLFliesCellStatusNormal) {
-    
+     if (self.cellStatus == FLFliesCellStatusCanChoose) {
+         return;
+     }
+     [self.fileTableView.mj_header setHidden:YES];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, 64);
     }];
@@ -379,6 +403,10 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 }
 
 - (void)actionForNormalStatus{
+    if (self.cellStatus == FLFliesCellStatusNormal) {
+        return;
+    }
+    [self.fileTableView.mj_header setHidden:NO];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, -64);
     }];

@@ -118,8 +118,20 @@
     [self initView];
     [self initData];
     [self registNotify];
+    [self initMjRefresh];
+    [self asynAnyThings];
+}
 
-
+- (void)initMjRefresh{
+    __weak __typeof(self) weakSelf = self;
+    
+    // 设置回调（一旦进入刷新状态就会调用这个refreshingBlock）
+    self.collectionView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [weakSelf refreshPhoto];
+    }];
+    self.collectionView.mj_header.ignoredScrollViewContentInsetTop = 8;
+    // 马上进入刷新状态
+    [self.collectionView.mj_header beginRefreshing];
 }
 
 -(void)gesture:(id)sender
@@ -150,8 +162,9 @@
 }
 
 
+
 -(void)refreshPhoto{
-//    [self initPhotosIsRefrash:YES];
+    [_photoDataSource initPhotosIsRefrash];
 }
 
 
@@ -291,6 +304,7 @@
 #pragma mark - handle
 
 -(void)rightBtnClick:(id)sender{
+    self.collectionView.mj_header.hidden = YES;
     self.collectionView.fmState = FMPhotosCollectionViewCellStateCanChoose;
     [self.collectionView reloadData];
     _rightbtn.userInteractionEnabled = NO;
@@ -307,7 +321,7 @@
   }
 
 -(void)leftBtnClick:(id)sender{
-    
+    [_collectionView.mj_header setHidden:NO];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, -64);
     }];
@@ -589,10 +603,10 @@
     BOOL isShouldSelect = YES;
     for (FMPhoto * photo in items) {
         if(![self.choosePhotos containsObject:photo]){
-//            if (![photo isKindOfClass:[FMNASPhoto class]] || [((FMNASPhoto *)photo).permittedToShare boolValue]) {
-//                isShouldSelect = NO;
-//                break;
-//            }
+            if (![photo isKindOfClass:[FMNASPhoto class]]) {
+                isShouldSelect = NO;
+                break;
+            }
         }
     }
     return isShouldSelect;
@@ -608,33 +622,17 @@
     if(identifier == nil){
         
         identifier = [NSString stringWithFormat:@"selectedBtn%@", [NSString stringWithFormat:@"%@", indexPath]];
-        
         [_cellIdentifierDic setObject:identifier forKey:[NSString  stringWithFormat:@"%@",indexPath]];
         
-        // 注册Cell（把对cell的注册写在此处）
         UINib *nib = [UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle: [NSBundle mainBundle]];
-            [_collectionView registerNib:nib forCellWithReuseIdentifier:identifier];
-//        [_collectionView registerClass:[FMPhotosCollectionViewCell class] forCellWithReuseIdentifier:identifier];
-        
+        [_collectionView registerNib:nib forCellWithReuseIdentifier:identifier];
     }
-    
     FMPhotosCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
     
     if(!cell){
         
-        
-        
-//        cell = [[[NSBundle mainBundle]loadNibNamed:@"FMPhotosCollectionViewCell" owner:self options:nil]lastObject];
-        
     }
-//    static NSString *HLChoosePhotoActionSheetCellIdentifier = @"HLChoosePhotoActionSheetCellID";
-//    
-//    //在这里注册自定义的XIBcell 否则会提示找不到标示符指定的cell
-//    UINib *nib = [UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle: [NSBundle mainBundle]];
-//    [_collectionView registerNib:nib forCellWithReuseIdentifier:HLChoosePhotoActionSheetCellIdentifier];
-//    
-//    FMPhotosCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:HLChoosePhotoActionSheetCellIdentifier forIndexPath:indexPath];
-    
+  
     NSArray * datas = [self.photoDataSource.dataSource objectAtIndex:indexPath.section];
     // 请求图片
     cell.fmDelegate = self;
@@ -803,7 +801,7 @@
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose) {
         return;
     }
-    
+//    self.collectionView.mj_header.hidden = YES;
     NSIndexPath * indexPath = [self.collectionView indexPathForCell:cell];
     [self rightBtnClick:_rightbtn];
     FMPhotoAsset * asset = self.photoDataSource.dataSource[indexPath.section][indexPath.row];
@@ -936,9 +934,11 @@
 #pragma DataSouce delegate
 static BOOL waitingForReload = NO;
 -(void)dataSourceFinishToLoadPhotos{
+    
     if (!_shouldDownload) {
         waitingForReload = NO;
         [self.collectionView reloadData];
+        [self.collectionView.mj_header endRefreshing];
     }else{
         if (waitingForReload)
             return;
@@ -995,6 +995,14 @@ static BOOL waitingForReload = NO;
         [self shareToOtherApp];
     }
     [_shareView dismiss];
+}
+
+-(void)asynAnyThings{
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [FMDBControl asynUsers];
+    });
+    
 }
 
 

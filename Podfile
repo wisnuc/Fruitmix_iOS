@@ -20,7 +20,7 @@ pod 'MarqueeLabel', '~> 2.7.1'
 pod 'CocoaLumberjack'
 pod 'BEMCheckBox'
 pod 'ReactiveObjC'
-pod 'SBJson'
+pod 'MJRefresh'
 end
 
 post_install do |installer|

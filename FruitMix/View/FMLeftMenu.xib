@@ -78,11 +78,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="progress" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wE4-rc-C8Y">
-                    <rect key="frame" x="263" y="151" width="60" height="14"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="60" id="9bG-E3-oq2"/>
-                        <constraint firstAttribute="height" constant="14" id="hx6-PW-vyI"/>
-                    </constraints>
+                    <rect key="frame" x="269.5" y="151" width="53.5" height="14"/>
                     <fontDescription key="fontDescription" name="HiraginoSansGB-W3" family="Hiragino Sans GB" pointSize="12"/>
                     <color key="textColor" white="0.90895647321428574" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
@@ -133,20 +129,23 @@
                 <constraint firstAttribute="bottom" secondItem="UCf-2J-WUS" secondAttribute="bottom" constant="24" id="ktX-uK-MLl"/>
                 <constraint firstItem="InW-Xi-ER3" firstAttribute="bottom" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-62" id="lG5-bc-6Qo"/>
                 <constraint firstAttribute="trailing" secondItem="UCf-2J-WUS" secondAttribute="trailing" constant="34" id="oK6-AK-ZFa"/>
-                <constraint firstAttribute="trailing" secondItem="XNi-XL-Of2" secondAttribute="trailing" constant="80" id="tjy-l4-Ulg"/>
                 <constraint firstItem="wE4-rc-C8Y" firstAttribute="top" secondItem="mKa-Gf-E18" secondAttribute="bottom" constant="8" id="wn4-jg-2F6"/>
                 <constraint firstItem="BSv-LH-7wp" firstAttribute="top" secondItem="nKw-lj-RPT" secondAttribute="bottom" constant="-1" id="wrT-d6-iJB"/>
                 <constraint firstAttribute="trailing" secondItem="nKw-lj-RPT" secondAttribute="trailing" id="xpj-Pu-LHY"/>
                 <constraint firstAttribute="trailing" secondItem="wE4-rc-C8Y" secondAttribute="trailing" constant="16" id="yHF-rQ-Tmz"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <variation key="default">
+                <mask key="subviews">
+                    <exclude reference="wE4-rc-C8Y"/>
+                    <exclude reference="XNi-XL-Of2"/>
+                </mask>
+            </variation>
             <connections>
                 <outlet property="backupLabel" destination="pKs-6N-neu" id="MgV-Qb-0dE"/>
-                <outlet property="backupProgressView" destination="XNi-XL-Of2" id="qb5-aF-V34"/>
                 <outlet property="bonjourLabel" destination="mKa-Gf-E18" id="bhQ-lr-91u"/>
                 <outlet property="dropDownBtn" destination="yU1-y9-FTn" id="BhQ-Bm-zr4"/>
                 <outlet property="nameLabel" destination="InW-Xi-ER3" id="LJT-Tl-8RK"/>
-                <outlet property="progressLabel" destination="wE4-rc-C8Y" id="N8h-iE-yY7"/>
                 <outlet property="settingTabelView" destination="9WK-pc-3S3" id="pdZ-9x-vKh"/>
                 <outlet property="userHeaderIV" destination="8q5-bR-fHS" id="INI-og-JuU"/>
                 <outlet property="usersTableView" destination="BSv-LH-7wp" id="Vde-IU-SD7"/>

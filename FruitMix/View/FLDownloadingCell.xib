@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -13,16 +16,18 @@
             <rect key="frame" x="0.0" y="0.0" width="487" height="80"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <frame key="frameInset" width="487" height="79"/>
+                <rect key="frame" x="0.0" y="0.0" width="487" height="79.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="file_icon.png" translatesAutoresizingMaskIntoConstraints="NO" id="bLe-l9-rH8" userLabel="fileImage">
+                        <rect key="frame" x="22" y="26" width="28" height="28"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="28" id="ClP-2x-vdb"/>
                             <constraint firstAttribute="width" constant="28" id="v0c-XG-GtA"/>
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OiS-2x-2XX" userLabel="nameLb">
+                        <rect key="frame" x="66" y="19" width="341" height="21"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="21" id="5zv-vY-j4E"/>
                         </constraints>
@@ -30,16 +35,8 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pFP-gQ-BqF" userLabel="stateBtn">
-                        <frame key="frameInset" minX="431" minY="19" width="48" height="41"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.20863847159999999" green="0.35912540790000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                        <state key="normal" title="Button">
-                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                        </state>
-                    </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FYr-gd-Xpp" userLabel="progressLb">
+                        <rect key="frame" x="66" y="48" width="341" height="21"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="21" id="lwq-HL-9Zh"/>
                         </constraints>
@@ -47,6 +44,17 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IfQ-KL-9aV">
+                        <rect key="frame" x="454" y="30" width="20" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="2ca-ZY-gNw"/>
+                            <constraint firstAttribute="height" constant="20" id="nja-su-FNJ"/>
+                        </constraints>
+                        <state key="normal" image="file_more.png"/>
+                        <connections>
+                            <action selector="cancelClick:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Lhn-rH-Z9P"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="bLe-l9-rH8" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="6wA-DG-sii"/>
@@ -55,11 +63,14 @@
                     <constraint firstItem="FYr-gd-Xpp" firstAttribute="trailing" secondItem="OiS-2x-2XX" secondAttribute="trailing" id="Fol-Gm-NLV"/>
                     <constraint firstItem="FYr-gd-Xpp" firstAttribute="top" secondItem="OiS-2x-2XX" secondAttribute="bottom" constant="8" id="Qkj-j9-9uH"/>
                     <constraint firstItem="FYr-gd-Xpp" firstAttribute="leading" secondItem="OiS-2x-2XX" secondAttribute="leading" id="R7c-eJ-7aE"/>
+                    <constraint firstAttribute="trailing" secondItem="IfQ-KL-9aV" secondAttribute="trailing" constant="13" id="Waf-Zo-Ujf"/>
                     <constraint firstItem="OiS-2x-2XX" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="11" id="WiP-3L-ydj"/>
+                    <constraint firstItem="IfQ-KL-9aV" firstAttribute="centerY" secondItem="bLe-l9-rH8" secondAttribute="centerY" id="cQv-Ep-AHp"/>
                     <constraint firstItem="OiS-2x-2XX" firstAttribute="leading" secondItem="bLe-l9-rH8" secondAttribute="trailing" constant="16" id="rpO-yj-bzH"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="cancelButton" destination="IfQ-KL-9aV" id="IPu-Nb-OTr"/>
                 <outlet property="downloadProgressLb" destination="FYr-gd-Xpp" id="30g-H8-bSO"/>
                 <outlet property="fileImageView" destination="bLe-l9-rH8" id="kjJ-JG-ept"/>
                 <outlet property="filenameLb" destination="OiS-2x-2XX" id="rHA-nu-5hQ"/>
@@ -69,5 +80,6 @@
     </objects>
     <resources>
         <image name="file_icon.png" width="36" height="36"/>
+        <image name="file_more.png" width="36" height="36"/>
     </resources>
 </document>

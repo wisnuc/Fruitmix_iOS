@@ -17,6 +17,8 @@
 @property (weak, nonatomic) IBOutlet UIButton *userBtn1;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn2;
 @property (strong, nonatomic) FMUserLoginInfo *userInfo;
+@property (strong, nonatomic) UIProgressView *backUpProgressView;
+@property (strong, nonatomic) UILabel *progressLabel;
 @end
 
 @implementation FMLeftMenu
@@ -55,8 +57,29 @@
     // app版本
     NSString *app_Version = [infoDictionary objectForKey:@"CFBundleVersion"];
     self.versionLb.text = [NSString stringWithFormat:@"WISNUC %@",app_Version];
+   
+    _progressLabel = [[UILabel alloc]init];
+    _progressLabel.text = @"暂未连接服务器";
+    _progressLabel.textColor = [UIColor colorWithRed:236 green:236 blue:236 alpha:1];
+    _progressLabel.font = [UIFont fontWithName:@"Hiragino Sans GB" size:12];
+    _progressLabel.textAlignment = NSTextAlignmentRight;
+    _progressLabel.preferredMaxLayoutWidth = (self.frame.size.width -10.0 * 2);
+    [_progressLabel  setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+    [self addSubview:_progressLabel];
+    [_progressLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self.mas_right).offset(-16);
+        make.centerY.equalTo(_backupLabel.mas_centerY);
+        make.height.equalTo(@40);
+    }];
     
-    
+     _backUpProgressView = [[UIProgressView alloc]init];
+    [self addSubview:_backUpProgressView];
+    [_backUpProgressView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(_backupLabel.mas_right).offset(6);
+        make.height.equalTo(@2);
+        make.centerY.equalTo(_backupLabel.mas_centerY);
+        make.right.equalTo(_progressLabel.mas_left).offset(-6);
+    }];
 }
 - (IBAction)smallBtnClick:(id)sender {
     if (sender == _userBtn1) {
@@ -134,14 +157,13 @@
     [super layoutSubviews];
     [self getUserInfo];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
-    self.bonjourLabel.text = _userInfo.bonjour_name;
+    FMUserLoginInfo * info = [FMDBControl findUserLoginInfo:DEF_UUID];
+//    NSLog(@"%@",infox.bonjour_name);
+    self.bonjourLabel.text = info.bonjour_name;
     NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
     [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
-//    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@",@"100%"];
- 
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
-//       NSLog(@"======>%@",self.nameLabel.text);
-        self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
+    self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
     
 //===================================优雅的分割线/备份详情==========================================
     UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
@@ -155,7 +177,7 @@
             [localPhotoHashArr addObject:p.degist];
 //            NSLog(@"%@",p.degist);
         }
-//        NSInteger allPhotos = result.count;
+        NSInteger allPhotos = result.count;
         FMDBSet * dbSet = [FMDBSet shared];
         FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
         [scmd where:@"userId" equalTo:DEF_UUID];
@@ -167,24 +189,18 @@
 //                NSLog(@"😑😑😑😑%@",logs.photoHash);
                 [resultPhotoHashArr addObject:logs.photoHash];
             }
-            NSSet *resultSet = [NSSet setWithArray:resultPhotoHashArr];
-            NSArray * resultDataSource  = [resultSet allObjects];
-            NSSet *loacalSet = [NSSet setWithArray:localPhotoHashArr];
-            NSArray * localDataSource = [loacalSet allObjects];
-            float progress = (float)resultDataSource.count/(float)localDataSource.count;
+//            NSSet *resultSet = [NSSet setWithArray:resultPhotoHashArr];
+//            NSArray * resultDataSource  = [resultSet allObjects];
+//            NSSet *loacalSet = [NSSet setWithArray:localPhotoHashArr];
+//            NSArray * localDataSource = [loacalSet allObjects];
+            float progress = (float)results.count/(float)allPhotos;
 //    NSLog(@"%f",progress);
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
-                self.backupProgressView.progress = progress;
-                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)resultDataSource.count,(long)localDataSource.count];
-//                for (FMLocalPhoto * px in result) {
-//                    for ( FMSyncLogs * logs in results) {
-//                        if ([logs.photoHash isEqualToString:px.degist]) {
-//                            NSLog(@"😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈");
-//                        }
-//                    }
-//                   
-//                }
+                self.backUpProgressView.progress = progress;
+                
+                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+
 //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
             });
         }];
@@ -229,7 +245,7 @@
                 float progress = (float)results.count/(float)allPhotos;
                 NSLog(@"%lu",(unsigned long)results.count);
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
-                self.backupProgressView.progress = progress;
+                self.backUpProgressView.progress = progress;
                 self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
                 //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
             });

@@ -528,7 +528,9 @@
         }];
         
     } failure:^(__kindof JYBaseRequest *request) {
-        NSLog(@"同步用户成功");
+        NSLog(@"同步用户失败");
+    
+        
     }];
     
     [self asyncUserHome];
@@ -536,14 +538,15 @@
 
 
 +(void)asyncUserHome{
+   
     FMAccountUsersAPI * usersApi = [FMAccountUsersAPI new];
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"😈😈😈😈%@",request.responseJsonObject);
-        NSArray * userArr = request.responseJsonObject;
+        NSDictionary * dic = request.responseJsonObject;
         
 //        NSLog(@"%lu",(unsigned long)userArr);
 //        if (userArr.count>0) {
-            for (NSDictionary * dic in userArr) {
+//            for (NSDictionary * dic in userArr) {
 //          NSDictionary * dic = request.responseJsonObject;
        
                 if (IsEquallString(dic[UUIDKey], DEF_UUID)) {
@@ -551,7 +554,7 @@
                         [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(1)];
                     }else
                         [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(0)];
-                    FMConfigInstance.userHome = dic[@"home"];
+//                    FMConfigInstance.userHome = dic[@"home"];
                     //更新 UsrInfo 信息
 //                                    FMUserInfo * info = [FMUserInfo new];
 //                                    info.userId = DEF_UUID;
@@ -563,9 +566,10 @@
 //                }
             }
             NSLog(@"userhome表更新完成");
-        }
+//        }
      
     } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.error);
         NSLog(@"更新UsersHome失败");
     }];
 }

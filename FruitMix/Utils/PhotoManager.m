@@ -760,16 +760,16 @@ BOOL shouldUpload = NO;
                 }
 //                NSString *driveUUID = DRIVE_UUID;
 //                NSString *dirUUID = DIR_UUID;
-                NSString *entryUUID = ENTRY_UUID;
+                NSString *entryUUID = PHOTO_ENTRY_UUID;
                 NSLog(@"%@",entryUUID);
                 if (entryUUID.length==0) {
                   [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
                       if (successful) {
-                          [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL successful) {
+                          [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
                               if (successful) {
                                   [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
                                       if (successful) {
-                                            NSString *entryuuid = ENTRY_UUID;
+                                            NSString *entryuuid = PHOTO_ENTRY_UUID;
                                           [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
                                               NSLog(@"%@",responseObject);
                                               NSDictionary * dic = responseObject;
@@ -786,7 +786,12 @@ BOOL shouldUpload = NO;
                                                                                andAsset:asset
                                                                         andSuccessBlock:success
                                                                                 Failure:failure];
-                                                          } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                                          } failure:^(NSURLSessionDataTask *task, NSError *error){
+                                                             
+                                                               NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                                              if (rep.statusCode == 404) {
+                                                                  [self startUploadPhotos];
+                                                              }
                                                           }];
                                                       }
                                                   }];
@@ -803,6 +808,10 @@ BOOL shouldUpload = NO;
                                                                         andSuccessBlock:success
                                                                                 Failure:failure];
                                                           } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                                              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                                              if (rep.statusCode == 404) {
+                                                                  [self startUploadPhotos];
+                                                              }
                                                           }];
                                                       }else{
                                                           
@@ -951,7 +960,7 @@ BOOL shouldUpload = NO;
 //                    
 //                }];
                 //添加上传记录
-                NSLog(@"上传的LocalID: ---> %@", asset.localIdentifier);
+//                NSLog(@"上传的LocalID: ---> %@", asset.localIdentifier);
                 FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].syncLogs);
                 FMSyncLogs * log = [FMSyncLogs new];
                 log.userId =DEF_UUID;
@@ -1073,7 +1082,6 @@ BOOL shouldUpload = NO;
     }else
         if (block) block(NO,nil);
 }
-
 
 
 +(NSString *) getSha256WithAsset:(PHAsset *)asset{

@@ -12,7 +12,8 @@
 
 +(void)uploadAddressFileWithFilePath:(NSString *)filePath andCompleteBlock:(void(^)(BOOL success))completeBlock;
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock;
-+ (void)getDirectoriesCompleteBlock:(void(^)(BOOL successful))completeBlock;
++ (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock;
++ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (void)getDirEntrySuccess:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                    failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
 
@@ -20,14 +21,15 @@
     success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
     failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
 
-//+ (void)getDirEntry;
 + (long long)fileSizeAtPath:(NSString*) filePath;
 + (void)uploadDirEntryWithFilePath:(NSString *)filePath
                         success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
-+ (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
++ (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (NSString *)JSONString:(NSString *)aString;
-
-
++ (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (void)uploadsSiftWithDataSouce:(NSArray *)dataSouce Asset:(PHAsset *)asset LocalPhotoHash:(NSString*)localPhotoHash filePath:(NSString *)filePath SuccessBlock:(void (^)(NSString *url))success Failure:(void (^)())failure CopmleteBlock:(void(^)(BOOL upload))completeBlock;
++ (NSString *)getDeviceName;
+
+
 @end

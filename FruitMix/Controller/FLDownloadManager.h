@@ -20,5 +20,5 @@
 
 +(instancetype)shareManager;
 -(void)downloadFileWithFileModel:(FLFilesModel *)model parentUUID:(NSString *)uuid;
-
+- (void)cancleWithDownloadModel:(TYDownloadModel *)downloadModel;
 @end

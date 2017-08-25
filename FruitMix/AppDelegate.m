@@ -382,6 +382,11 @@
                         FMConfigInstance.userToken = info.jwt_token;
                         FMConfigInstance.userUUID = info.uuid;
                         
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:DRIVE_UUID_STR];
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+                        
                         JYRequestConfig * config = [JYRequestConfig sharedConfig];
                         config.baseURL = [NSString stringWithFormat:@"%@:3000/",addressIP];
                         //重置数据
@@ -477,6 +482,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DRIVE_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         [SXLoadingView hideProgressHUD];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
           

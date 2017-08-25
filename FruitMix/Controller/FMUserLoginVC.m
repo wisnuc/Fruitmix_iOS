@@ -74,6 +74,7 @@
     NSLog(@"%@, %@", UUID, Basic);
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    
         [SXLoadingView hideProgressHUD];
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;

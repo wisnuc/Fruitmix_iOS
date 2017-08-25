@@ -54,13 +54,19 @@ ServerBrowserDelegate
     [self.navigationController setNavigationBarHidden:YES animated:animated];
 //    [self.navigationController.navigationBar setBackgroundColor:UICOLOR_RGB(0x0288d1)];
     [UIApplication sharedApplication].statusBarStyle =UIStatusBarStyleLightContent;
-    [self beginSearching];
+    [self firstbeginSearching];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
 }
 
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+  }
+
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [_reachabilityTimer invalidate];
+    _reachabilityTimer = nil;
 }
 
 -(void)dealloc{
@@ -71,7 +77,7 @@ ServerBrowserDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     _dataSource = [NSMutableArray arrayWithCapacity:0];
-    [self beginSearching];
+//    [self firstbeginSearching];
     [self.view addSubview:self.stationScrollView];
     [self setStationCardView];
     [self.view addSubview:self.stationPageControl];
@@ -79,20 +85,30 @@ ServerBrowserDelegate
     [self.view addSubview:self.userView];
     [self.view addSubview:self.userListTableViwe];
 //    [self.view addSubview:self.wechatView];
-     _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(refreshDatasource) userInfo:nil repeats:YES];
+     _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:12 target:self selector:@selector(searchingAndRefresh) userInfo:nil repeats:YES];
 }
 
 - (void)beginSearching {
-    [self viewOfSeaching:YES];
     _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
     _browser.delegate = self;
-    double delayInSeconds = 3.0;
+    double delayInSeconds = 6.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self viewOfSeaching:NO];
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
     });
 }
+
+- (void)firstbeginSearching {
+    [self viewOfSeaching:YES];
+    _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
+    _browser.delegate = self;
+    double delayInSeconds = 6.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
+    });
+}
+
 -(void)viewOfSeaching:(BOOL)seaching{
     if(seaching){
         [SXLoadingView showProgressHUD:@"正在搜索..."];
@@ -114,16 +130,21 @@ ServerBrowserDelegate
     }
 }
 
+- (void)searchingAndRefresh{
+    [self beginSearching];
+    [self refreshDatasource];
+}
+
 - (void)findIpToCheck:(NSString *)addressString andService:(NSNetService *)service{
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
-    NSLog(@"%@", urlString);
+//    NSLog(@"%@", urlString);
     FMSerachService * ser = [FMSerachService new];
     ser.path = urlString;
     ser.name = service.name;
     ser.type = service.type;
     ser.displayPath = addressString;
     ser.hostName = service.hostName;
-    NSLog(@"%@",service.hostName);
+//    NSLog(@"%@",service.hostName);
     BOOL isNew = YES;
     for (FMSerachService * s in _dataSource) {
         if (IsEquallString(s.path, ser.path)) {
@@ -146,11 +167,13 @@ ServerBrowserDelegate
             [temp addObject:ser];
         }
     }
-    
+
     if(self.tempDataSource.count != temp.count){
         self.tempDataSource = temp;
         [self.userListTableViwe reloadData];
-     
+    }else if (self.tempDataSource && self.tempDataSource.count ==0){
+        self.tempDataSource = temp;
+        [self.userListTableViwe reloadData];
     }
     
     for (UIView *view in _stationScrollView.subviews) {
@@ -172,9 +195,17 @@ ServerBrowserDelegate
 }
 
 - (void)setStationCardView{
-
+    if (self.tempDataSource.count ==0) {
+        _stationCardView = [[UIView alloc]init];
+        _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
+        _stationCardView.frame = CGRectMake(32,64,JYSCREEN_WIDTH - 32*2, 166);
+        _stationCardView.layer.cornerRadius = 8;
+        _stationCardView.layer.masksToBounds = YES;
+        [self.stationScrollView addSubview:self.stationCardView];
+//        [self setStationLogoImageView];
+        [self setNullInfo];
+    }else{
     for (int i = 0; i<self.tempDataSource.count; i++) {
-       
         _stationCardView = [[UIView alloc]init];
         _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
         _stationCardView.frame = CGRectMake(i*JYSCREEN_WIDTH + 32,64,JYSCREEN_WIDTH - 32*2, 166);
@@ -182,18 +213,15 @@ ServerBrowserDelegate
         _stationCardView.layer.masksToBounds = YES;
         [self.stationScrollView addSubview:self.stationCardView];
         
-        [self setInfoButton];
+//        [self setInfoButton];
         [self setStationLogoImageView];
         [self setInfo];
-         FMSerachService *ser = _tempDataSource[i];
-
+        FMSerachService *ser = _tempDataSource[i];
         if ([NSThread isMainThread]){
             [self reloadDataWithService:ser];
         }else{
             dispatch_sync(dispatch_get_main_queue(), ^{
-             
-                [self reloadDataWithService:ser];
-                
+            [self reloadDataWithService:ser];
             });  
         }
     }
@@ -206,6 +234,8 @@ ServerBrowserDelegate
     }
      _userDataSource = serforUser.users;
     [_userListTableViwe reloadData];
+    }
+    
 }
 
 - (void)setInfoButton{
@@ -231,7 +261,21 @@ ServerBrowserDelegate
         make.size.mas_equalTo(logo.size);
     }];
 }
-
+- (void)setNullInfo{
+    _stationTypeLabel = [[UILabel alloc]init];
+    _stationTypeLabel.text = @"未搜索到设备";
+    _stationTypeLabel.font = [UIFont boldSystemFontOfSize:16];
+    _stationTypeLabel.textColor = [UIColor whiteColor];
+    _stationTypeLabel.textAlignment = NSTextAlignmentCenter;
+    _stationTypeLabel.alpha = 0.87;
+    [self.stationCardView addSubview:self.stationTypeLabel];
+    [_stationTypeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(_stationCardView.mas_left).offset(16);
+        make.right.equalTo(_stationCardView.mas_right).offset(-16);
+        make.centerY.equalTo(_stationCardView.mas_centerY);
+        make.height.equalTo(@15);
+    }];
+}
 - (void)setInfo{
 //    cell.DeviceNameLb.text = ser.name;
 //    cell.disPlayLb.text = ser.displayPath;
@@ -243,7 +287,7 @@ ServerBrowserDelegate
     [self.stationCardView addSubview:self.stationTypeLabel];
     [_stationTypeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(_stationLogoImageView.mas_right).offset(16);
-        make.right.equalTo(_infoButton.mas_left).offset(-16);
+        make.right.equalTo(_stationCardView.mas_right).offset(-16);
         make.centerY.equalTo(_stationCardView.mas_centerY).offset(2);
         make.height.equalTo(@15);
     }];
@@ -276,9 +320,18 @@ ServerBrowserDelegate
 }
 
 - (void)reloadDataWithService:(FMSerachService *)ser{
+//    if (ser.ws215i && ser.ws215i.length > 0) {
+//        _stationCardView.backgroundColor = UICOLOR_RGB(0x8bc3a4);
+//        _stationScrollView.backgroundColor = UICOLOR_RGB(0x689f38);
+//    }else{
+//        _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
+//        _stationScrollView.backgroundColor = UICOLOR_RGB(0x0288d1);
+//     
+//    }
     _stationTypeLabel.text = ser.name;
     _stationNameLabel.text = ser.name;
      _stationIpLabel.text = ser.displayPath;
+      [self viewOfSeaching:NO];
 //    NSLog(@"%@",ser.displayPath);
 }
 
@@ -299,22 +352,29 @@ ServerBrowserDelegate
     NSLog(@"点击了信息");
 }
 
-- (void)pageTurn:(UIPageControl *)pageControl{
-//    NSInteger page = pageControl.currentPage;
-    
-  [_stationScrollView setContentOffset:CGPointMake(JYSCREEN_WIDTH * pageControl.currentPage, 0) animated:YES];
-
-}
+//- (void)pageTurn:(UIPageControl *)pageControl{
+////    NSInteger page = pageControl.currentPage;
+//    
+//  [_stationScrollView setContentOffset:CGPointMake(JYSCREEN_WIDTH * pageControl.currentPage, 0) animated:YES];
+//
+//}
 
 #pragma mark ScrollView delegate
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-//    _userDataCount ++;
+
     int page = scrollView.contentOffset.x/CGRectGetWidth(self.view.frame);
     _stationPageControl.currentPage = page;
     FMSerachService *ser = _tempDataSource[page];
     _userDataSource = ser.users;
       _userDataCount = page;
+//    if (ser.ws215i && ser.ws215i.length > 0) {
+//        _stationCardView.backgroundColor = UICOLOR_RGB(0x8bc3a4);
+//        _stationScrollView.backgroundColor = UICOLOR_RGB(0x689f38);
+//    }else{
+//        _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
+//        _stationScrollView.backgroundColor = UICOLOR_RGB(0x0288d1);
+//    }
     [_userListTableViwe reloadData];
    
 //    if (_stationPageControl.currentPage) {
@@ -428,6 +488,7 @@ ServerBrowserDelegate
         _userListTableViwe = [[UITableView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.userView.frame), JYSCREEN_WIDTH, JYSCREEN_HEIGHT - _stationScrollView.frame.size.height - 8 - _userView.frame.size.height) style:UITableViewStylePlain];
         _userListTableViwe.delegate = self;
         _userListTableViwe.dataSource = self;
+        _userListTableViwe.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     }
     return _userListTableViwe;
 }

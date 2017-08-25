@@ -16,64 +16,67 @@
 
 -(instancetype)init{
     if (self = [super init]) {
-        _dataSource = [NSMutableArray arrayWithCapacity:0];
-        
-//        [self getFilesWithUUID:[FMConfiguation shareConfiguation].userHome];
-           NSString *dirUUID = DIR_UUID;
-//        NSLog(@"%@",DRIVE_UUID);
-        if (dirUUID.length==0) {
-            [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
-                if (successful) {
-                    [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL successful) {
-                        if (successful) {
-            
-                         [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
-                             NSLog(@"%@",responseObject);
-                             NSDictionary * dic = responseObject;
-                             NSArray * arr = [dic objectForKey:@"entries"];
-                             for (NSDictionary *entriesDic in arr) {
-                                   FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
-                                 [self.dataSource addObject:model];
-                             }
-    
-                             if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
-                                 [self.delegate fl_Datasource:self finishLoading:YES];
-                             }
-                         } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                             NSLog(@"%@",error);
-                             if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
-                                 [self.delegate fl_Datasource:self finishLoading:NO];
-                             }
-                         }];
-                        }
-                    }];
-                 }
-            }];
-        }else{
-            [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
-                NSLog(@"%@",responseObject);
-                NSDictionary * dic = responseObject;
-                NSArray * arr = [dic objectForKey:@"entries"];
-                for (NSDictionary *entriesDic in arr) {
-                    FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
-                    [self.dataSource addObject:model];
-                }
-                
-                if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
-                    [self.delegate fl_Datasource:self finishLoading:YES];
-                }
-            } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                NSLog(@"%@",error);
-                if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
-                    [self.delegate fl_Datasource:self finishLoading:NO];
-                }
-            }];
-        }
+        [self getDataSource];
     }
     return self;
 }
 
-
+- (void)getDataSource{
+    _dataSource = [NSMutableArray arrayWithCapacity:0];
+    
+    //        [self getFilesWithUUID:[FMConfiguation shareConfiguation].userHome];
+    NSString *dirUUID = DIR_UUID;
+    //        NSLog(@"%@",DRIVE_UUID);
+    if (dirUUID.length==0) {
+        [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+            if (successful) {
+                [FMUploadFileAPI getDirectoriesForFilesCompleteBlock:^(BOOL successful) {
+                    if (successful) {
+                        
+                        [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
+                            NSLog(@"%@",responseObject);
+                            NSDictionary * dic = responseObject;
+                            NSArray * arr = [dic objectForKey:@"entries"];
+                            for (NSDictionary *entriesDic in arr) {
+                                FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
+                                [self.dataSource addObject:model];
+                            }
+                            NSLog(@"%ld",(long)self.dataSource.count);
+                            if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                                [self.delegate fl_Datasource:self finishLoading:YES];
+                            }
+                        } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                            NSLog(@"%@",error);
+                            if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                                [self.delegate fl_Datasource:self finishLoading:NO];
+                            }
+                        }];
+                    }
+                }];
+            }
+        }];
+    }else{
+        [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
+            NSLog(@"%@",responseObject);
+            NSDictionary * dic = responseObject;
+            NSArray * arr = [dic objectForKey:@"entries"];
+            for (NSDictionary *entriesDic in arr) {
+                FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
+                [self.dataSource addObject:model];
+            }
+            NSLog(@"%ld",(long)self.dataSource.count);
+            if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                [self.delegate fl_Datasource:self finishLoading:YES];
+            }
+        } failure:^(NSURLSessionDataTask *task, NSError *error) {
+            NSLog(@"%@",error);
+            if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                [self.delegate fl_Datasource:self finishLoading:NO];
+            }
+        }];
+    }
+ 
+}
 
 -(instancetype)initWithFileUUID:(NSString *)uuid{
     if (self = [super init]) {
@@ -84,7 +87,6 @@
 }
 
 -(void)getFilesWithUUID:(NSString *)uuid{
-
     [FMUploadFileAPI  getDirEntryWithUUId:(NSString *)uuid success:^(NSURLSessionDataTask *task, id responseObject) {
         NSLog(@"%@",responseObject);
         NSDictionary * dic = responseObject;
@@ -93,7 +95,6 @@
             FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
             [self.dataSource addObject:model];
         }
-        
         if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
             [self.delegate fl_Datasource:self finishLoading:YES];
         }
@@ -104,8 +105,6 @@
         }
     }];
 
-    
-    
 //    [[FLGetFilesAPI apiWithFileUUID:uuid]
 //     startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
 //        NSArray * arr = request.responseJsonObject;

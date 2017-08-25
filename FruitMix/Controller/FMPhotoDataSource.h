@@ -28,4 +28,6 @@
 
 +(instancetype)shareInstance;
 
+-(void)initPhotosIsRefrash;
+
 @end

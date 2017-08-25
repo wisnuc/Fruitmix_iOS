@@ -97,7 +97,7 @@
 //                    if (contentArr.count>0) {
 //                        NSString *photoHash = contentArr[0];
                         FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-//                        nasPhoto.digest = photoHash;
+
 //                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
                             [photoArr addObject:nasPhoto];
 //                        NSLog(@"%@",photoArr);
@@ -200,11 +200,15 @@
                         if ([photoNull getPhotoCreateTime]==nil) {
                             [self.imageArr removeObject:photoNull];
                         }
+                        IDMPhoto * photoUp =  self.imageArr[i];
+                        IDMPhoto * photoDown = self.imageArr[i-1];
+//                         NSLog(@"%@😁%@",[photo1 getPhotoCreateTime],[photo2 getPhotoCreateTime]);
+                        if ([self isSamePhotoHash:[photoUp getPhotoHash] date2:[photoDown getPhotoHash]]) {
+                            [self.imageArr removeObject:photoUp];
+                        }
+                       
                         IDMPhoto * photo1 =  self.imageArr[i];
                         IDMPhoto * photo2 = self.imageArr[i-1];
-//                         NSLog(@"%@😁%@",[photo1 getPhotoCreateTime],[photo2 getPhotoCreateTime]);
-                        
-                       
                         if ([self isSameDay:[photo1 getPhotoCreateTime] date2:[photo2 getPhotoCreateTime]]) {
                             [photoDateGroup2 addObject:photo1];
                         }
@@ -224,6 +228,16 @@
             });
         }
     });
+}
+
+- (BOOL)isSamePhotoHash:(NSString *)photoHash1 date2:(NSString *)photoHash2
+
+{
+    if ([photoHash1 isEqualToString:photoHash2]) {
+       return YES;
+    }else{
+       return NO;
+    }
 }
 
 - (BOOL)isSameDay:(NSDate *)date1 date2:(NSDate *)date2

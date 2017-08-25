@@ -102,7 +102,10 @@
     
 //    /drives/{driveUUID}/dirs/{dirUUID}/entries/{entryUUID}
      NSString * exestr = [filePath lastPathComponent];
-    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:[NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr] filePath:filePath];
+    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+    NSString *encodedString = [urlString URLEncodedString];
+
+    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
     _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];

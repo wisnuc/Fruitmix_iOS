@@ -20,11 +20,11 @@
 @interface FLDataSource : NSObject
 
 @property (nonatomic) NSMutableArray * dataSource;
-
+- (void)getDataSource;
 
 
 @property (nonatomic,weak) id<FLDataSourceDelegate> delegate;
 
--(instancetype)initWithFileUUID:(NSString *)uuid;
-
+- (instancetype)initWithFileUUID:(NSString *)uuid;
+- (void)getFilesWithUUID:(NSString *)uuid;
 @end

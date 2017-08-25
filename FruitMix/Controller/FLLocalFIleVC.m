@@ -179,6 +179,7 @@
     TYDownloadModel * model;
     NSString * uuid;
     if (indexPath.section == 0) {
+        cell.downBtn.hidden = NO;
         model = self.needDownloads[indexPath.row];
         uuid = model.fileName;
         if (model.state != TYDownloadStateRunning){
@@ -190,6 +191,27 @@
 
         }];
         cell.nameLabel.text = model.jy_fileName;
+        cell.clickBlock = ^(FLFilesCell * cell){
+            LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
+                                                                     delegate:nil
+                                                            cancelButtonTitle:@"取消"
+                                                        otherButtonTitleArray:@[@"取消下载"]];
+            actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
+                if (buttonIndex == 1) {
+                    
+                    [[FLDownloadManager shareManager] cancleWithDownloadModel:model];
+                   [self.needDownloads removeObjectAtIndex:[indexPath row]];
+                    [_tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                    [_tableview reloadData];
+                    
+                }
+            };
+            actionSheet.scrolling          = YES;
+            actionSheet.buttonHeight       = 60.0f;
+            actionSheet.visibleButtonCount = 3.6f;
+            [actionSheet show];
+        };
+
     }else{
         model = self.downloadeds[indexPath.row];
         uuid = ((FLDownload *)model).uuid;

@@ -9,6 +9,7 @@
 #import "FMUserLoginViewController.h"
 #import "FMLoginTextField.h"
 #import "UIButton+EnlargeEdge.h"
+#import "FMGetUserInfo.h"
 
 #define  MainColor  UICOLOR_RGB(0x03a9f4)
 
@@ -75,9 +76,10 @@
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
     NSString * Basic = [UUID base64EncodedString];
-    NSLog(@"%@, %@", UUID, Basic);
+//    NSLog(@"%@, %@", UUID, Basic);
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        NSLog(@"%@",responseObject);
         [SXLoadingView hideProgressHUD];
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;
@@ -126,10 +128,11 @@
         info.uuid = _user.uuid;
         //        info.deviceId = [PhotoManager getUUID];
         info.jwt_token = token;
+        NSLog(@"%@",_user.uuid);
         info.bonjour_name = _service.hostName;
-        [FMDBControl addUserLoginInfo:info];
         
-        NSLog(@"%@",info.userName);
+        [FMDBControl addUserLoginInfo:info];
+//     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
     });
     
     //组装UI
