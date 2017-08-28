@@ -137,8 +137,10 @@
         cell.f_ImageView.hidden = YES;
         cell.layerView.image = [UIImage imageNamed:@"check_circle_select"];
     }else{
-        cell.f_ImageView.hidden = NO;
-        cell.layerView.image = [UIImage imageNamed:@"check_circle"];
+        if ([model.type isEqualToString:@"file"]) {
+            cell.f_ImageView.hidden = NO;
+            cell.layerView.image = [UIImage imageNamed:@"check_circle"];
+        }
     }
     
     @weaky(self);

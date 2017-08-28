@@ -137,25 +137,22 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 -(void)rightBtnClick:(UIButton *)btn{
     if (self.cellStatus != FLFliesCellStatusCanChoose) {
-        [self actionForChooseStatus];
-    }
- 
-//        @weaky(self);
-//        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
-//            if (buttonIndex == 1) {
-//                [weak_self changeStatus];
-//            }
-//        } otherButtonTitles:@"选择文件", nil] show];
-//    }else{
-//        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
-//            if (buttonIndex == 1) {
-//                [[FLFIlesHelper helper] removeAllChooseFile];
-//            }else if ( buttonIndex == 2){
-//                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
-//                [self.rdv_tabBarController setSelectedIndex:2];
-//            }
-//        } otherButtonTitles:@"清除选择",@"下载所选项", nil] show];
-
+        @weaky(self);
+        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                 [self actionForChooseStatus];
+            }
+        } otherButtonTitles:@"选择文件", nil] show];
+    }else{
+        [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                [[FLFIlesHelper helper] removeAllChooseFile];
+            }else if ( buttonIndex == 2){
+                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+                [self.rdv_tabBarController setSelectedIndex:2];
+            }
+        } otherButtonTitles:@"清除选择",@"下载所选项", nil] show];
+ }
 }
 
 

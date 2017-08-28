@@ -131,7 +131,7 @@
     }];
     self.collectionView.mj_header.ignoredScrollViewContentInsetTop = 8;
     // 马上进入刷新状态
-    [self.collectionView.mj_header beginRefreshing];
+//    [self.collectionView.mj_header beginRefreshing];
 }
 
 -(void)gesture:(id)sender
@@ -207,7 +207,6 @@
         [self.view addSubview:_addButton];
     }
 }
-
 
 //增加捏合手势
 -(void)addPinchGesture{
@@ -304,21 +303,33 @@
 #pragma mark - handle
 
 -(void)rightBtnClick:(id)sender{
-    self.collectionView.mj_header.hidden = YES;
-    self.collectionView.fmState = FMPhotosCollectionViewCellStateCanChoose;
-    [self.collectionView reloadData];
-    _rightbtn.userInteractionEnabled = NO;
-    [self addLeftBtn];
-    _addButton.hidden = NO;
-    if (!_edgeGesture) {
-        _edgeGesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(gesture:)];
-        // 指定左边缘滑动
-        _edgeGesture.edges = UIRectEdgeLeft;
-        [self.view addGestureRecognizer:_edgeGesture];
-        // 如果ges的手势与collectionView手势都识别的话,指定以下代码,代表是识别传入的手势
-        [self.collectionView.panGestureRecognizer requireGestureRecognizerToFail:_edgeGesture];
-    }
-  }
+    LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"取消"
+                                                otherButtonTitleArray:@[@"选择照片"]];
+    actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
+        if (buttonIndex == 1) {
+            self.collectionView.mj_header.hidden = YES;
+            self.collectionView.fmState = FMPhotosCollectionViewCellStateCanChoose;
+            [self.collectionView reloadData];
+            _rightbtn.userInteractionEnabled = NO;
+            [self addLeftBtn];
+            _addButton.hidden = NO;
+            if (!_edgeGesture) {
+                _edgeGesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(gesture:)];
+                // 指定左边缘滑动
+                _edgeGesture.edges = UIRectEdgeLeft;
+                [self.view addGestureRecognizer:_edgeGesture];
+                // 如果ges的手势与collectionView手势都识别的话,指定以下代码,代表是识别传入的手势
+                [self.collectionView.panGestureRecognizer requireGestureRecognizerToFail:_edgeGesture];
+           }
+        }
+    };
+    actionSheet.scrolling          = YES;
+    actionSheet.buttonHeight       = 60.0f;
+    actionSheet.visibleButtonCount = 3.6f;
+    [actionSheet show];
+}
 
 -(void)leftBtnClick:(id)sender{
     [_collectionView.mj_header setHidden:NO];
@@ -803,8 +814,14 @@
     }
 //    self.collectionView.mj_header.hidden = YES;
     NSIndexPath * indexPath = [self.collectionView indexPathForCell:cell];
-    [self rightBtnClick:_rightbtn];
     FMPhotoAsset * asset = self.photoDataSource.dataSource[indexPath.section][indexPath.row];
+    
+    self.collectionView.mj_header.hidden = YES;
+    self.collectionView.fmState = FMPhotosCollectionViewCellStateCanChoose;
+    [self.collectionView reloadData];
+    _rightbtn.userInteractionEnabled = NO;
+    [self addLeftBtn];
+    _addButton.hidden = NO;
     
     BOOL shouldChoose = YES;
     if ([self.photoDataSource.netphotoArr containsObject:asset]) {

@@ -54,6 +54,7 @@
 -(void)addNavBtn{
     UIButton * rBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 30)];
     rBtn.titleLabel.font = [UIFont fontWithName:FANGZHENG size:16];
+    [rBtn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
     [rBtn setTitle:@"完成" forState:UIControlStateNormal];
     [rBtn addTarget:self action:@selector(rBtnClick) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * item = [[UIBarButtonItem alloc]initWithCustomView:rBtn];
@@ -66,9 +67,10 @@
         return;
     }
     if (self.block) {
+        
         FMSerachService * ser = [[FMSerachService alloc]init];
         ser.path = [NSString stringWithFormat:@"http://%@/",self.textView.textField.text];
-        ser.name = @"WISNUC";
+//        ser.name = @"WISNUC";
         if(self.textView.textField.text)
             ser.displayPath = [self.textView.textField.text componentsSeparatedByString:@":"][0];
         self.block(ser);
@@ -101,5 +103,15 @@
 //    self.textView_2.frame = CGRectMake((__kWidth- 300)/2, 140, 300, 60);
 //    self.textView_3.frame = CGRectMake((__kWidth- 300)/2, 220, 300, 60);
     
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 }
 @end

@@ -551,7 +551,7 @@ BOOL shouldUpload = NO;
     @autoreleasepool {
         __weak typeof(self) weakSelf = self;
         [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-//            if (result.count>0) {
+            if (result.count>0) {
             
                 NSLog(@"%ld 张照片等待上传",(unsigned long)result.count);
 //                NSString *entryUUID = ENTRY_UUID;
@@ -629,11 +629,20 @@ BOOL shouldUpload = NO;
 //                                
 //                                return ;
 //                            }
-                            [weakSelf uploadImages:result success:^(NSArray *arr) {
-                                NSLog(@"%@",arr);
-                            } failure:^{
-                                
-                            }];
+            
+            dispatch_group_t group =  dispatch_group_create();
+            
+            dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                // 执行1个耗时的异步操作
+                
+                [weakSelf uploadImages:result success:^(NSArray *arr) {
+                    //                                NSLog(@"%@",arr);
+                } failure:^{
+                    
+                }];
+            });
+            
+    
                             
 //                        }
 //                        
@@ -644,8 +653,8 @@ BOOL shouldUpload = NO;
 //                    
 //                }
             
-//        }
-//            result = nil;
+        }
+            result = nil;
         }];
     }
 }
@@ -675,7 +684,7 @@ BOOL shouldUpload = NO;
 //        
 //        [center postNotificationName:@"currentImage" object:nil userInfo:dict];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
-
+     NSLog(@"%ld张=========%ld张",(unsigned long)[array count],(unsigned long)[imageArr count]);
         if ([array count] >= [imageArr count]) {
             success([array copy]);
             [PhotoManager shareManager].isUploading = NO;
@@ -717,6 +726,7 @@ BOOL shouldUpload = NO;
             [scmd fetchArrayInBackground:^(NSArray *result) {
                 if (result.count) {
                     FMLocalPhoto * p = result[0];
+//                    NSLog(@"%@",p.uploadTime);
                     if (!p.uploadTime) {
                         [weak_self _uploadPhotoWithAsset:asset success:success failure:failure];
                     }else{
@@ -758,6 +768,16 @@ BOOL shouldUpload = NO;
                         success(@"123");
                     return ;
                 }
+                
+                dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                    //2.把任务添加到队列中执行
+                     dispatch_async(queue, ^{
+                    
+                            //打印当前线程
+                             NSLog(@"%@",[NSThread currentThread]);
+                    //3.从网络上下载图片
+                       
+                
 //                NSString *driveUUID = DRIVE_UUID;
 //                NSString *dirUUID = DIR_UUID;
                 NSString *entryUUID = PHOTO_ENTRY_UUID;
@@ -771,7 +791,7 @@ BOOL shouldUpload = NO;
                                       if (successful) {
                                             NSString *entryuuid = PHOTO_ENTRY_UUID;
                                           [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-                                              NSLog(@"%@",responseObject);
+                                              NSLog(@"😁%@",responseObject);
                                               NSDictionary * dic = responseObject;
                                               NSArray * arr = [dic objectForKey:@"entries"];
                                               if (arr.count >0) {
@@ -872,7 +892,8 @@ BOOL shouldUpload = NO;
                     }];
             }
 
-                
+                         
+                     });
 //                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
 ////                 NSDictionary * dic = [NSDictionary dictionaryWithObject:str forKey:@"sha256"];
 ////                NSString * url = [NSString stringWithFormat:@"%@media/%@",[JYRequestConfig sharedConfig].baseURL,str];
@@ -954,11 +975,11 @@ BOOL shouldUpload = NO;
             [ucmd fieldWithKey:@"degist" val:str];
             [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
             [ucmd saveChangesInBackground:^{
-//                [ucmd fieldWithKey:@"uploadTime" val:[NSDate getFormatDateWithDate:[NSDate date]]];
-//                [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
-//                [ucmd saveChangesInBackground:^{
-//                    
-//                }];
+                [ucmd fieldWithKey:@"uploadTime" val:[NSDate getFormatDateWithDate:[NSDate date]]];
+                [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
+                [ucmd saveChangesInBackground:^{
+                    
+                }];
                 //添加上传记录
 //                NSLog(@"上传的LocalID: ---> %@", asset.localIdentifier);
                 FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].syncLogs);

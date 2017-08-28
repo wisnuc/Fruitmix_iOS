@@ -161,7 +161,6 @@
     });
 }
 
-
 - (void)viewDidAppear:(BOOL)animated {
     [self beginSearching];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];

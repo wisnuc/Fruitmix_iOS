@@ -56,6 +56,8 @@
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].downloadingModels];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].waitingDownloadModels];
     [self.tableview reloadData];
+//    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 2 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+//    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
 -(void)createNavBtns{
@@ -198,7 +200,11 @@
                                                         otherButtonTitleArray:@[@"取消下载"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
-                    
+                    TYDownloadModel *downloadModel = [self.needDownloads objectAtIndex:indexPath.row];
+                    if ([downloadModel.fileName isEqualToString:model.fileName]) {
+                        [actionSheet setHidden:YES];
+                        return ;
+                    }
                     [[FLDownloadManager shareManager] cancleWithDownloadModel:model];
                    [self.needDownloads removeObjectAtIndex:[indexPath row]];
                     [_tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
@@ -249,6 +255,7 @@
             self.needDownloads[indexPath.row]:self.downloadeds[indexPath.row];
         NSString * uuid = [model isKindOfClass:[TYDownloadModel class]]?
                                 ((TYDownloadModel *)model).fileName:((FLDownload*)model).uuid;
+        
         if([self.chooseArr containsObject:uuid]){
             [self.chooseArr removeObject:uuid];
         }
@@ -265,6 +272,9 @@
             [self presentOptionsMenu];
         }
     }
+}
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return UITableViewAutomaticDimension;
 }
 
 - (void)updateDataCompletedWithModel:(TYDownloadModel *)model Cell:(FLFilesCell *)cell andIndexpath:(NSIndexPath *)indexPath{

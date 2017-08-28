@@ -169,6 +169,7 @@
     UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
     progressLb.font = [UIFont systemFontOfSize:12];
     progressLb.textAlignment = NSTextAlignmentCenter;
+      dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
         NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
         NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
@@ -206,6 +207,7 @@
         }];
 
     }];
+});
     
 //    [cell.contentView addSubview:progressLb];
 //    progressLb.hidden = !_displayProgress;
@@ -214,7 +216,7 @@
 
 - (void)receiveNotification:(NSNotification *)noti
 {
-    NSLog(@"%@ === %@ === %@", noti.object, noti.userInfo, noti.name);
+//    NSLog(@"%@ === %@ === %@", noti.object, noti.userInfo, noti.name);
 //    NSString *currentImage = [noti.userInfo objectForKey:@"currentImage"];
 //    NSString *allImage = [noti.userInfo objectForKey:@"allImage"];
 //    dispatch_async(dispatch_get_main_queue(), ^{
@@ -227,31 +229,34 @@
 //    
 //        }
 //    });
-    
-    [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-        NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
-        for (FMLocalPhoto * p in result) {
-            [tmp addObject:p.localIdentifier];
-//            NSLog(@"%@",p.degist);
-        }
-        NSInteger allPhotos = result.count;
-        FMDBSet * dbSet = [FMDBSet shared];
-        FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
-        [scmd where:@"userId" equalTo:DEF_UUID];
-        [scmd where:@"localId" containedIn:tmp];
-        [scmd fetchArrayInBackground:^(NSArray *results) {
-            NSLog(@"%@",results);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                float progress = (float)results.count/(float)allPhotos;
-                NSLog(@"%lu",(unsigned long)results.count);
-                self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
-                self.backUpProgressView.progress = progress;
-                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
-                //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
-            });
-        }];
-    }];
 
+    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+            NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+            for (FMLocalPhoto * p in result) {
+                [tmp addObject:p.localIdentifier];
+                //            NSLog(@"%@",p.degist);
+            }
+            NSInteger allPhotos = result.count;
+            FMDBSet * dbSet = [FMDBSet shared];
+            FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+            [scmd where:@"userId" equalTo:DEF_UUID];
+            [scmd where:@"localId" containedIn:tmp];
+            [scmd fetchArrayInBackground:^(NSArray *results) {
+                //            NSLog(@"%@",results);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    float progress = (float)results.count/(float)allPhotos;
+                    //                NSLog(@"%lu",(unsigned long)results.count);
+                    self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
+                    self.backUpProgressView.progress = progress;
+                    self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+                    //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
+                });
+            }];
+        }];
+    
+    });
+   
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{

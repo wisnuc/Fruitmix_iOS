@@ -238,14 +238,14 @@
                 NSMutableArray * temp = [NSMutableArray arrayWithCapacity:0];
                 for (FMSyncLogs * log in result) {
                     [temp addObject:log.localId];
-//                    NSLog(@"%@",log.localId);
+                    NSLog(@"%@",log.localId);
                 }
                 NSSet *resultSet = [NSSet setWithArray:temp];
                 NSArray * resultDataSource  = [resultSet allObjects];
 //                NSLog(@"%@",temp);
                 FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
                 [cmd where:@"localIdentifier" notContainedIn:resultDataSource];
-                NSLog(@"%@",[cmd fetchArray]);
+//                NSLog(@"%@",[cmd fetchArray]);
                 block([cmd fetchArray]);
             }];
             

@@ -14,6 +14,7 @@
 #import "GCDAsyncSocket.h"
 #import <AFNetworking/AFNetworkReachabilityManager.h>
 #import "LoginModel.h"
+#import "FMHandLoginVC.h"
 
 #define kCount 3
 @interface FMLoginViewController ()
@@ -45,6 +46,7 @@ ServerBrowserDelegate
 @property (strong, nonatomic) NSMutableArray *tempDataSource;
 @property (nonatomic) FMSerachService * expandCell;
 @property (nonatomic) NSInteger userDataCount;
+@property (nonatomic) UIButton *handButton;
 @end
 
 @implementation FMLoginViewController
@@ -57,6 +59,7 @@ ServerBrowserDelegate
     [self firstbeginSearching];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+      _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:12 target:self selector:@selector(searchingAndRefresh) userInfo:nil repeats:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -85,7 +88,7 @@ ServerBrowserDelegate
     [self.view addSubview:self.userView];
     [self.view addSubview:self.userListTableViwe];
 //    [self.view addSubview:self.wechatView];
-     _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:12 target:self selector:@selector(searchingAndRefresh) userInfo:nil repeats:YES];
+    [self.view addSubview:self.handButton];
 }
 
 - (void)beginSearching {
@@ -95,6 +98,7 @@ ServerBrowserDelegate
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
+//          [self viewOfSeaching:NO];
     });
 }
 
@@ -106,6 +110,10 @@ ServerBrowserDelegate
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
+        if (_browser.discoveredServers.count == 0) {
+            [self viewOfSeaching:NO];
+        }
+        
     });
 }
 
@@ -117,6 +125,7 @@ ServerBrowserDelegate
         [SXLoadingView hideProgressHUD];
     }
 }
+
 - (void)serverBrowserFoundService:(NSNetService *)service {
     for (NSData * address in service.addresses) {
         NSString* addressString = [GCDAsyncSocket hostFromAddress:address];
@@ -135,9 +144,21 @@ ServerBrowserDelegate
     [self refreshDatasource];
 }
 
+-(void)rightBtnClick{
+    FMHandLoginVC * vc = [[FMHandLoginVC alloc]init];
+    @weaky(self)
+    vc.block = ^(FMSerachService * ser){
+        ser.isReadly = YES;
+        [_dataSource addObject:ser];
+        [weak_self refreshDatasource];
+    };
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+
 - (void)findIpToCheck:(NSString *)addressString andService:(NSNetService *)service{
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
-//    NSLog(@"%@", urlString);
+    NSLog(@"%@", urlString);
     FMSerachService * ser = [FMSerachService new];
     ser.path = urlString;
     ser.name = service.name;
@@ -235,7 +256,7 @@ ServerBrowserDelegate
      _userDataSource = serforUser.users;
     [_userListTableViwe reloadData];
     }
-    
+//    [self viewOfSeaching:NO];
 }
 
 - (void)setInfoButton{
@@ -530,4 +551,13 @@ ServerBrowserDelegate
     return _wechatView;
 }
 
+- (UIButton *)handButton{
+    if (!_handButton) {
+        _handButton = [[UIButton alloc]initWithFrame:CGRectMake(JYSCREEN_WIDTH - 16 - 30 , CGRectGetMinY(_logoImageView.frame) - 5, 30, 30)];
+        [_handButton setImage:[UIImage imageNamed:@"PLUS"] forState:UIControlStateNormal];
+        [_handButton addTarget:self action:@selector(rightBtnClick) forControlEvents:UIControlEventTouchUpInside];
+        [_handButton setEnlargeEdgeWithTop:5 right:5 bottom:5 left:5];
+      }
+    return _handButton;
+}
 @end

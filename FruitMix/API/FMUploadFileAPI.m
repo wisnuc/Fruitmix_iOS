@@ -140,7 +140,7 @@ NSInteger imageUploadCount = 0;
                         }
   
                     } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                        
+                        NSLog(@"%@",error);
                     }];
                 }
             }
@@ -402,7 +402,7 @@ NSInteger imageUploadCount = 0;
             }
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        
+          NSLog(@"%@", error);
     }];
     
     
@@ -471,7 +471,7 @@ NSInteger imageUploadCount = 0;
             [mutableArr addObject:localPhotoHash];
         }
     }
-    NSLog(@"🍄🍄🍄%@",mutableArr);
+//    NSLog(@"🍄🍄🍄%@",mutableArr);
     if (mutableArr.count == 0) {
         completeBlock(YES);
     }else{
