@@ -321,7 +321,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 //    
 //    SDImageCache * sdcache = [SDImageCache sharedImageCache];
 //    [sdcache clearMemory];
-    
+    [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
     
     [self releaseAllUnderlyingPhotos];
     [_recycledPages removeAllObjects];
@@ -483,7 +483,6 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     
     UIImage *imageFromView = _scaleImage ? _scaleImage : [self getImageFromView:_senderViewForAnimation];
     
-    
     _senderViewOriginalFrame = [_senderViewForAnimation.superview convertRect:_senderViewForAnimation.frame toView:nil];
     
     UIView *fadeView = [[UIView alloc] initWithFrame:_applicationWindow.bounds];
@@ -506,14 +505,17 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         resizableImageView.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor) ? 1 : 0 alpha:1];
         [fadeView removeFromSuperview];
         [resizableImageView removeFromSuperview];
+        
     };
-    
+
     [UIView animateWithDuration:_animationDuration animations:^{
         fadeView.backgroundColor = self.useWhiteBackgroundColor ? [UIColor whiteColor] : [UIColor blackColor];
     } completion:nil];
     
     CGRect finalImageViewFrame = [self animationFrameForImage:imageFromView presenting:YES scrollView:nil];
+    self.view.opaque = YES;
     
+  
     if(_usePopAnimation)
     {
         [self animateView:resizableImageView
@@ -573,7 +575,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         [self dismissPhotoBrowserAnimated:NO];
     };
     
-    [UIView animateWithDuration:_animationDuration animations:^{
+    [UIView animateWithDuration:0.1 animations:^{
         fadeView.alpha = 0;
         self.view.backgroundColor = [UIColor clearColor];
     } completion:nil];
@@ -582,9 +584,11 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     
     if(_usePopAnimation)
     {
-        [self animateView:resizableImageView
-                  toFrame:senderViewOriginalFrame
-               completion:completion];
+        [self animateDissmissView:resizableImageView toFrame:senderViewOriginalFrame completion:completion];
+         
+//         animateView:resizableImageView
+//                  toFrame:senderViewOriginalFrame
+//               completion:completion];
     }
     else
     {
@@ -1680,7 +1684,28 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     }
     
     POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPViewFrame];
-    [animation setSpringBounciness:6];
+    [animation setSpringBounciness:7];
+    [animation setDynamicsMass:1];
+    [animation setToValue:[NSValue valueWithCGRect:frame]];
+    [view pop_addAnimation:animation forKey:nil];
+    
+    if (completion)
+    {
+        [animation setCompletionBlock:^(POPAnimation *animation, BOOL finished) {
+            completion();
+        }];
+    }
+}
+
+
+- (void)animateDissmissView:(UIView *)view toFrame:(CGRect)frame completion:(void (^)(void))completion
+{
+    if ([view isKindOfClass:[UIImageView class]]) {
+        view.contentMode = UIViewContentModeScaleAspectFill;
+    }
+    
+    POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPViewFrame];
+    [animation setSpringBounciness:3];
     [animation setDynamicsMass:1];
     [animation setToValue:[NSValue valueWithCGRect:frame]];
     [view pop_addAnimation:animation forKey:nil];

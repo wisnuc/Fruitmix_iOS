@@ -207,9 +207,10 @@
     if (switchBtn.isOn) {
         [PhotoManager shareManager].canUpload = YES;
     }else{
-        if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)) {
+//        NSLog(@"%@",USER_SHOULD_SYNC_PHOTO);
+//        if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)) {
              [PhotoManager shareManager].canUpload = NO;
-        }
+//        }
     }
     [self.settingTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:100];
 }

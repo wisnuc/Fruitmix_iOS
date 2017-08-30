@@ -13,7 +13,7 @@
 +(void)uploadAddressFileWithFilePath:(NSString *)filePath andCompleteBlock:(void(^)(BOOL success))completeBlock;
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock;
-+ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock;
+//+ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (void)getDirEntrySuccess:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                    failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
 

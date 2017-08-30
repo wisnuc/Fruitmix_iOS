@@ -17,4 +17,10 @@
     return NO;
 }
 
++ (NSDictionary *)modelCustomPropertyMapper {
+    return @{
+             @"filesHash": @"hash"
+             };
+}
+
 @end

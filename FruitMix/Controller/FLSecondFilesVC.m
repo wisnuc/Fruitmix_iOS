@@ -185,9 +185,14 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 }
 
 - (void)actionForChooseStatus{
-         if (self.cellStatus == FLFliesCellStatusCanChoose) {
+    if (self.cellStatus == FLFliesCellStatusCanChoose) {
              return;
-         }
+    }
+    if (self.dataSource.dataSource.count == 0) {
+        [SXLoadingView showAlertHUD:@"您所在的文件夹没有文件可以选择" duration:2];
+        return;
+    }
+
      [self.tableview.mj_header setHidden:YES];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, 64);

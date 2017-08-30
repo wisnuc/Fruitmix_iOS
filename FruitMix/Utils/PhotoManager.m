@@ -533,10 +533,11 @@ NSString * JY_UUID() {
 
 -(void)setCanUpload:(BOOL)canUpload{
     _canUpload = canUpload;
-    if (canUpload)
+    if (canUpload){
         [PhotoManager reStartUploader];
-    else
+    }else{
         self.isUploading = NO;
+    }
     
 }
 
@@ -634,27 +635,48 @@ BOOL shouldUpload = NO;
             
             dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 // 执行1个耗时的异步操作
-                
+
                 [weakSelf uploadImages:result success:^(NSArray *arr) {
                     //                                NSLog(@"%@",arr);
                 } failure:^{
                     
                 }];
             });
-            
-    
-                            
 //                        }
 //                        
 //                    } failure:^(NSURLSessionDataTask *task, NSError *error) {
 //                        
 //                    }];
-//  
-//                    
 //                }
             
-        }
-            result = nil;
+            }else{
+                
+                NSString *entryuuid = PHOTO_ENTRY_UUID;
+                [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+//                    NSLog(@"%@",responseObject);
+                    NSDictionary * dic = responseObject;
+                    NSArray * arr = [dic objectForKey:@"entries"];
+                    if (arr.count >0) {
+                        return ;
+                    }
+                } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                    NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                    NSLog(@"%ld",(long)rep.statusCode);
+                    if (rep.statusCode == 404) {
+                        [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+                        FMDBSet * dbSet = [FMDBSet shared];
+                        //清空表
+                        FMDTDeleteCommand * cmd = FMDT_DELETE(dbSet.syncLogs);
+                        FMDTUpdateCommand * ucmd = FMDT_UPDATE(dbSet.photo);
+                        [ucmd fieldWithKey:@"uploadTime" val: [NSNull new]];
+                        [ucmd saveChanges];
+                        [cmd saveChangesInBackground:^{
+                             [[PhotoManager shareManager] startUploadPhotos];
+                        }];
+                    }
+                }];
+//                result = nil;
+            }
         }];
     }
 }
@@ -769,17 +791,10 @@ BOOL shouldUpload = NO;
                     return ;
                 }
                 
-                dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
                     //2.把任务添加到队列中执行
                      dispatch_async(queue, ^{
-                    
-                            //打印当前线程
-                             NSLog(@"%@",[NSThread currentThread]);
-                    //3.从网络上下载图片
-                       
-                
-//                NSString *driveUUID = DRIVE_UUID;
-//                NSString *dirUUID = DIR_UUID;
+               
                 NSString *entryUUID = PHOTO_ENTRY_UUID;
                 NSLog(@"%@",entryUUID);
                 if (entryUUID.length==0) {
@@ -791,7 +806,6 @@ BOOL shouldUpload = NO;
                                       if (successful) {
                                             NSString *entryuuid = PHOTO_ENTRY_UUID;
                                           [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-                                              NSLog(@"😁%@",responseObject);
                                               NSDictionary * dic = responseObject;
                                               NSArray * arr = [dic objectForKey:@"entries"];
                                               if (arr.count >0) {
@@ -807,9 +821,9 @@ BOOL shouldUpload = NO;
                                                                         andSuccessBlock:success
                                                                                 Failure:failure];
                                                           } failure:^(NSURLSessionDataTask *task, NSError *error){
-                                                             
                                                                NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                                                               if (rep.statusCode == 404) {
+                                                                  [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
                                                                   [self startUploadPhotos];
                                                               }
                                                           }];
@@ -830,6 +844,7 @@ BOOL shouldUpload = NO;
                                                           } failure:^(NSURLSessionDataTask *task, NSError *error) {
                                                               NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                                                               if (rep.statusCode == 404) {
+                                                                  [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
                                                                   [self startUploadPhotos];
                                                               }
                                                           }];

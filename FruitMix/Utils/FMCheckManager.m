@@ -35,7 +35,7 @@
         double delayInSeconds = 3.0f;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            NSArray * tempArr = [NSArray arrayWithArray:_browser.discoveredServers ];
+            NSArray * tempArr = [NSArray arrayWithArray:_browser.discoveredServers];
             _browser = nil;
             if(block) block(tempArr);
 //            if (_browser.discoveredServers.count <= 0){

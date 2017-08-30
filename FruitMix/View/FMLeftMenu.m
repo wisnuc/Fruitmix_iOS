@@ -197,11 +197,9 @@
             float progress = (float)results.count/(float)allPhotos;
 //    NSLog(@"%f",progress);
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
+                self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 10 *10];
                 self.backUpProgressView.progress = progress;
-                
                 self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
-
 //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
             });
         }];
@@ -372,4 +370,6 @@
     }
     return _backupLabel;
 }
+
+
 @end

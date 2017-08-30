@@ -140,7 +140,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
         @weaky(self);
         [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
             if (buttonIndex == 1) {
-                 [self actionForChooseStatus];
+              [self actionForChooseStatus];
             }
         } otherButtonTitles:@"选择文件", nil] show];
     }else{
@@ -347,7 +347,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             _progressView.cancleBlock = ^(){
                 [[FLFIlesHelper helper] cancleDownload];
             };
-            [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DIR_UUID Progress:^(TYDownloadProgress *progress) {
+            [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DRIVE_UUID Progress:^(TYDownloadProgress *progress) {
                 if (progress.progress) {
                     [_progressView setValueForProcess:progress.progress];
                     [_progressView show];
@@ -388,6 +388,10 @@ NSInteger filesNameSort(id file1, id file2, void *context)
      if (self.cellStatus == FLFliesCellStatusCanChoose) {
          return;
      }
+    if (self.dataSource.dataSource.count == 0) {
+        [SXLoadingView showAlertHUD:@"您所在的文件夹没有文件可以选择" duration:2];
+        return;
+    }
      [self.fileTableView.mj_header setHidden:YES];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, 64);

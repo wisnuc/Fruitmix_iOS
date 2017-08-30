@@ -201,10 +201,11 @@
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
                     TYDownloadModel *downloadModel = [self.needDownloads objectAtIndex:indexPath.row];
-                    if ([downloadModel.fileName isEqualToString:model.fileName]) {
+                    if (![downloadModel.fileName isEqualToString:model.fileName]) {
                         [actionSheet setHidden:YES];
                         return ;
                     }
+                    
                     [[FLDownloadManager shareManager] cancleWithDownloadModel:model];
                    [self.needDownloads removeObjectAtIndex:[indexPath row]];
                     [_tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];

@@ -11,4 +11,5 @@
 @interface DriveModel : NSObject
 @property (nonatomic,copy) NSString *owner;
 @property (nonatomic,copy) NSString *uuid;
+@property (nonatomic,copy) NSString *tag;
 @end

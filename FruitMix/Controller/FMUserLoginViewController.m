@@ -136,12 +136,15 @@
     });
     
     //组装UI
+    
+    MyAppDelegate.window.rootViewController = nil;
+    [MyAppDelegate.window resignKeyWindow];
+    [MyAppDelegate.window removeFromSuperview];
     MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
     [MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
     [MyAppDelegate.sharesTabBar setSelectedIndex:0];
     MyAppDelegate.filesTabBar = nil;
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
-    
 }
 
 - (UILabel *)setTextFieldLine{

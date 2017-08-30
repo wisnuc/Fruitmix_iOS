@@ -165,7 +165,7 @@ ServerBrowserDelegate
     ser.type = service.type;
     ser.displayPath = addressString;
     ser.hostName = service.hostName;
-//    NSLog(@"%@",service.hostName);
+
     BOOL isNew = YES;
     for (FMSerachService * s in _dataSource) {
         if (IsEquallString(s.path, ser.path)) {
@@ -202,15 +202,10 @@ ServerBrowserDelegate
     }
     [self updateInfo];
     [self setStationCardView];
-//     NSLog(@"😆%@,😜%@🍄",_dataSource,_tempDataSource);
+
 }
 
 - (void)updateInfo{
-//    for (FMSerachService *ser in self.tempDataSource) {
-//        _stationIpLabel.text = ser.displayPath;
-//        NSLog(@"%@",ser.name);
-////        ser.name
-//    }
     _stationScrollView.contentSize = CGSizeMake(self.tempDataSource.count * JYSCREEN_WIDTH, 0);
     _stationPageControl.numberOfPages = self.tempDataSource.count;
 }
@@ -353,7 +348,6 @@ ServerBrowserDelegate
     _stationNameLabel.text = ser.name;
      _stationIpLabel.text = ser.displayPath;
       [self viewOfSeaching:NO];
-//    NSLog(@"%@",ser.displayPath);
 }
 
 - (void)applicationWillResignActive:(NSNotification*)notification {
@@ -383,7 +377,7 @@ ServerBrowserDelegate
 #pragma mark ScrollView delegate
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-
+    if (scrollView == self.stationScrollView) {
     int page = scrollView.contentOffset.x/CGRectGetWidth(self.view.frame);
     _stationPageControl.currentPage = page;
     FMSerachService *ser = _tempDataSource[page];
@@ -400,7 +394,7 @@ ServerBrowserDelegate
    
 //    if (_stationPageControl.currentPage) {
 //        _stationPageControl.transform=CGAffineTransformScale(CGAffineTransformIdentity, 2, 2);
-//    }
+    }
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{

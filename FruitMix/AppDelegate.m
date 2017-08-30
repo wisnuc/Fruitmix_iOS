@@ -364,7 +364,9 @@
     [[FMCheckManager shareCheckManager] beginSearchingWithBlock:^(NSArray *discoveredServers) {
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             BOOL canFindDevice = NO;
+                  NSLog(@"😁😁😁😁%@",discoveredServers);
             for (NSNetService * service in discoveredServers) {
+//                NSLog(@"😁😁😁😁%@",info.bonjour_name);
                 if ([service.hostName isEqualToString:info.bonjour_name]) {
                     canFindDevice = YES;
                     NSString * addressIP = [FMCheckManager serverIPFormService:service];
@@ -402,14 +404,22 @@
                             [PhotoManager shareManager].canUpload = NO;//停止上传
                         }
                         //组装UI
+                     
+                        self.window.rootViewController = nil;
+                        [self.window resignKeyWindow];
+                        [self.window removeFromSuperview];
+                        
                         weak_MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
                         [weak_MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
                         [weak_MyAppDelegate.sharesTabBar setSelectedIndex:0];
                         weak_MyAppDelegate.filesTabBar = nil;
-                        [self reloadLeftMenuIsAdmin:NO];
+                        [weak_MyAppDelegate reloadLeftMenuIsAdmin:NO];
+                         [weak_MyAppDelegate asynAnyThings];
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [UIApplication sharedApplication].keyWindow.rootViewController = weak_MyAppDelegate.sharesTabBar;
-                            [[UIApplication sharedApplication].keyWindow makeKeyAndVisible];
+                           
+                            self.window.rootViewController = weak_MyAppDelegate.sharesTabBar;
+                            [self.window makeKeyAndVisible];
+//                            [[UIApplication sharedApplication].keyWindow makeKeyAndVisible];
                         });
                     }else{
                         [SXLoadingView showAlertHUD:@"切换失败，设备当前状态未知，请检查" duration:1];
@@ -484,6 +494,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         [SXLoadingView hideProgressHUD];
+
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
           
             [self skipToLogin];
@@ -498,6 +509,9 @@
 
 -(void)skipToLogin{
     dispatch_async(dispatch_get_main_queue(), ^{
+        self.window.rootViewController = nil;
+        [self.window resignKeyWindow];
+        [self.window removeFromSuperview];
         [self reloadLeftMenuIsAdmin:NO];
         FMLoginViewController * vc = [[FMLoginViewController alloc]init];
 //        vc.title = @"搜索附近设备";

@@ -33,7 +33,7 @@
     if (self = [super init]) {
         self.imageArr = [NSMutableArray arrayWithCapacity:0];
         self.timeArr = [NSMutableArray arrayWithCapacity:0];
-        self.dataSource = [NSMutableArray arrayWithCapacity:0];
+//        self.dataSource = [NSMutableArray arrayWithCapacity:0];
         _photosLocalIds = [NSMutableSet set];
         _localphotoDigest = [NSMutableArray arrayWithCapacity:0];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibruaryChange) name:PHOTO_LIBRUARY_CHANGE_NOTIFY object:nil];
@@ -93,13 +93,11 @@
             for (NSDictionary *dic in userArr) {
                 @autoreleasepool {
 //                    NSLog(@"😁%@",dic);
-                    
 //                    if (contentArr.count>0) {
 //                        NSString *photoHash = contentArr[0];
-                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-
+                    FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
 //                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
-                            [photoArr addObject:nasPhoto];
+                    [photoArr addObject:nasPhoto];
 //                        NSLog(@"%@",photoArr);
 //                    }
                 }
@@ -127,7 +125,7 @@
         [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
             for (FMLocalPhoto * photo in result) {
-        if(![_photosLocalIds containsObject:photo.localIdentifier]){
+           if(![_photosLocalIds containsObject:photo.localIdentifier]){
                     [_photosLocalIds addObject:photo.localIdentifier];
                     FMPhotoAsset * asset = [FMPhotoAsset new];
                     asset.localId = photo.localIdentifier;
@@ -152,6 +150,21 @@
         NSComparator cmptr = ^(IDMPhoto * photo1, IDMPhoto * photo2){
 //            NSLog(@"%@", [photo1 class]);
 //            NSLog(@"%@", [photo2 class]);
+            for (int i = 1 ; i < self.imageArr.count; i++) {
+                @autoreleasepool {
+                    IDMPhoto * photoNull = self.imageArr[i];
+                    if ([photoNull getPhotoCreateTime]==nil) {
+                        [self.imageArr removeObject:photoNull];
+                    }
+                    IDMPhoto * photoUp =  self.imageArr[i];
+                    IDMPhoto * photoDown = self.imageArr[i-1];
+                    //                         NSLog(@"%@😁%@",[photo1 getPhotoCreateTime],[photo2 getPhotoCreateTime]);
+                    if ([self isSamePhotoHash:[photoUp getPhotoHash] photoHash2:[photoDown getPhotoHash]]) {
+                        [self.imageArr removeObject:photoUp];
+                    }
+                }
+            }
+            
             NSDate * tempDate = [[photo1 getPhotoCreateTime]laterDate:[photo2 getPhotoCreateTime]];
 //            NSLog(@"%@😁",tempDate);
             if ([tempDate isEqualToDate:[photo1 getPhotoCreateTime]]) {
@@ -187,6 +200,7 @@
             NSMutableArray * tArr = [NSMutableArray array];//时间组
             NSMutableArray * pGroupArr = [NSMutableArray array];//照片组数组
             if (self.imageArr.count>0) {
+         
                 IDMPhoto * photo = self.imageArr[0];
                 NSMutableArray * photoDateGroup1 = [NSMutableArray array];//第一组照片
                 [photoDateGroup1 addObject:photo];
@@ -202,8 +216,8 @@
                         }
                         IDMPhoto * photoUp =  self.imageArr[i];
                         IDMPhoto * photoDown = self.imageArr[i-1];
-//                         NSLog(@"%@😁%@",[photo1 getPhotoCreateTime],[photo2 getPhotoCreateTime]);
-                        if ([self isSamePhotoHash:[photoUp getPhotoHash] date2:[photoDown getPhotoHash]]) {
+//                         NSLog(@"%@😁%@",[photoUp getPhotoHash],[photoDown getPhotoHash]);
+                        if ([self isSamePhotoHash:[photoUp getPhotoHash] photoHash2:[photoDown getPhotoHash]]) {
                             [self.imageArr removeObject:photoUp];
                         }
                        
@@ -219,6 +233,18 @@
                             [photoDateGroup2 addObject:photo1];
                             [pGroupArr addObject:photoDateGroup2];
                         }
+//                          NSLog(@"😁😁😁%@",pGroupArr);
+//                        NSMutableArray *categoryArray = [[NSMutableArray alloc] init];
+//                        for ( IDMPhoto * photo in pGroupArr) {
+//                          
+//                            [categoryArray addObject:[photo getPhotoHash]];
+//                            for (NSInteger i = 0; i<categoryArray.count; i++) {
+//                                if ([categoryArray[i] isEqualToString: [photo getPhotoHash]]) {
+//                                    [self.imageArr removeObject:photo];
+//                                }
+//                            }
+                           
+//                        }
                     }
                 }
             }
@@ -230,7 +256,7 @@
     });
 }
 
-- (BOOL)isSamePhotoHash:(NSString *)photoHash1 date2:(NSString *)photoHash2
+- (BOOL)isSamePhotoHash:(NSString *)photoHash1 photoHash2:(NSString *)photoHash2
 
 {
     if ([photoHash1 isEqualToString:photoHash2]) {
@@ -262,5 +288,12 @@
     [formatter1 setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
     NSString * dateString = [formatter1 stringFromDate:date];
     return dateString;
+}
+
+- (NSMutableArray *)dataSource{
+    if (!_dataSource) {
+        _dataSource = [NSMutableArray arrayWithCapacity:0];
+    }
+    return _dataSource;
 }
 @end

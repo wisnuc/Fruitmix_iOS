@@ -91,12 +91,14 @@
     UIButton * _rightbtn;//导航栏右边按钮
     UILabel * _countLb;
 }
-
+//- (void)viewWillAppear:(BOOL)animated{
+//    [super viewWillAppear:animated];
+//    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+//}
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateNormal) {
         [self.rdv_tabBarController setTabBarHidden:NO animated:YES];
-        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
         if (_edgeGesture) {
             [self.view removeGestureRecognizer:_edgeGesture];
             _edgeGesture = nil;
@@ -104,6 +106,7 @@
     }else{
         [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     }
+      [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
 }
 
 
@@ -812,11 +815,12 @@
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateCanChoose) {
         return;
     }
+     self.collectionView.mj_header.hidden = YES;
 //    self.collectionView.mj_header.hidden = YES;
     NSIndexPath * indexPath = [self.collectionView indexPathForCell:cell];
     FMPhotoAsset * asset = self.photoDataSource.dataSource[indexPath.section][indexPath.row];
     
-    self.collectionView.mj_header.hidden = YES;
+   
     self.collectionView.fmState = FMPhotosCollectionViewCellStateCanChoose;
     [self.collectionView reloadData];
     _rightbtn.userInteractionEnabled = NO;
@@ -824,10 +828,10 @@
     _addButton.hidden = NO;
     
     BOOL shouldChoose = YES;
-    if ([self.photoDataSource.netphotoArr containsObject:asset]) {
-        FMNASPhoto * p = (FMNASPhoto *)asset;
+//    if ([self.photoDataSource.netphotoArr containsObject:asset]) {
+//        FMNASPhoto * p = (FMNASPhoto *)asset;
 //        shouldChoose = [p.permittedToShare boolValue];
-    }
+//    }
     
     if (shouldChoose) {
         [self.choosePhotos addObject:asset];
@@ -941,6 +945,7 @@
 
 -(void)didReceiveMemoryWarning{
     [super didReceiveMemoryWarning];
+     [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
     for (NSArray * arr in self.photoDataSource.dataSource) {
         for (id<IDMPhoto> photo in arr) {
             [photo unloadUnderlyingImage];
@@ -1022,5 +1027,11 @@ static BOOL waitingForReload = NO;
     
 }
 
+//- (FMPhotoDataSource *)photoDataSource{
+//    if (!_photoDataSource) {
+//        _photoDataSource = []
+//    }
+//    return _photoDataSource;
+//}
 
 @end

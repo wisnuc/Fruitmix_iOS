@@ -57,7 +57,6 @@ NSInteger imageUploadCount = 0;
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     NSString *urlString = [NSString stringWithFormat:@"%@drives",[JYRequestConfig sharedConfig].baseURL];
      [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    NSLog(@"%@",DEF_Token);
     [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -67,85 +66,75 @@ NSInteger imageUploadCount = 0;
             @autoreleasepool {
                 DriveModel *model = [DriveModel yy_modelWithJSON:dic];
                 NSLog(@"%@",model.uuid);
+                if ([model.tag isEqualToString:@"home"]) {
                 [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:DRIVE_UUID_STR];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 completeBlock(YES);
-            }
-        }
-
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"%@",error);
-    }];
-    
-  }
-
-+ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock{
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID];
-    [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray * responseArr = responseObject;
-        NSLog(@"%@",responseObject);
-        for (NSDictionary *dic in responseArr) {
-            @autoreleasepool {
-                DirectoriesModel *model = [DirectoriesModel yy_modelWithJSON:dic];
-                NSLog(@"%@",model.uuid);
-                if ([model.parent isEqualToString:@""]) {
-                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:DIR_UUID_STR];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
-                    completeBlock(YES);
                 }
             }
         }
+
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"%@",error);
+       NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+        if (rep.statusCode == 404) {
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+        }
     }];
-}
+  }
+
+//+ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock{
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID];
+//    [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//    [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        NSArray * responseArr = responseObject;
+//        NSLog(@"🍄🍄🍄🍄%@",responseObject);
+//        for (NSDictionary *dic in responseArr) {
+//            @autoreleasepool {
+//                DirectoriesModel *model = [DirectoriesModel yy_modelWithJSON:dic];
+//                NSLog(@"😆😆%@,%@",model.uuid,DEF_UUID);
+//                if ([model.tag isEqualToString:@"home"]) {
+//                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:DIR_UUID_STR];
+//                    [[NSUserDefaults standardUserDefaults] synchronize];
+//                    completeBlock(YES);
+//                }
+//            }
+//        }
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        NSLog(@"%@",error);
+//
+//    }];
+//}
 
 + (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock{
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID];
-    [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray * responseArr = responseObject;
-        NSLog(@"%@",responseObject);
-        for (NSDictionary *dic in responseArr) {
-            @autoreleasepool {
-            DirectoriesModel *model = [DirectoriesModel yy_modelWithJSON:dic];
-            NSLog(@"%@",model.uuid);
-                if ([model.parent isEqualToString:@""]) {
-                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:DIR_UUID_STR];
+    [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
+        NSDictionary * dic = responseObject;
+        NSArray * arr = [dic objectForKey:@"entries"];
+        NSLog(@"🍄%@",arr);
+        if (arr.count>0) {
+            for (NSDictionary *entriesDic in arr) {
+                EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+                if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
+                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
                     [[NSUserDefaults standardUserDefaults] synchronize];
-                    [FMUploadFileAPI getDirEntryWithUUId:model.uuid success:^(NSURLSessionDataTask *task, id responseObject) {
-                        NSDictionary * dic = responseObject;
-                        NSArray * arr = [dic objectForKey:@"entries"];
-                        for (NSDictionary *entriesDic in arr) {
-                            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-                            if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
-                                
-                                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
-                                [[NSUserDefaults standardUserDefaults] synchronize];
-                                completeBlock(YES);
-                            }else{
-                                [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
-                                    if (successful) {
-                                         completeBlock(YES);
-                                    }
-                                }];
-                            }
+                    completeBlock(YES);
+                }else{
+                    [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                        if (successful) {
+                            completeBlock(YES);
                         }
-  
-                    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                        NSLog(@"%@",error);
                     }];
                 }
             }
+        }else{
+            [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                if (successful) {
+                    completeBlock(YES);
+                }
+            }];
         }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSLog(@"%@",error);
     }];
 }
@@ -153,16 +142,20 @@ NSInteger imageUploadCount = 0;
 + (void)getDirEntrySuccess:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure{
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DIR_UUID];
+    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
     [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
     [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//          NSLog(@"%@",responseObject);
+          NSLog(@"%@",responseObject);
     
         success(task,responseObject);
           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"%@",error);
+              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+              if (rep.statusCode == 404) {
+                  [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+              }
 //              failure(task,error);
     }];
 
@@ -175,16 +168,12 @@ NSInteger imageUploadCount = 0;
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid];
     [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    NSLog(@"%@",DEF_Token);
     [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        NSLog(@"%@",responseObject);
-        
         success(task,responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        NSLog(@"%@",error);
-        failure(task,error);
+                failure(task,error);
+        
     }];
 }
 
@@ -217,15 +206,14 @@ NSInteger imageUploadCount = 0;
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"--> %@", responseObject);
-       
         success(task,responseObject);
-        
-        
-        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"%@", error);
+        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+        if (rep.statusCode == 404) {
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+        }
         failure(task,error);
-        
     }];
     
     
@@ -361,45 +349,77 @@ NSInteger imageUploadCount = 0;
     [FMUploadFileAPI getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
         NSDictionary * dic = responseObject;
         NSArray * arr = [dic objectForKey:@"entries"];
-        for (NSDictionary *entriesDic in arr) {
-            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-            if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
-                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                  completeBlock(YES);
-            }else{
-                NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
-                AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-                manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-                manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
-                [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-                [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                    
-                    NSDictionary *dic= @{@"op": @"mkdir"};
-                    NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
-                    [formData appendPartWithFormData:data name:photoDirName];
-                } progress:^(NSProgress * _Nonnull uploadProgress) {
-                    
-                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                    NSLog(@"--> %@", responseObject);
-                    
-                    NSDictionary * dic = responseObject;
-                    NSArray * arr = [dic objectForKey:@"entries"];
-                    for (NSDictionary *entriesDic in arr) {
-                        EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-                        if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
-                            [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
-                            [[NSUserDefaults standardUserDefaults] synchronize];
-                            completeBlock(YES);
+        if (arr.count >0) {
+            for (NSDictionary *entriesDic in arr) {
+                EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+                if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    completeBlock(YES);
+                }else{
+                    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
+                    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+                    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+                    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+                    [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+                    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+                        
+                        NSDictionary *dic= @{@"op": @"mkdir"};
+                        NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+                        [formData appendPartWithFormData:data name:photoDirName];
+                    } progress:^(NSProgress * _Nonnull uploadProgress) {
+                        
+                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                        NSLog(@"--> %@", responseObject);
+                        
+                        NSDictionary * dic = responseObject;
+                        NSArray * arr = [dic objectForKey:@"entries"];
+                        for (NSDictionary *entriesDic in arr) {
+                            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+                            if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+                                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+                                [[NSUserDefaults standardUserDefaults] synchronize];
+                                completeBlock(YES);
+                            }
                         }
-                    }
-                    
-                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                    NSLog(@"%@", error);
-                    //        failure(task,error);
-                }];
- 
+                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                        NSLog(@"%@", error);
+                        //        failure(task,error);
+                    }];
+                }
             }
+        }else{
+            NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
+            AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+            manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+            manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+            [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+            [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+                
+                NSDictionary *dic= @{@"op": @"mkdir"};
+                NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+                [formData appendPartWithFormData:data name:photoDirName];
+            } progress:^(NSProgress * _Nonnull uploadProgress) {
+                
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"--> %@", responseObject);
+                
+                NSDictionary * dic = responseObject;
+                NSArray * arr = [dic objectForKey:@"entries"];
+                for (NSDictionary *entriesDic in arr) {
+                    EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+                    if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+                        [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+                        [[NSUserDefaults standardUserDefaults] synchronize];
+                        completeBlock(YES);
+                    }
+                }
+                
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                NSLog(@"%@", error);
+                //        failure(task,error);
+            }];
+
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
           NSLog(@"%@", error);

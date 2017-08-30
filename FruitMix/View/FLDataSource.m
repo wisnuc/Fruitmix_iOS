@@ -30,11 +30,11 @@
     if (dirUUID.length==0) {
         [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
             if (successful) {
-                [FMUploadFileAPI getDirectoriesForFilesCompleteBlock:^(BOOL successful) {
-                    if (successful) {
-                        
+//                [FMUploadFileAPI getDirectoriesForFilesCompleteBlock:^(BOOL successful) {
+//                    if (successful) {
+                
                         [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
-                            NSLog(@"%@",responseObject);
+//                            NSLog(@"💩💩💩💩💩%@",responseObject);
                             NSDictionary * dic = responseObject;
                             NSArray * arr = [dic objectForKey:@"entries"];
                             for (NSDictionary *entriesDic in arr) {
@@ -53,8 +53,8 @@
                         }];
                     }
                 }];
-            }
-        }];
+//            }
+//        }];
     }else{
         [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
             NSLog(@"%@",responseObject);

@@ -13,5 +13,7 @@
 @property (nonatomic,copy) NSString *name;
 @property (nonatomic,copy) NSString *parent;
 @property (nonatomic) long long mtime;
+@property (nonatomic)NSString *tag;
+@property (nonatomic,copy) NSString *type;
 
 @end

@@ -25,6 +25,7 @@
 //@property (readonly,nonatomic) BOOL isFile;
 @property (nonatomic) NSString * parent;
 @property (nonatomic) NSString * parUUID;
+@property (nonatomic) NSString * filesHash;
 
 @end
 

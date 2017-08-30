@@ -81,7 +81,7 @@
     _createDate = [inputFormatter dateFromString:createDate];
 }
 - (void)setFmhash:(NSString *)fmhash{
-     NSLog(@"😜😜😜😜%@",fmhash);
+//     NSLog(@"😜😜😜😜%@",fmhash);
     _fmhash = fmhash;
 }
 //yymodel
