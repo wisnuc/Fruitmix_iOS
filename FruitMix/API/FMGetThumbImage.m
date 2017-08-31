@@ -249,6 +249,8 @@
         return;
     @weaky(self);
     SDWebImageManager * _manager = [SDWebImageManager sharedManager];
+    [[SDImageCache sharedImageCache] setShouldDecompressImages:NO];
+    [[SDWebImageDownloader sharedDownloader] setShouldDecompressImages:NO];
     _manager.imageDownloader.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
     _manager.imageDownloader.maxConcurrentDownloads = 2;
     _manager.imageDownloader.headersFilter = ^NSDictionary *(NSURL *url, NSDictionary *headers) {
@@ -258,6 +260,7 @@
     };
     NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=thumbnail&width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
 //    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@/thumbnail?width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
+    
     id <SDWebImageOperation> op = [_manager downloadImageWithURL:url options:SDWebImageRetryFailed|SDWebImageCacheMemoryOnly progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         if (progress) {
             if (!asset.shouldRequestThumbnail) {

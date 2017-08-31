@@ -257,8 +257,8 @@
     NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
     NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
     // 先删除已经存在的文件
-//    NSFileManager *defaultManager = [NSFileManager defaultManager];
-//    [defaultManager removeItemAtPath:logFilePath error:nil];
+    NSFileManager *defaultManager = [NSFileManager defaultManager];
+    [defaultManager removeItemAtPath:logFilePath error:nil];
     
     // 将log输入到文件
     freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stdout);
@@ -388,6 +388,9 @@
                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
+                        
+//                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];
                         
                         JYRequestConfig * config = [JYRequestConfig sharedConfig];
                         config.baseURL = [NSString stringWithFormat:@"%@:3000/",addressIP];
@@ -493,8 +496,17 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
+       
+//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];
         [SXLoadingView hideProgressHUD];
+        [FMDBControl reloadTables];
+        [FMDBControl asyncLoadPhotoToDB];
 
+        [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
+        [[SDImageCache sharedImageCache] clearDiskOnCompletion:nil];
+        [[SDImageCache sharedImageCache] clearMemory];
+   
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
           
             [self skipToLogin];

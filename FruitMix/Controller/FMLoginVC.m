@@ -181,6 +181,7 @@
 - (void)serverBrowserFoundService:(NSNetService *)service {
     for (NSData * address in service.addresses) {
         NSString* addressString = [GCDAsyncSocket hostFromAddress:address];
+        NSLog(@"%@",addressString);
         [self findIpToCheck:addressString andService:service];
     }
     
@@ -194,7 +195,7 @@
 -(void)findIpToCheck:(NSString *)addressString andService:(NSNetService *)service{
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
     NSLog(@"%@", urlString);
-//    if ([service.name rangeOfString:@"WISNUC"].location !=NSNotFound ||[service.name rangeOfString:@"wisnuc"].location !=NSNotFound) {
+    if ([service.name rangeOfString:@"WISNUC"].location !=NSNotFound ||[service.name rangeOfString:@"wisnuc"].location !=NSNotFound) {
         FMSerachService * ser = [FMSerachService new];
         ser.path = urlString;
         //        ser.path = @"http://192.168.5.207:3721/";
@@ -202,7 +203,7 @@
         ser.type = service.type;
         ser.displayPath = addressString;
         ser.hostName = service.hostName;
-        NSLog(@"%@",service.hostName);
+//        NSLog(@"%@",service.hostName);
         BOOL isNew = YES;
         for (FMSerachService * s in self.dataSource) {
             if (IsEquallString(s.path, ser.path)) {
@@ -214,7 +215,7 @@
             [self.dataSource addObject:ser];
             [self refreshDatasource];
         }
-//    }
+    }
 }
 
 - (void)serverBrowserLostService:(NSNetService *)service index:(NSUInteger)index {

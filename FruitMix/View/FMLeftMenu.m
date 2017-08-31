@@ -158,7 +158,7 @@
     [self getUserInfo];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
     FMUserLoginInfo * info = [FMDBControl findUserLoginInfo:DEF_UUID];
-//    NSLog(@"%@",infox.bonjour_name);
+//    NSLog(@"%@",info.bonjour_name);
     self.bonjourLabel.text = info.bonjour_name;
     NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
     [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
@@ -175,31 +175,30 @@
         NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
         for (FMLocalPhoto * p in result) {
             [tmp addObject:p.localIdentifier];
+            if(p.degist.length >0){
             [localPhotoHashArr addObject:p.degist];
+            }
 //            NSLog(@"%@",p.degist);
         }
+//        __block NSMutableArray *uplaodingPhotoArray;
+//        [FMDBControl siftMidiaPhotoWithResultArr:localPhotoHashArr CompleteBlock:^(NSMutableArray *photoArr){
+//            uplaodingPhotoArray = photoArr;
+////            NSLog(@"😜😜😜😜😜%ld",(long)photoArr.count);
+//        }];
+//        NSLog(@"😜😜😜😜😜%@",[FMDBControl siftMidiaPhotoWithResultArr:localPhotoHashArr]);
+        NSMutableArray *uploadImageArr = [NSMutableArray array];
+        uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
         NSInteger allPhotos = result.count;
         FMDBSet * dbSet = [FMDBSet shared];
         FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
         [scmd where:@"userId" equalTo:DEF_UUID];
         [scmd where:@"localId" containedIn:tmp];
         [scmd fetchArrayInBackground:^(NSArray *results) {
-//            NSLog(@"%@",results);
-            NSMutableArray *resultPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
-            for (FMSyncLogs *logs in results) {
-//                NSLog(@"😑😑😑😑%@",logs.photoHash);
-                [resultPhotoHashArr addObject:logs.photoHash];
-            }
-//            NSSet *resultSet = [NSSet setWithArray:resultPhotoHashArr];
-//            NSArray * resultDataSource  = [resultSet allObjects];
-//            NSSet *loacalSet = [NSSet setWithArray:localPhotoHashArr];
-//            NSArray * localDataSource = [loacalSet allObjects];
-            float progress = (float)results.count/(float)allPhotos;
-//    NSLog(@"%f",progress);
+            float progress = (float)uploadImageArr.count/(float)allPhotos;
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 10 *10];
                 self.backUpProgressView.progress = progress;
-                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+                self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)uploadImageArr.count,(long)allPhotos];
 //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
             });
         }];
@@ -233,7 +232,6 @@
             NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
             for (FMLocalPhoto * p in result) {
                 [tmp addObject:p.localIdentifier];
-                //            NSLog(@"%@",p.degist);
             }
             NSInteger allPhotos = result.count;
             FMDBSet * dbSet = [FMDBSet shared];
@@ -242,13 +240,18 @@
             [scmd where:@"localId" containedIn:tmp];
             [scmd fetchArrayInBackground:^(NSArray *results) {
                 //            NSLog(@"%@",results);
+                NSMutableArray *uploadImageArr = [NSMutableArray array];
+                uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    float progress = (float)results.count/(float)allPhotos;
+                    float progress = (float)uploadImageArr.count/(float)allPhotos;
                     //                NSLog(@"%lu",(unsigned long)results.count);
                     self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
                     self.backUpProgressView.progress = progress;
-                    self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)results.count,(long)allPhotos];
+                    self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)uploadImageArr.count,(long)allPhotos];
                     //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
+//                    if (uploadImageArr.count == allPhotos) {
+//                        [PhotoManager shareManager].canUpload = YES;
+//                    }
                 });
             }];
         }];

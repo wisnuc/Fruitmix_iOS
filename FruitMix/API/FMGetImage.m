@@ -98,7 +98,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
         [dic setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];
         return dic;
     };
-    
+    NSLog(@"%@",hash);
     //TODO cache NAS Photo
     NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@/thumbnail?width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
     

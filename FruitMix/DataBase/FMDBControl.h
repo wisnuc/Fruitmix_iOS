@@ -87,6 +87,9 @@ typedef void(^selectComplete)(NSArray<FMLocalPhoto *> * result);
 
 +(NSArray  *)getAllUserLoginInfo;
 
+
++ (void)siftMidiaPhotoWithResultArr:(NSMutableArray *)arr CompleteBlock:(void (^)(NSMutableArray *photoArr))completeBlock;
+
 @end
 
 @interface FMLocalPhotoStore : NSObject
@@ -113,7 +116,6 @@ typedef void(^selectComplete)(NSArray<FMLocalPhoto *> * result);
  * return nil or hash ,if nil, the photo has not caculture digest
  */
 -(NSString *)getPhotoHashWithLocalId:(NSString *)localId;
-
 
 
 @end

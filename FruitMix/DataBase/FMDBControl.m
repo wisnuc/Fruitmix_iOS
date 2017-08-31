@@ -696,4 +696,44 @@
     }];
 }
 
+
++ (void)siftMidiaPhotoWithResultArr:(NSMutableArray *)arr CompleteBlock:(void (^)(NSMutableArray *photoArr))completeBlock{
+    NSMutableArray *alreadyUploadPhotoArray = [NSMutableArray array];
+    [FMDBControl getNetPhotosSucessBlock:^(NSMutableArray *photoArr) {
+        NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",arr];
+        NSArray * filter_no = [photoArr filteredArrayUsingPredicate:filterPredicate_same];
+//          NSLog(@"😜😜😜😜😜%@",photoArr);
+        [alreadyUploadPhotoArray addObjectsFromArray:filter_no];
+        completeBlock(alreadyUploadPhotoArray);
+    }];
+}
+
+
++(void)getNetPhotosSucessBlock:(void (^)(NSMutableArray *photoArr))sucess{
+
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        FMMediaAPI * api = [FMMediaAPI new];
+   
+        [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+            NSArray * userArr = request.responseJsonObject;
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                @autoreleasepool {
+                    NSMutableArray *photoArr = [NSMutableArray arrayWithCapacity:0];
+                    for (NSDictionary *dic in userArr) {
+                        @autoreleasepool {
+                            FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+                            [photoArr addObject:nasPhoto.fmhash];
+                        }
+                    }
+                       sucess(photoArr);
+                }
+            });
+   
+        } failure:^(__kindof JYBaseRequest *request) {
+            NSLog(@"载入Media失败,%@",request.error);
+        }];
+    });
+}
+
+
 @end

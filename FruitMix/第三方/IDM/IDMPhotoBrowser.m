@@ -574,12 +574,10 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         [self prepareForClosePhotoBrowser];
         [self dismissPhotoBrowserAnimated:NO];
     };
-    
-    [UIView animateWithDuration:0.1 animations:^{
-        fadeView.alpha = 0;
-        self.view.backgroundColor = [UIColor clearColor];
-    } completion:nil];
-    
+     fadeView.alpha = 0;
+    self.view.backgroundColor = [UIColor clearColor];
+//    [UIView animateWithDuration:0 animations:^{
+//    } completion:nil];
     CGRect senderViewOriginalFrame = _senderViewForAnimation.superview ? [_senderViewForAnimation.superview convertRect:_senderViewForAnimation.frame toView:nil] : _senderViewOriginalFrame;
     
     if(_usePopAnimation)

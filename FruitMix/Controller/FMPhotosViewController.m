@@ -91,10 +91,10 @@
     UIButton * _rightbtn;//导航栏右边按钮
     UILabel * _countLb;
 }
-//- (void)viewWillAppear:(BOOL)animated{
-//    [super viewWillAppear:animated];
-//    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
-//}
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     if (self.collectionView.fmState == FMPhotosCollectionViewCellStateNormal) {
@@ -106,7 +106,6 @@
     }else{
         [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     }
-      [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
 }
 
 
@@ -509,9 +508,10 @@
 //创建分享
 -(void)clickShareBtn{
     if (self.choosePhotos.count>0) {
+         [self shareToOtherApp];
         
-        _shareView = [JYAlertView jy_AlertViewCreateWithDelegate:self andDataSource:self];
-        [_shareView show];
+//        _shareView = [JYAlertView jy_AlertViewCreateWithDelegate:self andDataSource:self];
+//        [_shareView show];
         
 //        LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"请选择"
 //                                                        cancelButtonTitle:@"取消"
@@ -961,6 +961,7 @@ static BOOL waitingForReload = NO;
         waitingForReload = NO;
         [self.collectionView reloadData];
         [self.collectionView.mj_header endRefreshing];
+  
     }else{
         if (waitingForReload)
             return;
@@ -981,13 +982,13 @@ static BOOL waitingForReload = NO;
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     FMPersonsCell * cell = [[FMPersonsCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:NSStringFromClass([FMPersonsCell class]) Count:1 getCellsBlock:^UICollectionViewCell *(NSIndexPath *indexP, UICollectionViewCell *ce) {
         FMPersonCell * personcell = (FMPersonCell *)ce;
-        if(indexPath.row == 0){
-            personcell.groupImage.image = [UIImage imageNamed:@"all"];
-            personcell.nameLab.text = @"所有人";
-        }else{
-            personcell.groupImage.image = [UIImage imageNamed:@"open_in"];
-            personcell.nameLab.text = @"其他应用";
-        }
+//        if(indexPath.row == 0){
+//            personcell.groupImage.image = [UIImage imageNamed:@"all"];
+//            personcell.nameLab.text = @"所有人";
+//        }else{
+//            personcell.groupImage.image = [UIImage imageNamed:@"open_in"];
+//            personcell.nameLab.text = @"其他应用";
+//        }
         return personcell;
     }];
     @weaky(self);
@@ -1002,21 +1003,21 @@ static BOOL waitingForReload = NO;
 }
 
 
--(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, __kWidth, 40)];
-    label.font = [UIFont systemFontOfSize:14.0f];
-    label.textAlignment = NSTextAlignmentCenter;
-    label.text = @"请选择分享方式";
-    return label;
-}
+//-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+//    UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, __kWidth, 40)];
+//    label.font = [UIFont systemFontOfSize:14.0f];
+//    label.textAlignment = NSTextAlignmentCenter;
+//    label.text = @"请选择分享方式";
+//    return label;
+//}
 
 -(void)checkItemWithIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.section == 0) {
-        [self shareToLocalUser];
-    }else{
+//    if (indexPath.section == 0) {
+//        [self shareToLocalUser];
+//    }else{
         [self shareToOtherApp];
-    }
-    [_shareView dismiss];
+//    }
+//    [_shareView dismiss];
 }
 
 -(void)asynAnyThings{

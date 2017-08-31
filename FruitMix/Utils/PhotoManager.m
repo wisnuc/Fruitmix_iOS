@@ -551,133 +551,172 @@ BOOL shouldUpload = NO;
 -(void)startUploadPhotos{
     @autoreleasepool {
         __weak typeof(self) weakSelf = self;
-        [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-            if (result.count>0) {
-            
-                NSLog(@"%ld 张照片等待上传",(unsigned long)result.count);
-//                NSString *entryUUID = ENTRY_UUID;
-//                NSLog(@"%@",entryUUID);
-//                if (entryUUID.length==0) {
-//                    [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
-//                        if (successful) {
-//                            [FMUploadFileAPI getDirectoriesCompleteBlock:^(BOOL successful) {
-//                                if (successful) {
-//                                    [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
-//                                        if (successful) {
-//                                             NSString *entryuuid = ENTRY_UUID;
-//                                            [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-//                                              
-//                                                    NSLog(@"%@",responseObject);
-//                                                    NSDictionary * dic = responseObject;
-//                                                    NSArray * arr = [dic objectForKey:@"entries"];
-//                                                if (arr.count>0) {
-//                                                        NSMutableArray *resultArr =[NSMutableArray arrayWithArray:result];
-//                                                    for (NSDictionary *entriesDic in arr) {
-//                                                        EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-//                                                        NSLog(@"🍄%@",model.photoHash);
-//                                                        for (FMLocalPhoto *photo in result) {
-//                                                            NSLog(@"😁%@",photo.degist);
-//                                                            if ([photo.degist isEqualToString:model.photoHash]) {
-//                                                                [resultArr removeObject:photo];
-//                                                            }
-//                                                        }
-//                                                    }
-////                                                     NSLog(@"🍄%@",resultArr);
-//                                                    if (resultArr.count==0) {
-//                                                        
-//                                                        return ;
-//                                                    }
-//
-//                                                    [weakSelf uploadImages:resultArr success:^(NSArray *arr) {
-//                                                        NSLog(@"%@",arr);
-//                                                    } failure:^{
-//                                                        
-//                                                    }];
-//
-//                                                   }
-//                                                
-//                                            } failure:^(NSURLSessionDataTask *task, NSError *error) {
-//                                                
-//                                            }];
-//                                        }
-//                                    }];
-//                                }
-//                            }];
-//                        }
-//                    }];
-//                }else{
-//                    
-//                    
-//                    [FMUploadFileAPI getDirEntryWithUUId:entryUUID success:^(NSURLSessionDataTask *task, id responseObject) {
-//                        
-//                        NSLog(@"%@",responseObject);
-//                        NSDictionary * dic = responseObject;
-//                        NSArray * arr = [dic objectForKey:@"entries"];
-//                        if (arr.count>0) {
-//                            NSMutableArray *resultArr =[NSMutableArray arrayWithArray:result];
-//                            for (NSDictionary *entriesDic in arr) {
-//                                EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-////                                NSLog(@"%@",model.photoHash);
-//                                for (FMLocalPhoto *photo in result) {
-//                                    NSLog(@"😁%@",photo.degist);
-//                                    if ([photo.degist isEqualToString:model.photoHash]) {
-//                                        [resultArr removeObject:photo];
-//                                    }
-//                                }
-//                            }
-//                            NSLog(@"🍄%@",resultArr);
-//                            if (resultArr.count==0) {
-//                                
-//                                return ;
-//                            }
-            
-            dispatch_group_t group =  dispatch_group_create();
-            
-            dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                // 执行1个耗时的异步操作
-
-                [weakSelf uploadImages:result success:^(NSArray *arr) {
-                    //                                NSLog(@"%@",arr);
-                } failure:^{
-                    
-                }];
-            });
-//                        }
-//                        
-//                    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-//                        
-//                    }];
-//                }
-            
-            }else{
-                
+       
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 NSString *entryuuid = PHOTO_ENTRY_UUID;
                 [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-//                    NSLog(@"%@",responseObject);
+                    NSLog(@"😆🍄%@",responseObject);
                     NSDictionary * dic = responseObject;
+                    NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
+
                     NSArray * arr = [dic objectForKey:@"entries"];
-                    if (arr.count >0) {
-                        return ;
+                    for (NSDictionary *dic in arr) {
+                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+                        [photoArrHash addObject:nasPhoto.fmhash];
                     }
+                    [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                        NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+                        for (FMLocalPhoto * p in result) {
+                            if (p.degist.length >0) {
+                               [localPhotoHashArr addObject:p.degist];
+                            }
+                           
+                        }
+                        
+//                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
+//                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
+                        
+                        NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
+                        NSArray * filter1 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate1];
+                        //找到在arr1中不在数组arr2中的数据
+                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
+                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
+                        //拼接数组
+                        NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
+                        [array addObjectsFromArray:filter2];
+                
+                        if (array.count>0) {
+                            
+                            NSLog(@"%ld 张照片等待上传",(unsigned long)array.count);
+                            
+                            dispatch_group_t group =  dispatch_group_create();
+                            
+                            dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                // 执行1个耗时的异步操作
+                                [weakSelf uploadImages:array success:^(NSArray *arr) {
+                                   [[PhotoManager shareManager] startUploadPhotos];
+                                } failure:^{
+                                    
+                                }];
+                            });
+                            
+                        }else{
+                            
+                            NSString *entryuuid = PHOTO_ENTRY_UUID;
+                            [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+                                //                    NSLog(@"%@",responseObject);
+                                NSDictionary * dic = responseObject;
+                                NSArray * arr = [dic objectForKey:@"entries"];
+                                if (arr.count >0) {
+                                    return ;
+                                }
+                            } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                NSLog(@"%ld",(long)rep.statusCode);
+                                if (rep.statusCode == 404) {
+                                    [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+                                        if (successful) {
+                                            [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
+                                                if (successful) {
+                                                    [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                                                        if (successful) {
+                                                            [[PhotoManager shareManager] startUploadPhotos];
+                                                        }
+                                                    }];
+                                                }
+                                            }];
+                                        }
+                                    }];
+                                    //
+                                }
+
+                            }];
+                        }
+                        
+                    }];
+
                 } failure:^(NSURLSessionDataTask *task, NSError *error) {
                     NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                     NSLog(@"%ld",(long)rep.statusCode);
                     if (rep.statusCode == 404) {
-                        [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
-                        FMDBSet * dbSet = [FMDBSet shared];
-                        //清空表
-                        FMDTDeleteCommand * cmd = FMDT_DELETE(dbSet.syncLogs);
-                        FMDTUpdateCommand * ucmd = FMDT_UPDATE(dbSet.photo);
-                        [ucmd fieldWithKey:@"uploadTime" val: [NSNull new]];
-                        [ucmd saveChanges];
-                        [cmd saveChangesInBackground:^{
-                             [[PhotoManager shareManager] startUploadPhotos];
+                        [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+                            if (successful) {
+                                [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
+                                    if (successful) {
+                                        [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                                            if (successful) {
+                                                 [[PhotoManager shareManager] startUploadPhotos];
+                                            }
+                                        }];
+                                    }
+                                }];
+                            }
                         }];
+//
                     }
                 }];
-//                result = nil;
-            }
-        }];
+
+//                FMMediaAPI * api = [FMMediaAPI new];
+//              
+//                [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//                    NSArray * userArr = request.responseJsonObject;
+//                    NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
+//                    for (NSDictionary *dic in userArr) {
+//                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+//                        [photoArrHash addObject:nasPhoto.fmhash];
+//                    }
+                
+          
+//                } failure:^(__kindof JYBaseRequest *request) {
+//                    NSLog(@"载入Media失败,%@",request.error);
+//                }];
+            });
+    
+//        [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+//            if (result.count>0) {
+//            
+//                NSLog(@"%ld 张照片等待上传",(unsigned long)result.count);
+//            dispatch_group_t group =  dispatch_group_create();
+//            
+//            dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                // 执行1个耗时的异步操作
+//
+//                [weakSelf uploadImages:result success:^(NSArray *arr) {
+//                    
+//                } failure:^{
+//                    
+//                }];
+//            });
+//
+//            }else{
+//                
+//                NSString *entryuuid = PHOTO_ENTRY_UUID;
+//                [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+////                    NSLog(@"%@",responseObject);
+//                    NSDictionary * dic = responseObject;
+//                    NSArray * arr = [dic objectForKey:@"entries"];
+//                    if (arr.count >0) {
+//                        return ;
+//                    }
+//                } failure:^(NSURLSessionDataTask *task, NSError *error) {
+//                    NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+//                    NSLog(@"%ld",(long)rep.statusCode);
+//                    if (rep.statusCode == 404) {
+//                        [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+//                        FMDBSet * dbSet = [FMDBSet shared];
+//                        //清空表
+//                        FMDTDeleteCommand * cmd = FMDT_DELETE(dbSet.syncLogs);
+//                        FMDTUpdateCommand * ucmd = FMDT_UPDATE(dbSet.photo);
+//                        [ucmd fieldWithKey:@"uploadTime" val: [NSNull new]];
+//                        [ucmd saveChanges];
+//                        [cmd saveChangesInBackground:^{
+//                             [[PhotoManager shareManager] startUploadPhotos];
+//                        }];
+//                    }
+//                }];
+////
+//            }
+//        }];
     }
 }
 
@@ -732,32 +771,33 @@ BOOL shouldUpload = NO;
 }
 
 
-- (void)uploadImage:(FMLocalPhoto *)photo success:(void (^)(NSString *url))success failure:(void (^)())failure{
+- (void)uploadImage:(NSString *)photoHash success:(void (^)(NSString *url))success failure:(void (^)())failure{
     @autoreleasepool {
         if (shouldUpload && _canUpload) {
-            PHAsset * asset = [[FMLocalPhotoStore shareStore] checkPhotoIsLocalWithLocalId:photo.localIdentifier];
+            FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
+            PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
             if(!asset){
-                [self _uploadFailedWithNotFoundAsset:YES andLocalId:photo.localIdentifier];
+                [self _uploadFailedWithNotFoundAsset:YES andLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
                 if (success) success(@"233");
                 return ;
             }
             //检查是否为已上传
             @weaky(self);
-            FMDTSelectCommand * scmd = [[FMDBSet shared].photo createSelectCommand];
-            [scmd where:@"localIdentifier" equalTo:photo.localIdentifier];
-            [scmd fetchArrayInBackground:^(NSArray *result) {
-                if (result.count) {
-                    FMLocalPhoto * p = result[0];
-//                    NSLog(@"%@",p.uploadTime);
-                    if (!p.uploadTime) {
+//            FMDTSelectCommand * scmd = [[FMDBSet shared].photo createSelectCommand];
+//            [scmd where:@"localIdentifier" equalTo:photo.localIdentifier];
+//            [scmd fetchArrayInBackground:^(NSArray *result) {
+//                if (result.count) {
+//                    FMLocalPhoto * p = result[0];
+////                    NSLog(@"%@",p.uploadTime);
+//                    if (!p.uploadTime) {
                         [weak_self _uploadPhotoWithAsset:asset success:success failure:failure];
-                    }else{
-                        NSLog(@"********早就已上传*******");
-                        if (success) success(@"233");
-                    }
-                }else
-                    if (success) success(@"233");
-            }];
+//                    }else{
+//                        NSLog(@"********早就已上传*******");
+//                        if (success) success(@"233");
+//                    }
+//                }else
+//                    if (success) success(@"233");
+//            }];
         }else{
             NSLog(@"停止上传");
             if (failure) {
@@ -997,15 +1037,28 @@ BOOL shouldUpload = NO;
                 }];
                 //添加上传记录
 //                NSLog(@"上传的LocalID: ---> %@", asset.localIdentifier);
-                FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].syncLogs);
-                FMSyncLogs * log = [FMSyncLogs new];
-                log.userId =DEF_UUID;
-                log.photoHash = str;
-                log.localId = asset.localIdentifier;
-                [icmd add:log];
-                [icmd saveChangesInBackground:^{
+//                FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].syncLogs);
+//                FMSyncLogs * log = [FMSyncLogs new];
+//                log.userId =DEF_UUID;
+//                log.photoHash = str;
+//                log.localId = asset.localIdentifier;
+//                [icmd add:log];
+//                [icmd saveChangesInBackground:^{
+//                    
+//                }];
+                NSMutableArray *uploadImageArr = [NSMutableArray arrayWithCapacity:0];
+                NSMutableArray *array = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
+                if (array) {
+                    [uploadImageArr addObjectsFromArray:array];
                     
-                }];
+                }else {
+                    uploadImageArr = [NSMutableArray arrayWithCapacity:0];
+                } 
+//                NSLog(@"%@",[uploadImageArr class]);
+//                uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
+                [uploadImageArr addObject:sha256Str];
+                [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
                 NSLog(@"上传成功！%@",str);
             }];
             if (success) success(str);

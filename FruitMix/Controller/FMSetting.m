@@ -78,36 +78,36 @@
         [switchBtn addTarget:self  action:@selector(switchBtnHandleForSync:) forControlEvents:UIControlEventValueChanged];
         [cell.contentView addSubview:switchBtn];
         
-        if(switchBtn.isOn){
-            UILabel * lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 50, __kWidth, 12)];
-            lb.font = [UIFont systemFontOfSize:12];
-            lb.textAlignment = NSTextAlignmentCenter;
-            lb.text = _displayProgress?@"点击收回备份详情": @"点击查看备份详情";
-            [cell.contentView addSubview:lb];
-            
-            UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
-            progressLb.font = [UIFont systemFontOfSize:12];
-            progressLb.textAlignment = NSTextAlignmentCenter;
-            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-                NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
-                for (FMLocalPhoto * p in result) {
-                    [tmp addObject:p.localIdentifier];
-                }
-                NSInteger allPhotos = result.count;
-                FMDBSet * dbSet = [FMDBSet shared];
-                FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
-                [scmd where:@"userId" equalTo:DEF_UUID];
-                [scmd where:@"localId" containedIn:tmp];
-                [scmd fetchArrayInBackground:^(NSArray *results) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",(long)allPhotos,results.count];
-                    });
-                }];
-            }];
-            
-            [cell.contentView addSubview:progressLb];
-            progressLb.hidden = !_displayProgress;
-        }
+//        if(switchBtn.isOn){
+//            UILabel * lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 50, __kWidth, 12)];
+//            lb.font = [UIFont systemFontOfSize:12];
+//            lb.textAlignment = NSTextAlignmentCenter;
+//            lb.text = _displayProgress?@"点击收回备份详情": @"点击查看备份详情";
+//            [cell.contentView addSubview:lb];
+//            
+//            UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
+//            progressLb.font = [UIFont systemFontOfSize:12];
+//            progressLb.textAlignment = NSTextAlignmentCenter;
+//            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+//                NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+//                for (FMLocalPhoto * p in result) {
+//                    [tmp addObject:p.localIdentifier];
+//                }
+//                NSInteger allPhotos = result.count;
+//                FMDBSet * dbSet = [FMDBSet shared];
+//                FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+//                [scmd where:@"userId" equalTo:DEF_UUID];
+//                [scmd where:@"localId" containedIn:tmp];
+//                [scmd fetchArrayInBackground:^(NSArray *results) {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",(long)allPhotos,results.count];
+//                    });
+//                }];
+//            }];
+//            
+//            [cell.contentView addSubview:progressLb];
+//            progressLb.hidden = !_displayProgress;
+//        }
     }
     if (indexPath.row == 1) {
         UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];

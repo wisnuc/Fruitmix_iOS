@@ -72,7 +72,7 @@
 - (void)loginButtonClick:(UIButton *)sender{
     [self.view endEditing:YES];
     sender.userInteractionEnabled = NO;
-    [SXLoadingView showProgressHUD:@"正在登陆"];
+    [SXLoadingView showProgressHUD:@"正在登录"];
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
     NSString * Basic = [UUID base64EncodedString];
@@ -128,9 +128,9 @@
         info.uuid = _user.uuid;
         //        info.deviceId = [PhotoManager getUUID];
         info.jwt_token = token;
-        NSLog(@"%@",_user.uuid);
+     
         info.bonjour_name = _service.hostName;
-        
+//           NSLog(@"%@",_service.hostName);
         [FMDBControl addUserLoginInfo:info];
 //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
     });
@@ -205,7 +205,7 @@
 
 - (UIButton *)loginButton{
     if (!_loginButton) {
-        _loginButton = [UIButton buttionWithTitle:@"确定" target:self action:@selector(loginButtonClick:)];
+        _loginButton = [UIButton buttionWithTitle:@"登录" target:self action:@selector(loginButtonClick:)];
     }
     return _loginButton;
 }

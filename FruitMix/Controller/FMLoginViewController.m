@@ -211,6 +211,7 @@ ServerBrowserDelegate
 }
 
 - (void)setStationCardView{
+
     if (self.tempDataSource.count ==0) {
         _stationCardView = [[UIView alloc]init];
         _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
@@ -376,13 +377,15 @@ ServerBrowserDelegate
 
 #pragma mark ScrollView delegate
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
     if (scrollView == self.stationScrollView) {
+        
+    if (scrollView.contentOffset.x > JYSCREEN_WIDTH/22) {
     int page = scrollView.contentOffset.x/CGRectGetWidth(self.view.frame);
     _stationPageControl.currentPage = page;
     FMSerachService *ser = _tempDataSource[page];
     _userDataSource = ser.users;
-      _userDataCount = page;
+    _userDataCount = page;
 //    if (ser.ws215i && ser.ws215i.length > 0) {
 //        _stationCardView.backgroundColor = UICOLOR_RGB(0x8bc3a4);
 //        _stationScrollView.backgroundColor = UICOLOR_RGB(0x689f38);
@@ -391,15 +394,13 @@ ServerBrowserDelegate
 //        _stationScrollView.backgroundColor = UICOLOR_RGB(0x0288d1);
 //    }
     [_userListTableViwe reloadData];
+    }
    
 //    if (_stationPageControl.currentPage) {
 //        _stationPageControl.transform=CGAffineTransformScale(CGAffineTransformIdentity, 2, 2);
     }
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    
-}
 
 #pragma mark tableView datasource
 

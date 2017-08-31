@@ -67,7 +67,7 @@
 //        return;
 //    }
     sender.userInteractionEnabled = NO;
-    [SXLoadingView showProgressHUD:@"正在登陆"];
+    [SXLoadingView showProgressHUD:@"正在登录"];
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_passWordTF.text)?@"":_passWordTF.text];
     NSString * Basic = [UUID base64EncodedString];

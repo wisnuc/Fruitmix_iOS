@@ -92,12 +92,14 @@
         if (IsEquallString(tag, weak_self.imageTag)) {
             weak_self.fmPhotoImageView.image = image;
         }
+         [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
     };
 //       NSLog(@"%@😆%@",[asset class],hash);
     if (IsNilString(hash)) _imageTag = ((FMPhotoAsset *)asset).localId;
  
     else  _imageTag = hash; //有 digest
     [asset getThumbnailWithCompleteBlock:_block];
+   
 }
 
 

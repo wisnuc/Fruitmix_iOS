@@ -217,8 +217,6 @@ NSInteger imageUploadCount = 0;
     }];
     
     
-
-    
 //    for (int i=0; i<imageUploadCount; i++) {
 //    [photoArr addObject:filePath];
 //    NSString * hashString = [FileHash sha256HashOfFileAtPath:filePath];

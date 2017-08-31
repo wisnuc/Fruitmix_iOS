@@ -200,6 +200,11 @@
                                                         otherButtonTitleArray:@[@"取消下载"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
+                    if (self.needDownloads.count <= 0) {
+                        [actionSheet setHidden:YES];
+                        return ;
+                    }
+                    
                     TYDownloadModel *downloadModel = [self.needDownloads objectAtIndex:indexPath.row];
                     if (![downloadModel.fileName isEqualToString:model.fileName]) {
                         [actionSheet setHidden:YES];
