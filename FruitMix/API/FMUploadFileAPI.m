@@ -208,11 +208,17 @@ NSInteger imageUploadCount = 0;
         NSLog(@"--> %@", responseObject);
         success(task,responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"%@", error);
-        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-        if (rep.statusCode == 404) {
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
-        }
+//        NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
+    
+    
+//        NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+//        NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+//        NSLog(@"error--%@",serializedData);
+        
+    
+//       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        
+     
         failure(task,error);
     }];
     
@@ -483,8 +489,10 @@ NSInteger imageUploadCount = 0;
 + (void)uploadsSiftWithDataSouce:(NSArray *)dataSouce Asset:(PHAsset *)asset LocalPhotoHash:(NSString*)localPhotoHash filePath:(NSString *)filePath SuccessBlock:(void (^)(NSString *url))success Failure:(void (^)())failure CopmleteBlock:(void(^)(BOOL upload))completeBlock  {
     NSMutableArray * mutableArr = [NSMutableArray array];
     for (NSDictionary *entriesDic in dataSouce) {
+        
+        
         EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-//        NSLog(@"%@🍄🍄🍄%@",localPhotoHash,model.photoHash);
+//        NSLog(@"🍄🍄🍄%@",model.photoHash);
         if ([localPhotoHash isEqualToString:model.photoHash]) {
             [mutableArr addObject:localPhotoHash];
         }

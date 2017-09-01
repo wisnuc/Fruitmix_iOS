@@ -101,8 +101,11 @@
 }
 
 //- (NSString *)getBonjourWithUUID:(NSString *)uuid{
-//    
-//    
+//    NSString * bonjourname = @"未知";
+//    if (!IsNilString([self.usersDic objectForKey:uuid])) {
+//        bonjourname = [self.usersDic objectForKey:uuid];
+//    }
+//    return  bonjourname;
 //}
 -(void)cleanTheUserAllLocalCache{
     

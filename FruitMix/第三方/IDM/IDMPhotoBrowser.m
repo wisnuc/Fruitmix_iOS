@@ -314,19 +314,19 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 }
 
 - (void)didReceiveMemoryWarning {
-    
+      [super didReceiveMemoryWarning];
     //清楚内存缓存
-//    YYImageCache * cache = [YYImageCache sharedCache];
-//    [cache.memoryCache  removeAllObjects];
-//    
-//    SDImageCache * sdcache = [SDImageCache sharedImageCache];
-//    [sdcache clearMemory];
+    YYImageCache * cache = [YYImageCache sharedCache];
+    [cache.memoryCache  removeAllObjects];
+    
+    SDImageCache * sdcache = [SDImageCache sharedImageCache];
+    [sdcache clearMemory];
     [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
     
     [self releaseAllUnderlyingPhotos];
     [_recycledPages removeAllObjects];
     
-    [super didReceiveMemoryWarning];
+  
 }
 
 #pragma mark - Pan Gesture

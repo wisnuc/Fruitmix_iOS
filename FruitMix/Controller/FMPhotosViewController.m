@@ -508,7 +508,6 @@
 //创建分享
 -(void)clickShareBtn{
     if (self.choosePhotos.count>0) {
-         [self shareToOtherApp];
         
 //        _shareView = [JYAlertView jy_AlertViewCreateWithDelegate:self andDataSource:self];
 //        [_shareView show];
@@ -517,7 +516,8 @@
 //                                                        cancelButtonTitle:@"取消"
 //                                                                  clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
 //                                                                      if(buttonIndex == 1) [self shareToLocalUser];
-//                                                                      else if(buttonIndex == 2) [self shareToOtherApp];
+//                                                                      else if(buttonIndex == 2)
+        [self shareToOtherApp];
 //                                                                  }
 //                                                        otherButtonTitles:@"分享给所有人",@"分享到第三方应用", nil];
 //        actionSheet.scrolling          = YES;

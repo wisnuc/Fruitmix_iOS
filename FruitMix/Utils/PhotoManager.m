@@ -47,6 +47,7 @@ NSString * JY_UUID() {
 @interface PhotoManager  ()<PHPhotoLibraryChangeObserver,NSURLSessionDelegate>{
     PHFetchResult * _lastResult;
     FMFileUploadInfo * _currentUploadInfo;
+    NSMutableArray *_imageUploadArr;
 }
 
 @end
@@ -575,16 +576,16 @@ BOOL shouldUpload = NO;
                         
 //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
 //                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
-                        
+//                        
                         NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
                         NSArray * filter1 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate1];
-                        //找到在arr1中不在数组arr2中的数据
-                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
-                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
+//                        //找到在arr1中不在数组arr2中的数据
+//                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
+//                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
                         //拼接数组
                         NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
-                        [array addObjectsFromArray:filter2];
-                
+                        [array addObjectsFromArray:filter1];
+                        _imageUploadArr = array;
                         if (array.count>0) {
                             
                             NSLog(@"%ld 张照片等待上传",(unsigned long)array.count);
@@ -778,6 +779,7 @@ BOOL shouldUpload = NO;
             PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
             if(!asset){
                 [self _uploadFailedWithNotFoundAsset:YES andLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
+//                 [PhotoManager shareManager].canUpload = NO;
                 if (success) success(@"233");
                 return ;
             }
@@ -861,11 +863,7 @@ BOOL shouldUpload = NO;
                                                                         andSuccessBlock:success
                                                                                 Failure:failure];
                                                           } failure:^(NSURLSessionDataTask *task, NSError *error){
-                                                               NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-                                                              if (rep.statusCode == 404) {
-                                                                  [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
-                                                                  [self startUploadPhotos];
-                                                              }
+                                                              [self errorActionWithTask:task HashString:hashStr];
                                                           }];
                                                       }
                                                   }];
@@ -882,11 +880,8 @@ BOOL shouldUpload = NO;
                                                                         andSuccessBlock:success
                                                                                 Failure:failure];
                                                           } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                                                              NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-                                                              if (rep.statusCode == 404) {
-                                                                  [[NSUserDefaults standardUserDefaults]removeObjectForKey:PHOTO_ENTRY_UUID_STR];
-                                                                  [self startUploadPhotos];
-                                                              }
+                                                               [self errorActionWithTask:task HashString:hashStr];
+                                                            
                                                           }];
                                                       }else{
                                                           
@@ -920,7 +915,7 @@ BOOL shouldUpload = NO;
                                           andSuccessBlock:success
                                                   Failure:failure];
                             } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                                
+                                  [self errorActionWithTask:task HashString:hashStr];
                             }];
                         }else{
                             
@@ -936,6 +931,7 @@ BOOL shouldUpload = NO;
                                                   andSuccessBlock:success
                                                           Failure:failure];
                                     } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                          [self errorActionWithTask:task HashString:hashStr];
                                     }];
                                 }
                             }];
@@ -1172,6 +1168,18 @@ BOOL shouldUpload = NO;
         if (block) block(NO,nil);
 }
 
+- (void)errorActionWithTask:(NSURLSessionDataTask *)task HashString:(NSString *)hashStr{
+    NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+    if (rep.statusCode == 404) {
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+    }else if(rep.statusCode == 403) {
+        [_imageUploadArr removeObject:hashStr];
+    }
+    [self uploadImages:_imageUploadArr success:^(NSArray *arr) {
+        [[PhotoManager shareManager] startUploadPhotos];
+    } failure:^{
+    }];
+}
 
 +(NSString *) getSha256WithAsset:(PHAsset *)asset{
     __block NSString * localDegist = @"";

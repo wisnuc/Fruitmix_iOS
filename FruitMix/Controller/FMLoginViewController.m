@@ -94,7 +94,7 @@ ServerBrowserDelegate
 - (void)beginSearching {
     _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
     _browser.delegate = self;
-    double delayInSeconds = 6.0;
+    double delayInSeconds = 0.5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
@@ -106,7 +106,7 @@ ServerBrowserDelegate
     [self viewOfSeaching:YES];
     _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
     _browser.delegate = self;
-    double delayInSeconds = 6.0;
+    double delayInSeconds = 0.5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);

@@ -557,13 +557,13 @@
                         [[NSNotificationCenter defaultCenter] postNotificationName:FM_USER_ISADMIN object:@(0)];
 //                    FMConfigInstance.userHome = dic[@"home"];
                     //更新 UsrInfo 信息
-//                                    FMUserInfo * info = [FMUserInfo new];
-//                                    info.userId = DEF_UUID;
+                                    FMUserInfo * info = [FMUserInfo new];
+                                    info.userId = DEF_UUID;
 //                                    info.home = dic[@"home"];
 //                                    info.library = dic[@"library"];
-//                                    FMDTUpdateObjectCommand * ucmd = FMDT_UPDATE_OBJECT([FMDBSet shared].userInfo);
-//                                    [ucmd add:info];
-//                                    [ucmd saveChanges];
+                                    FMDTUpdateObjectCommand * ucmd = FMDT_UPDATE_OBJECT([FMDBSet shared].userInfo);
+                                    [ucmd add:info];
+                                    [ucmd saveChanges];
 //                }
             }
             NSLog(@"userhome表更新完成");

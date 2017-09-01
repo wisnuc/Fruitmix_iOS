@@ -157,9 +157,8 @@
     [super layoutSubviews];
     [self getUserInfo];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
-    FMUserLoginInfo * info = [FMDBControl findUserLoginInfo:DEF_UUID];
-//    NSLog(@"%@",info.bonjour_name);
-    self.bonjourLabel.text = info.bonjour_name;
+    self.bonjourLabel.text = _userInfo.bonjour_name;
+    
     NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
     [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
@@ -195,8 +194,12 @@
         [scmd where:@"localId" containedIn:tmp];
         [scmd fetchArrayInBackground:^(NSArray *results) {
             float progress = (float)uploadImageArr.count/(float)allPhotos;
+            NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[self notRounding:progress afterPoint:2]];
+            NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
+            NSDecimalNumber *mutiplyDecimal = [progressDecimalNumber decimalNumberByMultiplyingBy:decimalNumber];
+            
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 10 *10];
+                self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                 self.backUpProgressView.progress = progress;
                 self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)uploadImageArr.count,(long)allPhotos];
 //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
@@ -209,7 +212,16 @@
 //    [cell.contentView addSubview:progressLb];
 //    progressLb.hidden = !_displayProgress;
 }
-
+-(NSString *)notRounding:(float)price afterPoint:(int)position{
+    NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:position raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:NO];
+    NSDecimalNumber *ouncesDecimal;
+    NSDecimalNumber *roundedOunces;
+    
+    ouncesDecimal = [[NSDecimalNumber alloc] initWithFloat:price];
+    roundedOunces = [ouncesDecimal decimalNumberByRoundingAccordingToBehavior:roundingBehavior];
+//    [ouncesDecimal release];
+    return [NSString stringWithFormat:@"%@",roundedOunces];
+}
 
 - (void)receiveNotification:(NSNotification *)noti
 {
@@ -240,12 +252,18 @@
             [scmd where:@"localId" containedIn:tmp];
             [scmd fetchArrayInBackground:^(NSArray *results) {
                 //            NSLog(@"%@",results);
+              ;
                 NSMutableArray *uploadImageArr = [NSMutableArray array];
                 uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
+                float progress = (float)uploadImageArr.count/(float)allPhotos;
+                NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[self notRounding:progress afterPoint:2]];
+                NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
+                NSDecimalNumber *mutiplyDecimal = [progressDecimalNumber decimalNumberByMultiplyingBy:decimalNumber];
+                
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    float progress = (float)uploadImageArr.count/(float)allPhotos;
+                
                     //                NSLog(@"%lu",(unsigned long)results.count);
-                    self.backupLabel.text = [NSString stringWithFormat:@"已备份%.f%%",progress * 100];
+                    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                     self.backUpProgressView.progress = progress;
                     self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)uploadImageArr.count,(long)allPhotos];
                     //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
@@ -355,10 +373,13 @@
 }
 
 - (void)getUserInfo{
-    NSMutableArray * arr = [FMGetUserInfo getUsersInfo];
-    for (FMUserLoginInfo * info in arr) {
-        _userInfo = info;
-    }
+    
+  _userInfo = [FMDBControl findUserLoginInfo:DEF_UUID];
+//    NSMutableArray * arr = [FMGetUserInfo getUsersInfo];
+//    for (FMUserLoginInfo * info in arr) {
+//        _userInfo = info;
+//        NSLog(@"%@",_userInfo);
+//    }
 }
 
 - (void)dealloc
