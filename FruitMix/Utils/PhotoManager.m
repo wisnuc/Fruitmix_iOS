@@ -1,4 +1,4 @@
-//
+
 //  PhotoManager.m
 //  FruitMix
 //
@@ -48,6 +48,7 @@ NSString * JY_UUID() {
     PHFetchResult * _lastResult;
     FMFileUploadInfo * _currentUploadInfo;
     NSMutableArray *_imageUploadArr;
+    NSTimer *_reachabilityTimer;
 }
 
 @end
@@ -76,6 +77,7 @@ NSString * JY_UUID() {
         _getImageQueue.maxConcurrentOperationCount = 1;
         _getImageQueue.qualityOfService = NSQualityOfServiceUserInitiated;
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+         _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
     }
     return self;
 }
@@ -154,6 +156,8 @@ NSString * JY_UUID() {
 - (void)dealloc
 {
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
+    [_reachabilityTimer invalidate];
+    _reachabilityTimer = nil;
 }
 /****************************************************************************************************************************************************************/
 /***********************************************************    Utils   *****************************************************************************************/
@@ -531,6 +535,11 @@ NSString * JY_UUID() {
      }];
     
 }
+- (void)refresh{
+    if (shouldUpload && _canUpload) {
+        [PhotoManager reStartUploader];
+    }
+}
 
 -(void)setCanUpload:(BOOL)canUpload{
     _canUpload = canUpload;
@@ -565,6 +574,9 @@ BOOL shouldUpload = NO;
                         FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
                         [photoArrHash addObject:nasPhoto.fmhash];
                     }
+                      [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
+//                          NSLog(@"");
+                      }];
                     [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                         NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                         for (FMLocalPhoto * p in result) {
@@ -576,9 +588,10 @@ BOOL shouldUpload = NO;
                         
 //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
 //                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
-//                        
-                        NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
-                        NSArray * filter1 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate1];
+                         NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+                         NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
+                        NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",[photoArrHashSet allObjects]];
+                        NSArray * filter1 = [[localPhotoHashArrSet allObjects] filteredArrayUsingPredicate:filterPredicate1];
 //                        //找到在arr1中不在数组arr2中的数据
 //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
 //                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
@@ -759,7 +772,9 @@ BOOL shouldUpload = NO;
                 [PhotoManager shareManager].isUploading = NO;
         }
     };
+    if(imageArr.count>0){
     [self uploadImage:imageArr[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+    }
 }
 
 
@@ -779,6 +794,7 @@ BOOL shouldUpload = NO;
             PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
             if(!asset){
                 [self _uploadFailedWithNotFoundAsset:YES andLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
+                [_imageUploadArr removeObject:photoHash];
 //                 [PhotoManager shareManager].canUpload = NO;
                 if (success) success(@"233");
                 return ;
@@ -1000,6 +1016,7 @@ BOOL shouldUpload = NO;
         [ucmd fieldWithKey:@"uploadTime" val:[NSDate getFormatDateWithDate:[NSDate date]]];
         [ucmd where:@"localIdentifier" equalTo:localId];
         [ucmd saveChangesInBackground:nil];
+        
     }else{
         NSLog(@"跳过一个视频文件");
         FMDTUpdateCommand * ucmd = [[FMDBSet shared].photo createUpdateCommand];

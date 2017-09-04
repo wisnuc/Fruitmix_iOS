@@ -195,7 +195,8 @@
     _Info = [[FMUserEditVC alloc]init];
     _OwnCloud = [[FMOwnCloud alloc]init];
     _UserSetting = [[FMUserSetting alloc]init];
-    _Setting = [[FMSetting alloc]init];
+    _Setting = [[FMSetting alloc]initPrivate];
+//    initPrivate
     _Help = [[FMHelp alloc]init];
     _zhuxiao = [[FMLoginViewController alloc]init];
     _downAndUpLoadManager = [[FLLocalFIleVC alloc]init];
@@ -497,6 +498,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"swithOn"];
        
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];
         [SXLoadingView hideProgressHUD];
@@ -506,9 +508,11 @@
         [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
         [[SDImageCache sharedImageCache] clearDiskOnCompletion:nil];
         [[SDImageCache sharedImageCache] clearMemory];
-   
+        [[YYImageCache sharedCache].diskCache removeAllObjects];
+        [[YYImageCache sharedCache].memoryCache removeAllObjects];
+        self.filesTabBar = nil;
+        self.sharesTabBar = nil;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-          
             [self skipToLogin];
         });
     }else if(IsEquallString(title,@"USER_FOOTERVIEW_CLICK")){

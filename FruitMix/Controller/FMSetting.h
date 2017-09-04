@@ -7,8 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+@protocol BackUpDelegate <NSObject>//协议
+- (void)backUpIndex:(NSInteger)index;//协议方法
+@end
 
 @interface FMSetting : FABaseVC
 @property (weak, nonatomic) IBOutlet UITableView *settingTableView;
-
+@property (nonatomic, assign) id<BackUpDelegate>delegate;
+- (instancetype)initPrivate;
 @end

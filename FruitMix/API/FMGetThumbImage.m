@@ -37,6 +37,9 @@
     if (self = [super init]) {
         _cache = [YYImageCache sharedCache];
         _cache.memoryCache.countLimit = 50;
+        [_cache.diskCache setCountLimit:50];
+        [_cache.diskCache setAutoTrimInterval:30];
+        [_cache.memoryCache setCostLimit:1*1024];
         _localIdDic = [NSMutableDictionary dictionaryWithCapacity:0];
         _createQueue = [[NSOperationQueue alloc]init];
         _createQueue.maxConcurrentOperationCount = 1;
@@ -285,5 +288,12 @@
                 });
         }
     }];
+}
+
+-(void)dealloc {
+    SDImageCache *canche = [SDImageCache sharedImageCache];
+    canche.shouldDecompressImages = YES;
+    SDWebImageDownloader *downloder = [SDWebImageDownloader sharedDownloader];
+    downloder.shouldDecompressImages = YES;
 }
 @end

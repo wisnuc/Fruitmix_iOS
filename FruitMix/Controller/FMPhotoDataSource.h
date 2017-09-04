@@ -29,5 +29,5 @@
 +(instancetype)shareInstance;
 
 -(void)initPhotosIsRefrash;
-
+- (void)getNetPhotos;
 @end

@@ -14,25 +14,38 @@
 
 @property (nonatomic) BOOL displayProgress;
 
+@property (nonatomic,strong)UISwitch * switchBtn;
+
+@property (nonatomic,assign)BOOL switchOn;
+@property (nonatomic,assign)NSInteger tag;
 @end
 
 @implementation FMSetting
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"设置";
     self.view.backgroundColor = [UIColor whiteColor];
-//    self.automaticallyAdjustsScrollViewInsets = NO;
+   //    self.automaticallyAdjustsScrollViewInsets = NO;
     self.navigationController.navigationBar.translucent = NO;
     self.settingTableView.tableFooterView = [UIView new];
     self.displayProgress = NO;
     [self createNavbtn];
+    [self anySwitch];
+ 
 }
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     self.displayProgress = NO;
+//    if (_tag == 1) {
+        [self setSwitch];
+//    }else{
+//           _switchOn = IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO);
+//    }
+
     [self.settingTableView reloadData];
 //    self.navDelegate =  self.navigationController.interactivePopGestureRecognizer.delegate;
 //    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
@@ -40,14 +53,30 @@
 
 }
 
+- (void)setSwitch{
+    _switchOn = [[NSUserDefaults standardUserDefaults] boolForKey:@"swithOn"];
+//     [self.settingTableView reloadData];
+}
 
+-(void)anySwitch{
+    if (_switchOn) {
+        [PhotoManager shareManager].canUpload = YES;
+    }else{
+        
+        [PhotoManager shareManager].canUpload = NO;
 
-
+    }
+    
+}
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
 //    self.navigationController.interactivePopGestureRecognizer.delegate = self.navDelegate;
 }
 
+- (void)setNotifacation{
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(swichActionForNot) name:@"dontBackUp" object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(swichAction) name:@"backUp" object:nil];
+}
 
 -(void)createNavbtn{
 //    UIButton * finishBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 30, 50, 20)];
@@ -58,6 +87,14 @@
 //    UIBarButtonItem * item2 = [[UIBarButtonItem alloc]initWithCustomView:finishBtn];
 //    self.navigationItem.rightBarButtonItem = item2;
     
+}
+
+- (instancetype)initPrivate {
+    self  = [super init];
+    [self setNotifacation];
+//    _switchOn = NO;
+ 
+    return self;
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -73,11 +110,11 @@
         
         [cell.contentView addSubview:titleLb];
         cell.contentView.layer.masksToBounds = YES;
-        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
-        switchBtn.on = IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO);
+        UISwitch *switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
+        switchBtn.on = _switchOn;
         [switchBtn addTarget:self  action:@selector(switchBtnHandleForSync:) forControlEvents:UIControlEventValueChanged];
         [cell.contentView addSubview:switchBtn];
-        
+     
 //        if(switchBtn.isOn){
 //            UILabel * lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 50, __kWidth, 12)];
 //            lb.font = [UIFont systemFontOfSize:12];
@@ -115,7 +152,7 @@
         titleLb.font = [UIFont systemFontOfSize:17];
         [cell.contentView addSubview:titleLb];
         
-        UISwitch * switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
+        UISwitch *switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
         switchBtn.on = SHOULD_WLNN_UPLOAD;
         [switchBtn addTarget:self  action:@selector(switchBtnHandleForWWNN:) forControlEvents:UIControlEventValueChanged];
         [cell.contentView addSubview:switchBtn];
@@ -206,20 +243,52 @@
 //    NSLog(@"%@",name);
     if (switchBtn.isOn) {
         [PhotoManager shareManager].canUpload = YES;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"swithOn"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        _switchOn = YES;
     }else{
 //        NSLog(@"%@",USER_SHOULD_SYNC_PHOTO);
 //        if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)) {
              [PhotoManager shareManager].canUpload = NO;
+         _switchOn = NO;
+        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"swithOn"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
 //        }
     }
-    [self.settingTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:100];
+//    [self.settingTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:100];
+}
+
+- (void)swichActionForNot{
+//    dispatch_sync(dispatch_get_main_queue(), ^{
+//     [_switchBtn setOn:NO];
+//    });
+       _tag = 1;
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"swithOn"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+}
+
+- (void)swichAction{
+//    dispatch_sync(dispatch_get_main_queue(), ^{
+//        [_switchBtn setOn:YES];
+//    });
+       _tag = 1;
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"swithOn"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
 }
 
 - (IBAction)cleanBtnClick:(id)sender {
+   
 }
 
 -(void)backbtnClick:(UIButton *)back{
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:@"dontBackUp" object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:@"backUp" object:nil];
 }
 
 @end

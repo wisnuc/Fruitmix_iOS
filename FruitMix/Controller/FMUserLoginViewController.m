@@ -10,7 +10,7 @@
 #import "FMLoginTextField.h"
 #import "UIButton+EnlargeEdge.h"
 #import "FMGetUserInfo.h"
-
+#import "FMUploadFileAPI.h"
 #define  MainColor  UICOLOR_RGB(0x03a9f4)
 
 @interface FMUserLoginViewController ()<UITextFieldDelegate>
@@ -95,15 +95,54 @@
 //登录完成 做的事
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
+    NSString * def_token = DEF_Token;
+    if (def_token.length == 0 ) {
+        UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
+        
+        // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
+        
+        UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+            
+            NSLog(@"点击了取消按钮");
+            
+            [PhotoManager shareManager].canUpload = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
+            
+        }];
+        
+        UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [PhotoManager shareManager].canUpload = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
+            NSLog(@"点击了确定按钮");
+        }];
+        
+        // 3.将“取消”和“确定”按钮加入到弹框控制器中
+        
+        [alertVc addAction:cancle];
+        
+        [alertVc addAction:confirm];
+        
+        [self presentViewController:alertVc animated:YES completion:^{
+            
+            
+        }];
+ 
+    }
     
     //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
         [FMDBControl reloadTables];
         [FMDBControl asyncLoadPhotoToDB];
         //清除deviceID
-        FMConfigInstance.deviceUUID = @"";//清除deviceUUID
-    }
-    FMConfigInstance.userToken = token;
+        
+//        NSString *defToken = DEF_UUID;
+//        if (defToken.length==0) {
+        
+        
+//        }
+
+}
+      FMConfigInstance.userToken = token;
     FMConfigInstance.userUUID = _user.uuid;
     //更新图库
     JYRequestConfig * config = [JYRequestConfig sharedConfig];
@@ -116,11 +155,8 @@
         //重启photoSyncer
         [PhotoManager shareManager].canUpload = YES;
     }
-    
     //重置数据
     [MyAppDelegate resetDatasource];
-    
-    
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         //保存用户信息
         FMUserLoginInfo * info = [FMUserLoginInfo new];
@@ -144,7 +180,68 @@
     [MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
     [MyAppDelegate.sharesTabBar setSelectedIndex:0];
     MyAppDelegate.filesTabBar = nil;
+    [MyAppDelegate resetDatasource];
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
+    [self siftPhotos];
+}
+
+- (void)siftPhotos{
+    NSString *entryuuid = PHOTO_ENTRY_UUID;
+    [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+        //                    NSLog(@"%@",responseObject);
+        NSDictionary * dic = responseObject;
+        NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
+        
+        NSArray * arr = [dic objectForKey:@"entries"];
+        for (NSDictionary *dic in arr) {
+            FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+            [photoArrHash addObject:nasPhoto.fmhash];
+        }
+        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+            for (FMLocalPhoto * p in result) {
+                if (p.degist.length >0) {
+                    [localPhotoHashArr addObject:p.degist];
+                }
+                
+            }
+            
+            NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
+            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+            
+            NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",[localPhotoHashArrSet allObjects]];
+            NSArray * filter_no = [[photoArrHashSet allObjects] filteredArrayUsingPredicate:filterPredicate_same];
+            NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
+            [siftPhotoArrHash addObjectsFromArray:filter_no];
+            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
+            [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
+            [[NSUserDefaults standardUserDefaults]  synchronize];
+            
+        }];
+        
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+        NSLog(@"%ld",(long)rep.statusCode);
+        
+        if (rep.statusCode == 404) {
+            [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+                if (successful) {
+                    [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
+                        if (successful) {
+                            [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                                if (successful) {
+                                    [self siftPhotos];
+                                }
+                            }];
+                        }
+                    }];
+                }
+            }];
+            //
+        }
+        
+    }];
+    
 }
 
 - (UILabel *)setTextFieldLine{

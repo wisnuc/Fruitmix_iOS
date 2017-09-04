@@ -79,7 +79,7 @@
         FMMediaAPI * api = [FMMediaAPI new];
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
             [self analysisPhotos:request.responseJsonObject];
-            [self siftPhotos:request.responseJsonObject];
+            [self siftPhotos];
 //            NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
             NSLog(@"载入Media失败,%@",request.error);
@@ -87,7 +87,7 @@
     });
 }
 
-- (void)siftPhotos:(id)response{
+- (void)siftPhotos{
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
         //                    NSLog(@"%@",responseObject);
@@ -108,56 +108,44 @@
                 
             }
             
-            NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",localPhotoHashArr];
-            NSArray * filter_no = [photoArrHash filteredArrayUsingPredicate:filterPredicate_same];
+            NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
+            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+            
+            NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",[localPhotoHashArrSet allObjects]];
+            NSArray * filter_no = [[photoArrHashSet allObjects] filteredArrayUsingPredicate:filterPredicate_same];
             NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
             [siftPhotoArrHash addObjectsFromArray:filter_no];
             NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
-            [[NSUserDefaults standardUserDefaults]  synchronize];
- 
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
         }];
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         NSLog(@"%ld",(long)rep.statusCode);
-     
-            if (rep.statusCode == 404) {
-                [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
-                    if (successful) {
-                        [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
-                            if (successful) {
-                                [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
-                                    if (successful) {
-                                        [self siftPhotos:nil];
-                                    }
-                                }];
-                            }
-                        }];
-                    }
-                }];
-                //
-            }
-
-
+        
+        if (rep.statusCode == 404) {
+            [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+                if (successful) {
+                    [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
+                        if (successful) {
+                            [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                                if (successful) {
+                                    [self siftPhotos];
+                                }
+                            }];
+                        }
+                    }];
+                }
+            }];
+            //
+        }
+        
     }];
     
-//    [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-//        NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
-//        for (FMLocalPhoto * p in result) {
-//            [localPhotoHashArr addObject:p.degist];
-//        }
-//        NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",localPhotoHashArr];
-//        NSArray * filter_no = [photoArrHash filteredArrayUsingPredicate:filterPredicate_same];
-//        NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
-//        [siftPhotoArrHash addObjectsFromArray:filter_no];
-//        NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
-//        [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
-//        [[NSUserDefaults standardUserDefaults]  synchronize];
-//    }];
-   
-
 }
+
 
 -(void)analysisPhotos:(id)response{
     NSArray * userArr = response;
@@ -280,12 +268,12 @@
                 for (int i = 1 ; i < self.imageArr.count; i++) {
                     @autoreleasepool {
                       
-                        IDMPhoto * photoUp =  self.imageArr[i];
-                        IDMPhoto * photoDown = self.imageArr[i-1];
+//                        IDMPhoto * photoUp =  self.imageArr[i];
+//                        IDMPhoto * photoDown = self.imageArr[i-1];
 //                         NSLog(@"%@😁%@",[photoUp getPhotoHash],[photoDown getPhotoHash]);
-                        if ([self isSamePhotoHash:[photoUp getPhotoHash] photoHash2:[photoDown getPhotoHash]]) {
-                            [self.imageArr removeObject:photoUp];
-                        }
+//                        if ([self isSamePhotoHash:[photoUp getPhotoHash] photoHash2:[photoDown getPhotoHash]]) {
+//                            [self.imageArr removeObject:photoUp];
+//                        }
                        
                         IDMPhoto * photo1 =  self.imageArr[i];
                         IDMPhoto * photo2 = self.imageArr[i-1];

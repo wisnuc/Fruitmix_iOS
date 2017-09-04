@@ -304,6 +304,7 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
         if(isCover && [[FMGetThumbImage defaultGetThumbImage].cache containsImageForKey:hashKey]){
             @autoreleasepool {
                 UIImage *img = [[FMGetThumbImage defaultGetThumbImage].cache getImageForKey:hashKey];
+            
                 if(block)
                     dispatch_async(dispatch_get_main_queue(), ^{
                         block(img,hash);

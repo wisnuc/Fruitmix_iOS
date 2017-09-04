@@ -472,7 +472,11 @@ static void cancel_delayed_block(CWDelayedBlockHandle delayedHandle)
     if (!self.notificationIsShowing) {
         self.isCustomView = NO;
         self.notificationIsShowing = YES;
-
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+           
+            
+      
         // create UIWindow
         [self createNotificationWindow];
 
@@ -502,6 +506,8 @@ static void cancel_delayed_block(CWDelayedBlockHandle delayedHandle)
                 [completion invoke];
             });
         }];
+            
+      });
     }
 }
 
