@@ -302,14 +302,16 @@
                     
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
-                    self.backUpProgressView.progress = progress;
-                    
-                    self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)uploadImageArr.count,(long)allPhotos];
+                  
                     
                     if (uploadImageArr.count >= (long)allPhotos) {
                         self.backUpProgressView.progress = 1;
                         self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)(long)allPhotos,(long)allPhotos];
+                    }else{
+                        self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
+                        self.backUpProgressView.progress = progress;
+                        
+                        self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(unsigned long)uploadImageArr.count,(long)allPhotos];
                     }
                     //                progressLb.text = [NSString stringWithFormat:@"本地照片总数: %ld张    已上传张数: %ld张",allPhotos,results.count];
                 });

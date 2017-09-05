@@ -13,10 +13,35 @@
 #import "FMAlbumNamedController.h"
 #import "FMCommentController.h"
 #import "FMBalloon.h"
+#import "LCActionSheet.h"
+#import "JYProcessView.h"
+
+
 #ifndef IDMPhotoBrowserLocalizedStrings
 #define IDMPhotoBrowserLocalizedStrings(key) \
 NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBundle bundleForClass: self.class] pathForResource:@"IDMPBLocalizations" ofType:@"bundle"]], nil)
 #endif
+
+@interface FMPhotoDownloadViewHelper : NSObject
+
++(instancetype)defaultHelper;
+
+@property (nonatomic ,copy) void (^downloadCompleteBlock)(BOOL success,UIImage * image);
+
+@end
+
+@implementation FMPhotoDownloadViewHelper
+
++(instancetype)defaultHelper{
+    static FMPhotoDownloadViewHelper * helper;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        helper = [FMPhotoDownloadViewHelper new];
+    });
+    return helper;
+}
+
+@end
 
 // Private
 @interface IDMPhotoBrowser () {
@@ -109,7 +134,9 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 // Private Properties
 @property (nonatomic, strong) UIActionSheet *actionsSheet;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
-
+@property (nonatomic, strong) JYProcessView * pv;
+@property (nonatomic) BOOL shouldDownload;
+@property (nonatomic) id <IDMPhoto>currentPhoto;
 // Private Methods
 
 // Layout
@@ -837,6 +864,14 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     [_panGesture setMinimumNumberOfTouches:1];
     [_panGesture setMaximumNumberOfTouches:1];
     
+    UILongPressGestureRecognizer * longPress = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handlelongPress:)];
+    longPress.minimumPressDuration = 0.5f;
+    
+    if(! _disableVerticalSwipe){
+        [_pagingScrollView addGestureRecognizer:longPress];
+    }
+    
+    
     // Update
     //[self reloadData];
     
@@ -1323,12 +1358,15 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     // Load adjacent images if needed and the photo is already
     // loaded. Also called after photo has been loaded in background
     id <IDMPhoto> currentPhoto = [self photoAtIndex:index];
-    if ([currentPhoto underlyingImage]) {
+       if ([currentPhoto underlyingImage]) {
         // photo loaded so load ajacent now
         [self loadAdjacentPhotosIfNecessary:currentPhoto];
     }
     if ([_delegate respondsToSelector:@selector(photoBrowser:didShowPhotoAtIndex:)]) {
         [_delegate photoBrowser:self didShowPhotoAtIndex:index];
+    }
+    if (currentPhoto) {
+        _currentPhoto =currentPhoto;
     }
 }
 
@@ -1958,6 +1996,145 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 //    vc.photoHash = self.
 }
 
+
+- (void)handlelongPress:(UILongPressGestureRecognizer *)gesture {
+     if(gesture.state == UIGestureRecognizerStateBegan){
+    [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+        if (buttonIndex == 1) {
+#warning stand by
+            [self share];
+        }
+    } otherButtonTitles:@"分享", nil] show];
+  }
+}
+
+-(void)share{
+    //准备照片
+    @weaky(self);
+    [self clickDownloadWithShare:YES andCompleteBlock:^(NSArray *images) {
+        UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:images applicationActivities:nil];
+        //初始化回调方法
+        UIActivityViewControllerCompletionWithItemsHandler myBlock = ^(NSString *activityType,BOOL completed,NSArray *returnedItems,NSError *activityError)
+        {
+            NSLog(@"activityType :%@", activityType);
+            if (completed)
+            {
+                NSLog(@"share completed");
+            }
+            else
+            {
+                NSLog(@"share cancel");
+            }
+            
+        };
+        
+        // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
+        activityVC.completionWithItemsHandler = myBlock;
+        
+        //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop
+        activityVC.excludedActivityTypes = @[];
+        
+        [weak_self presentViewController:activityVC animated:YES completion:nil];
+    }];
+}
+
+-(void)clickDownloadWithShare:(BOOL)share andCompleteBlock:(void(^)(NSArray * images))block{
+    NSArray * chooseItems = [NSArray arrayWithObject:_currentPhoto];
+//    NSLog(@"🌶🌶🌶🌶🌶%ld",(long)chooseItems.count);
+    if (!_pv)
+        _pv = [JYProcessView processViewWithType:ProcessTypeLine];
+    _pv.descLb.text = share?@"正在准备照片":@"正在下载文件";
+    _pv.subDescLb.text = [NSString stringWithFormat:@"%lu个项目 ",(unsigned long)chooseItems.count];
+    [_pv show];
+    _shouldDownload = YES;
+    _pv.cancleBlock = ^(){
+        _shouldDownload = NO;
+    };
+    if (chooseItems.count ==1) {
+    [self downloadItems:chooseItems withShare:share andCompleteBlock:block];
+    }
+
+}
+
+-(void)downloadItems:(NSArray *)items withShare:(BOOL)isShare andCompleteBlock:(void(^)(NSArray * images))block{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @autoreleasepool {
+            __block float complete = 0.f;
+            __block int successCount = 0;
+            __block int finish = 0;
+            FMPhotoDownloadViewHelper  * helper = [FMPhotoDownloadViewHelper defaultHelper];
+            __weak typeof(helper) weakHelper = helper;
+            __block NSUInteger allCount = items.count;
+            @weaky(self);
+            NSMutableArray * tempDownArr = [NSMutableArray arrayWithCapacity:0];
+            helper.downloadCompleteBlock = ^(BOOL success ,UIImage *image){
+                complete ++;finish ++;
+                if (successCount) successCount++;
+                CGFloat progress =  complete/allCount;
+                if (image && isShare) [tempDownArr addObject:image];
+                [weak_self.pv setValueForProcess:progress];
+                if (items.count > complete) {
+                    [weak_self downloadItem:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+                }else{
+                    _shouldDownload = NO;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weak_self.pv dismiss];
+                        if (!isShare)
+                            [MyAppDelegate.notification displayNotificationWithMessage:@"下载完成" forDuration:0.5f];
+                        if (block) block([tempDownArr copy]);
+                    });
+                }
+            };
+            [self downloadItem:items[0] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+        }
+    });
+}
+
+-(void)downloadItem:(id<IDMPhoto>)item withShare:(BOOL)share withCompleteBlock:(void(^)(BOOL isSuccess,UIImage * image))block{
+    if ([item isKindOfClass:[FMNASPhoto class]]) {
+        [FMGetImage getFullScreenImageWithPhotoHash:[item getPhotoHash]
+                                   andCompleteBlock:^(UIImage *image, NSString *tag)
+         {
+             if (image) {
+                 if(!share){
+                     [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                             block(isSuccess,image);
+                         });
+                     }];
+                 }else{
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         block(YES,image);
+                     });
+                 }
+             }else
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                     block(NO,nil);
+                 });
+         }];
+    }else{
+        FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
+        PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[(FMPhotoAsset *)item localId]];
+        if (asset) {
+            if (!share) {
+                [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
+                    UIImage * image;
+                    if (filePath && (image = [UIImage imageWithContentsOfFile:filePath])) {
+                        [[PhotoManager shareManager]saveImage:image andCompleteBlock:^(BOOL isSuccess) {
+                            [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];//删除image
+                            block(isSuccess,image);
+                        }];
+                    }else block(NO,nil);
+                }];
+            }else{
+                [[FMGetImage defaultGetImage] getOriginalImageWithAsset:asset andCompleteBlock:^(UIImage *image, NSString *tag) {
+                    block(YES,image);
+                }];
+                
+            }
+        }else block(NO,nil);
+    }
+}
 
 -(UIView *)blackViewForRotate{
     if (!_blackViewForRotate) {

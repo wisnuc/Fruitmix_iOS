@@ -94,7 +94,7 @@ static MBProgressHUD  *s_progressHUD = nil;
 + (void)hideProgressHUD {
     if (s_progressHUD) {
         dispatch_async(dispatch_get_main_queue(), ^{
-           [s_progressHUD hide:YES];
+           [s_progressHUD hide:YES afterDelay:20];
             [s_progressHUD removeFromSuperview];
         });
     }

@@ -24,6 +24,26 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     f1 = (FLFilesModel *)file2;
     return  [f1.name localizedCompare:f2.name];
 }
+@interface FMFilesDownloadViewHelper : NSObject
+
++(instancetype)defaultHelper;
+
+@property (nonatomic ,copy) void (^downloadCompleteBlock)(BOOL success,NSString *filePath);
+
+@end
+
+@implementation FMFilesDownloadViewHelper
+
++(instancetype)defaultHelper{
+    static FMFilesDownloadViewHelper * helper;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        helper = [FMFilesDownloadViewHelper new];
+    });
+    return helper;
+}
+
+@end
 
 @interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate>
 {
@@ -46,7 +66,9 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 @property (nonatomic, strong) UIDocumentInteractionController *documentController;
 
+@property (nonatomic, strong) JYProcessView * pv;
 
+@property (nonatomic) BOOL shouldDownload;
 
 @end
 
@@ -93,8 +115,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
         CGRect floatFrame = CGRectMake(JYSCREEN_WIDTH - 80 , __kHeight - 64 - 56 - 88, 56, 56);
         _addButton = [[VCFloatingActionButton alloc]initWithFrame:floatFrame normalImage:[UIImage imageNamed:@"add_album"] andPressedImage:[UIImage imageNamed:@"icon_close"] withScrollview:_fileTableView];
         _addButton.automaticallyInsets = YES;
-        _addButton.imageArray = @[@"download"];
-        _addButton.labelArray = @[@""];
+        _addButton.imageArray = @[@"download",@"fab_share"];
+        _addButton.labelArray = @[@"",@""];
         _addButton.delegate = self;
         _addButton.hidden = YES;
         [self.view addSubview:_addButton];
@@ -281,16 +303,20 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 #pragma mark - floatMenuDelegate
 
 -(void)didSelectMenuOptionAtIndex:(NSInteger)row{
-   
-        if (self.cellStatus == FLFliesCellStatusCanChoose) {
+    if (self.cellStatus == FLFliesCellStatusCanChoose) {
+        if (row == 0) {
             if ([FLFIlesHelper helper].chooseFiles.count == 0) {
                 [SXLoadingView showAlertHUD:@"请先选择文件" duration:1];
             }else{
-                  [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
                 FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
-                 [self.navigationController pushViewController:downloadVC animated:YES];
-                }
+                [self.navigationController pushViewController:downloadVC animated:YES];
+            }
+  
+        }else{
+            [self shareFiles];
         }
+    }
 }
 #pragma mark - FLDataSourceDelegate
 
@@ -383,6 +409,107 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     // display third-party apps as well as actions, such as Copy, Print, Save Image, Quick Look
     //    [_documentController presentOptionsMenuFromRect:self.view.bounds inView:self.view animated:YES];
 }
+
+- (void)shareFiles{
+#warning stand by
+//    [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+        //准备照片
+        @weaky(self);
+        [self clickDownloadWithShare:YES andCompleteBlock:^(NSArray *files) {
+            UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:files applicationActivities:nil];
+            //初始化回调方法
+            UIActivityViewControllerCompletionWithItemsHandler myBlock = ^(NSString *activityType,BOOL completed,NSArray *returnedItems,NSError *activityError)
+            {
+                NSLog(@"activityType :%@", activityType);
+                if (completed)
+                {
+                    NSLog(@"share completed");
+                }
+                else
+                {
+                    NSLog(@"share cancel");
+                }
+                
+            };
+            
+            // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
+            activityVC.completionWithItemsHandler = myBlock;
+            
+            //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop
+            activityVC.excludedActivityTypes = @[];
+            
+            [weak_self presentViewController:activityVC animated:YES completion:nil];
+        }];
+}
+
+-(void)clickDownloadWithShare:(BOOL)share andCompleteBlock:(void(^)(NSArray * files))block{
+    NSArray * chooseItems = [[FLFIlesHelper helper].chooseFiles copy];
+    if (!_pv)
+        _pv = [JYProcessView processViewWithType:ProcessTypeLine];
+    _pv.descLb.text = share?@"正在准备文件":@"正在下载文件";
+    _pv.subDescLb.text = [NSString stringWithFormat:@"%lu个项目 ",(unsigned long)chooseItems.count];
+    [_pv show];
+    _shouldDownload = YES;
+    _pv.cancleBlock = ^(){
+        _shouldDownload = NO;
+    };
+    [self downloadItems:chooseItems withShare:share andCompleteBlock:block];
+    [self leftBtnClick:_leftBtn];
+}
+
+-(void)downloadItems:(NSArray *)items withShare:(BOOL)isShare andCompleteBlock:(void(^)(NSArray * files))block{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @autoreleasepool {
+            __block float complete = 0.f;
+            __block int successCount = 0;
+            __block int finish = 0;
+            FMFilesDownloadViewHelper  * helper = [FMFilesDownloadViewHelper defaultHelper];
+            __weak typeof(helper) weakHelper = helper;
+            __block NSUInteger allCount = items.count;
+            @weaky(self);
+            NSMutableArray * tempDownArr = [NSMutableArray arrayWithCapacity:0];
+            helper.downloadCompleteBlock = ^(BOOL success ,NSString *filePath){
+                complete ++;finish ++;
+                if (successCount) successCount++;
+                CGFloat progress =  complete/allCount;
+               NSData *fileData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
+                if (filePath && isShare) [tempDownArr addObject:fileData];
+                [weak_self.pv setValueForProcess:progress];
+                if (items.count > complete) {
+                    [weak_self downloadWithModel:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+                }else{
+                    _shouldDownload = NO;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weak_self.pv dismiss];
+                        if (!isShare)
+                            [MyAppDelegate.notification displayNotificationWithMessage:@"下载完成" forDuration:0.5f];
+                        if (block) block([tempDownArr copy]);
+                    });
+                }
+            };
+         
+            [self downloadWithModel:items[0] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+        }
+    });
+}
+
+-(void)downloadWithModel:(FLFilesModel *)model withShare:(BOOL)share withCompleteBlock:(void(^)(BOOL isSuccess,  NSString *filePath))block{
+    if (model) {
+        [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DRIVE_UUID Progress:^(TYDownloadProgress *progress) {
+            } State:^(TYDownloadState state, NSString *filePath, NSError *error) {
+            if (state == TYDownloadStateCompleted && filePath.length >0) {
+                if (share) {
+                    block(YES,filePath);
+                }else{
+                    block(NO,filePath);
+                }
+            }
+        }];
+  
+    }
+   
+}
+
 
 - (void)actionForChooseStatus{
      if (self.cellStatus == FLFliesCellStatusCanChoose) {

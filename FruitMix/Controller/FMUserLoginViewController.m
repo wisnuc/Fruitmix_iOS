@@ -98,16 +98,11 @@
     NSString * def_token = DEF_Token;
     if (def_token.length == 0 ) {
         UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
-        
         // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
-        
         UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            
             NSLog(@"点击了取消按钮");
-            
             [PhotoManager shareManager].canUpload = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
-            
         }];
         
         UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -115,34 +110,20 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
             NSLog(@"点击了确定按钮");
         }];
-        
+
         // 3.将“取消”和“确定”按钮加入到弹框控制器中
-        
         [alertVc addAction:cancle];
-        
         [alertVc addAction:confirm];
-        
         [self presentViewController:alertVc animated:YES completion:^{
-            
-            
         }];
- 
     }
-    
     //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
         [FMDBControl reloadTables];
         [FMDBControl asyncLoadPhotoToDB];
         //清除deviceID
-        
-//        NSString *defToken = DEF_UUID;
-//        if (defToken.length==0) {
-        
-        
-//        }
-
 }
-      FMConfigInstance.userToken = token;
+    FMConfigInstance.userToken = token;
     FMConfigInstance.userUUID = _user.uuid;
     //更新图库
     JYRequestConfig * config = [JYRequestConfig sharedConfig];
@@ -164,15 +145,12 @@
         info.uuid = _user.uuid;
         //        info.deviceId = [PhotoManager getUUID];
         info.jwt_token = token;
-     
         info.bonjour_name = _service.hostName;
 //           NSLog(@"%@",_service.hostName);
         [FMDBControl addUserLoginInfo:info];
 //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
     });
-    
     //组装UI
-    
     MyAppDelegate.window.rootViewController = nil;
     [MyAppDelegate.window resignKeyWindow];
     [MyAppDelegate.window removeFromSuperview];
@@ -188,7 +166,7 @@
 - (void)siftPhotos{
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-        //                    NSLog(@"%@",responseObject);
+        //NSLog(@"%@",responseObject);
         NSDictionary * dic = responseObject;
         NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
         
@@ -203,9 +181,7 @@
                 if (p.degist.length >0) {
                     [localPhotoHashArr addObject:p.degist];
                 }
-                
             }
-            
             NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
             NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
             
@@ -216,13 +192,11 @@
             NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
             [[NSUserDefaults standardUserDefaults]  synchronize];
-            
         }];
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         NSLog(@"%ld",(long)rep.statusCode);
-        
         if (rep.statusCode == 404) {
             [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
                 if (successful) {
@@ -237,9 +211,7 @@
                     }];
                 }
             }];
-            //
         }
-        
     }];
     
 }

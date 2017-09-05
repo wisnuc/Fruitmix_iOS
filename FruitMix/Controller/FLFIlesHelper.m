@@ -92,7 +92,6 @@
     }
     [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%ld个文件已添加到下载",(unsigned long)[FLFIlesHelper helper].chooseFiles.count] forDuration:1];
     [[FLFIlesHelper helper] removeAllChooseFile];
-    
 }
 
 - (void)downloadAloneFilesWithModel:(FLFilesModel *)model parentUUID:(NSString *)uuid Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state
@@ -112,6 +111,8 @@
     [manager startWithDownloadModel:downloadModel progress:progress state:state];
      [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
 }
+
+
 
 - (void)cancleDownload{
     if (_downloadModel) {
@@ -150,7 +151,7 @@
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
                                                                      delegate:nil
                                                             cancelButtonTitle:@"取消"
-                                                        otherButtonTitleArray:@[@"下载该文件"]];
+                                                        otherButtonTitleArray:@[@"下载该文件",@"分享"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
                     [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel parentUUID:uuid];
@@ -159,6 +160,8 @@
                         FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
                         [viewController.navigationController pushViewController:downloadVC animated:YES];
                     }
+                }else if(buttonIndex == 2) {
+                    
                 }
             };
             actionSheet.scrolling          = YES;
