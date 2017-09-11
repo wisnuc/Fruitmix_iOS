@@ -22,11 +22,25 @@
 -(void)prepareForReuse{
     [super prepareForReuse];
     self.fmPhotoImageView.backgroundColor =UICOLOR_RGB(0xf5f5f5);
+    self.fmPhotoImageView.image = [self imageWithColor:UICOLOR_RGB(0xf5f5f5)];
     self.lockBtn.hidden = YES;
     self.maskLayer.hidden =YES;
 }
 
-
+- (UIImage*) imageWithColor:(UIColor*)color
+{
+    CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -91,6 +105,8 @@
     FMGetThumbImageCompleteBlock _block = ^(UIImage *image, NSString * tag) {
         if (IsEquallString(tag, weak_self.imageTag)) {
             weak_self.fmPhotoImageView.image = image;
+        }else{
+            
         }
 //         [[SDImageCache sharedImageCache] setValue:nil forKey:@"memCache"];
     };

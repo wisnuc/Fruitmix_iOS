@@ -94,7 +94,7 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
-    [self siftPhotos];
+//    [self siftPhotos];
 }
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
@@ -118,11 +118,17 @@
 //    titleLb.textColor = UICOLOR_RGB(0xffffff);
 //    titleLb.text = self.title;
 //    self.navigationItem.titleView = titleLb;
-    [self initView];
+//    [self startLoading];
+    [self initView];      
     [self initData];
     [self registNotify];
     [self initMjRefresh];
     [self asynAnyThings];
+
+}
+
+- (void)startLoading{
+    [SXLoadingView showProgressHUD:@"加载中..."];
 }
 
 - (void)initMjRefresh{
@@ -159,17 +165,17 @@
     self.choosePhotos = [NSMutableArray arrayWithCapacity:0];
     self.chooseSection = [NSMutableArray arrayWithCapacity:0];
     self.photoDataSource = [FMPhotoDataSource shareInstance];
+    
     if (_photoDataSource.isFinishLoading) {
         [self.collectionView reloadData];
+   
     }
 }
 
-
-
 -(void)refreshPhoto{
     [_photoDataSource initPhotosIsRefrash];
+    [SXLoadingView hideProgressHUD];
 }
-
 
 -(void)initView{
     self.view.backgroundColor = UICOLOR_RGB(0xe2e2e2);
@@ -179,11 +185,12 @@
     self.collectionView.userIndicator = YES;
     [self.view addSubview:self.collectionView];
     self.collectionView.fmState = FMPhotosCollectionViewCellStateNormal;
-//    [self.collectionView registerNib:[UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"photocell"];
+    [self.collectionView registerNib:[UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"photocell"];
     [self addRightBtn];
     [self createControlbtn];
     [self addPinchGesture];
     [self updateFrame];
+  
 }
 
 -(void)updateFrame{
@@ -691,21 +698,23 @@
 #pragma mark - FMPhotoCollectionViewDelegate
 
 -(UICollectionViewCell *)fm_CollectionView:(FMPhotoCollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
-    NSString *identifier = [_cellIdentifierDic objectForKey:[NSString stringWithFormat:@"%@", indexPath]];
+    NSString *identifier = @"photocell";
     
-    if(identifier == nil){
-        
-        identifier = [NSString stringWithFormat:@"selectedBtn%@", [NSString stringWithFormat:@"%@", indexPath]];
-        [_cellIdentifierDic setObject:identifier forKey:[NSString  stringWithFormat:@"%@",indexPath]];
-        
-        UINib *nib = [UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle: [NSBundle mainBundle]];
-        [_collectionView registerNib:nib forCellWithReuseIdentifier:identifier];
-    }
+//    [_cellIdentifierDic objectForKey:[NSString stringWithFormat:@"%@", indexPath]];
+    
+//    if(identifier == nil){
+//        
+//        identifier = [NSString stringWithFormat:@"selectedBtn%@", [NSString stringWithFormat:@"%@", indexPath]];
+//        [_cellIdentifierDic setObject:identifier forKey:[NSString  stringWithFormat:@"%@",indexPath]];
+//        
+//        UINib *nib = [UINib nibWithNibName:@"FMPhotosCollectionViewCell" bundle: [NSBundle mainBundle]];
+//        [_collectionView registerNib:nib forCellWithReuseIdentifier:identifier];
+//    }
     FMPhotosCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
     
-    if(!cell){
-        
-    }
+//    if(!cell){
+//        
+//    }
   
     NSArray * datas = [self.photoDataSource.dataSource objectAtIndex:indexPath.section];
     // 请求图片

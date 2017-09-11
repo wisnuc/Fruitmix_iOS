@@ -580,15 +580,19 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     [_applicationWindow addSubview:fadeView];
     
     CGRect imageViewFrame = [self animationFrameForImage:imageFromView presenting:NO scrollView:scrollView];
-    
-    UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
-    resizableImageView.frame = imageViewFrame;
-    resizableImageView.contentMode = _senderViewForAnimation ? _senderViewForAnimation.contentMode : UIViewContentModeScaleAspectFill;
-    resizableImageView.backgroundColor = [UIColor clearColor];
-    resizableImageView.contentMode = UIViewContentModeScaleAspectFill;
-    resizableImageView.layer.masksToBounds = YES;
-    [_applicationWindow addSubview:resizableImageView];
-    self.view.hidden = YES;
+    UIImageView *resizableImageView;
+//    if (image && imageViewFrame.size.width !=NAN ) {
+        resizableImageView  = [[UIImageView alloc] initWithImage:imageFromView];
+        resizableImageView.frame = imageViewFrame;
+        resizableImageView.contentMode = _senderViewForAnimation ? _senderViewForAnimation.contentMode : UIViewContentModeScaleAspectFill;
+        resizableImageView.backgroundColor = [UIColor clearColor];
+        resizableImageView.contentMode = UIViewContentModeScaleAspectFill;
+        resizableImageView.layer.masksToBounds = YES;
+        [_applicationWindow addSubview:resizableImageView];
+        self.view.hidden = YES;
+//    }
+  
+   
     
     void (^completion)() = ^() {
         _senderViewForAnimation.hidden = NO;
@@ -1075,8 +1079,6 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 //            make.height.equalTo(@30);
 //        }];
     }
-    
-    
     // Close button
     if(_displayDoneButton && !self.navigationController.navigationBar)
         [_jyTitleView addSubview:_doneButton];

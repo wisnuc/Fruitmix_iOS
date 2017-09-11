@@ -12,4 +12,5 @@
 @interface FLFilesVC : FLBaseVC
 
 @property (nonatomic) NSString * parentUUID;
+- (void)shareFiles;
 @end

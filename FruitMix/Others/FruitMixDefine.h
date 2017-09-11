@@ -31,7 +31,7 @@
 #define USER_HOME_STR @"user_home"
 #define SHOULD_UPLOAD_STR @"SHOULD_UPLOAD_STR"
 #define SHOULD_WLNN_UPLOAD_STR @"SHOULD_WLNN_UPLOAD_STR"
-
+#define KSWITHCHON     @"switchOn"
 
 
 #define USER_SHOULD_SYNC_PHOTO_STR @"USER_SHOULD_SYNC_PHOTO_STR"
@@ -51,6 +51,7 @@
 #define ENTRY_UUID [[NSUserDefaults standardUserDefaults]objectForKey:ENTRY_UUID_STR]
 #define PHOTO_ENTRY_UUID [[NSUserDefaults standardUserDefaults]objectForKey:PHOTO_ENTRY_UUID_STR]
 #define DEVICE_UUID [[NSUserDefaults standardUserDefaults]objectForKey:DEVICE_UUID_STR]
+#define SWITHCHON_BOOL   [[NSUserDefaults standardUserDefaults] boolForKey:KSWITHCHON];
 
 #define LAST_REQUEST_TIME [[NSUserDefaults standardUserDefaults]objectForKey:LAST_REQUEST_TIME_STR]//最后请求时间
 #define BASE_URL [[NSUserDefaults standardUserDefaults]objectForKey:BASE_URL_STR]

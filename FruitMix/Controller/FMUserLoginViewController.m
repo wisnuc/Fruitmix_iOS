@@ -96,19 +96,32 @@
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
     NSString * def_token = DEF_Token;
+    MyAppDelegate.leftMenu = nil;
+    [MyAppDelegate initLeftMenu];
     if (def_token.length == 0 ) {
         UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
         // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
         UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             NSLog(@"点击了取消按钮");
-            [PhotoManager shareManager].canUpload = NO;
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [PhotoManager shareManager].canUpload = NO;
+                 [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
+                NSLog(@"点击了确定按钮");
+
+            });
+
+          
         }];
         
         UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            [PhotoManager shareManager].canUpload = YES;
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
-            NSLog(@"点击了确定按钮");
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                 [PhotoManager shareManager].canUpload = YES;
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
+                NSLog(@"点击了确定按钮");
+            });
+           
+           
         }];
 
         // 3.将“取消”和“确定”按钮加入到弹框控制器中
@@ -160,10 +173,38 @@
     MyAppDelegate.filesTabBar = nil;
     [MyAppDelegate resetDatasource];
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
-    [self siftPhotos];
+//    [self siftPhotos];
 }
 
 - (void)siftPhotos{
+    @weaky(self)
+    NSString *entryuuid = PHOTO_ENTRY_UUID;
+    if (entryuuid.length == 0) {
+        [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+            if (successful) {
+                [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
+                    if (successful) {
+                        [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                            if (successful) {
+                                [FMUserLoginViewController siftPhotoFromNetwork];
+                            }
+                        }];
+                    }
+                }];
+            }
+        }];
+  
+    }else{
+        [FMUserLoginViewController siftPhotoFromNetwork];
+    }
+    
+    
+}
+
++ (void)siftPhotoFromNetwork{
+    @weaky(self)
+//    NSCondition *condition = [[NSCondition alloc] init];
+//    [condition lock];
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
         //NSLog(@"%@",responseObject);
@@ -192,6 +233,8 @@
             NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
             [[NSUserDefaults standardUserDefaults]  synchronize];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
         }];
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
@@ -204,7 +247,7 @@
                         if (successful) {
                             [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
                                 if (successful) {
-                                    [self siftPhotos];
+                                    [weak_self siftPhotos];
                                 }
                             }];
                         }
@@ -213,7 +256,8 @@
             }];
         }
     }];
-    
+//     [condition wait];
+//    [condition unlock];
 }
 
 - (UILabel *)setTextFieldLine{

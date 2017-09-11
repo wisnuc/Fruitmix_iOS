@@ -56,7 +56,7 @@ ServerBrowserDelegate
     [self.navigationController setNavigationBarHidden:YES animated:animated];
 //    [self.navigationController.navigationBar setBackgroundColor:UICOLOR_RGB(0x0288d1)];
     [UIApplication sharedApplication].statusBarStyle =UIStatusBarStyleLightContent;
-    [self firstbeginSearching];
+  
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
       _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:12 target:self selector:@selector(searchingAndRefresh) userInfo:nil repeats:YES];
@@ -64,6 +64,7 @@ ServerBrowserDelegate
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
+//      [self firstbeginSearching];
   }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -80,7 +81,7 @@ ServerBrowserDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     _dataSource = [NSMutableArray arrayWithCapacity:0];
-//    [self firstbeginSearching];
+    [self firstbeginSearching];
     [self.view addSubview:self.stationScrollView];
     [self setStationCardView];
     [self.view addSubview:self.stationPageControl];
@@ -106,7 +107,7 @@ ServerBrowserDelegate
     [self viewOfSeaching:YES];
     _browser = [[ServerBrowser alloc] initWithServerType:@"_http._tcp" port:-1];
     _browser.delegate = self;
-    double delayInSeconds = 0.5;
+    double delayInSeconds = 1;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);

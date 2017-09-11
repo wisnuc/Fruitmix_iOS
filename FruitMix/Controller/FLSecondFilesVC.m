@@ -15,6 +15,27 @@
 #import "JYProcessView.h"
 #import "FLLocalFIleVC.h"
 
+@interface FMScecondFilesDownloadViewHelper : NSObject
+
++(instancetype)defaultHelper;
+
+@property (nonatomic ,copy) void (^downloadCompleteBlock)(BOOL success,NSString *filePath);
+
+@end
+
+@implementation FMScecondFilesDownloadViewHelper
+
++(instancetype)defaultHelper{
+    static FMScecondFilesDownloadViewHelper * helper;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        helper = [FMScecondFilesDownloadViewHelper new];
+    });
+    return helper;
+}
+
+@end
+
 NSInteger filesNameSortSecond(id file1, id file2, void *context)
 {
     FLFilesModel *f1,*f2;
@@ -43,6 +64,9 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 @property (strong, nonatomic) JYProcessView * progressView;
 
 @property (nonatomic, strong) UIDocumentInteractionController *documentController;
+@property (nonatomic, strong) JYProcessView * pv;
+
+@property (nonatomic) BOOL shouldDownload;
 @end
 
 @implementation FLSecondFilesVC
@@ -318,6 +342,124 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
         }
     }
     return str;
+}
+
+
+- (void)shareFiles{
+#warning stand by
+    //    [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+    //准备照片
+    @weaky(self);
+    [self clickDownloadWithShare:YES andCompleteBlock:^(NSArray *files) {
+        //            UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:files applicationActivities:nil];
+        //            //初始化回调方法
+        //            UIActivityViewControllerCompletionWithItemsHandler myBlock = ^(NSString *activityType,BOOL completed,NSArray *returnedItems,NSError *activityError)
+        //            {
+        //                NSLog(@"activityType :%@", activityType);
+        //                if (completed)
+        //                {
+        //                    NSLog(@"share completed");
+        //                }
+        //                else
+        //                {
+        //                    NSLog(@"share cancel");
+        //                }
+        //
+        //            };
+        //
+        //            // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
+        //            activityVC.completionWithItemsHandler = myBlock;
+        //
+        //            //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop
+        //            activityVC.excludedActivityTypes = @[];
+        //
+        //            [weak_self presentViewController:activityVC animated:YES completion:nil];
+        for (NSString *filePath in files) {
+            _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+            
+            //设置代理
+            _documentController.delegate = self;
+            
+            BOOL canOpen = [_documentController presentOpenInMenuFromRect:CGRectZero
+                                                                   inView:self.view
+                                                                 animated:YES];
+            
+            if (!canOpen) {
+                NSLog(@"沒有程序可以打開要分享的文件");
+            }
+            
+        }
+        
+        
+    }];
+    
+}
+
+-(void)clickDownloadWithShare:(BOOL)share andCompleteBlock:(void(^)(NSArray * files))block{
+    NSArray * chooseItems = [[FLFIlesHelper helper].chooseFiles copy];
+    if (!_pv)
+        _pv = [JYProcessView processViewWithType:ProcessTypeLine];
+    _pv.descLb.text = share?@"正在准备文件":@"正在下载文件";
+    _pv.subDescLb.text = [NSString stringWithFormat:@"%lu个项目 ",(unsigned long)chooseItems.count];
+    [_pv show];
+    _shouldDownload = YES;
+    _pv.cancleBlock = ^(){
+        _shouldDownload = NO;
+    };
+    [self downloadItems:chooseItems withShare:share andCompleteBlock:block];
+    [self leftBtnClick:_leftBtn];
+}
+
+-(void)downloadItems:(NSArray *)items withShare:(BOOL)isShare andCompleteBlock:(void(^)(NSArray * files))block{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @autoreleasepool {
+            __block float complete = 0.f;
+            __block int successCount = 0;
+            __block int finish = 0;
+            FMScecondFilesDownloadViewHelper  * helper = [FMScecondFilesDownloadViewHelper defaultHelper];
+            __weak typeof(helper) weakHelper = helper;
+            __block NSUInteger allCount = items.count;
+            @weaky(self);
+            NSMutableArray * tempDownArr = [NSMutableArray arrayWithCapacity:0];
+            helper.downloadCompleteBlock = ^(BOOL success ,NSString *filePath){
+                complete ++;finish ++;
+                if (successCount) successCount++;
+                CGFloat progress =  complete/allCount;
+                if (filePath && isShare) [tempDownArr addObject:filePath];
+                [weak_self.pv setValueForProcess:progress];
+                if (items.count > complete) {
+                    [weak_self downloadWithModel:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+                }else{
+                    _shouldDownload = NO;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weak_self.pv dismiss];
+                        if (!isShare)
+                            [MyAppDelegate.notification displayNotificationWithMessage:@"下载完成" forDuration:0.5f];
+                        if (block) block([tempDownArr copy]);
+                    });
+                }
+            };
+            
+            [self downloadWithModel:items[0] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+        }
+    });
+}
+
+-(void)downloadWithModel:(FLFilesModel *)model withShare:(BOOL)share withCompleteBlock:(void(^)(BOOL isSuccess,  NSString *filePath))block{
+    if (model) {
+        [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DRIVE_UUID Progress:^(TYDownloadProgress *progress) {
+        } State:^(TYDownloadState state, NSString *filePath, NSError *error) {
+            if (state == TYDownloadStateCompleted && filePath.length >0) {
+                if (share) {
+                    block(YES,filePath);
+                }else{
+                    block(NO,filePath);
+                }
+            }
+        }];
+        
+    }
+    
 }
 
 #pragma mark - FLDataSourceDelegate

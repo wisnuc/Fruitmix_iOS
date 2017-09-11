@@ -56,6 +56,8 @@
 
 -(void)skipToLogin;
 
+-(void)initLeftMenu;
+
 -(void)reloadLeftUsers;
 @end
 

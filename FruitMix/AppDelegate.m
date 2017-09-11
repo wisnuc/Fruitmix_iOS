@@ -162,6 +162,7 @@
 -(void)resetDatasource{
     //重置侧拉数据
     [[NSNotificationCenter defaultCenter]postNotificationName:FM_USER_ISADMIN object:@(0)];
+  
     //重置数据源
     self.photoDatasource = nil;
     self.mediaDataSource = nil;
@@ -196,7 +197,6 @@
     _OwnCloud = [[FMOwnCloud alloc]init];
     _UserSetting = [[FMUserSetting alloc]init];
     _Setting = [[FMSetting alloc]initPrivate];
-//    initPrivate
     _Help = [[FMHelp alloc]init];
     _zhuxiao = [[FMLoginViewController alloc]init];
     _downAndUpLoadManager = [[FLLocalFIleVC alloc]init];
@@ -258,8 +258,8 @@
     NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
     NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
     // 先删除已经存在的文件
-    NSFileManager *defaultManager = [NSFileManager defaultManager];
-    [defaultManager removeItemAtPath:logFilePath error:nil];
+//    NSFileManager *defaultManager = [NSFileManager defaultManager];
+//    [defaultManager removeItemAtPath:logFilePath error:nil];
     
     // 将log输入到文件
     freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stdout);
@@ -498,8 +498,9 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"swithOn"];
-       
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSWITHCHON];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"siftPhoto"];
+
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];
         [SXLoadingView hideProgressHUD];
         [FMDBControl reloadTables];
@@ -527,6 +528,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.window.rootViewController = nil;
         [self.window resignKeyWindow];
+        
         [self.window removeFromSuperview];
         [self reloadLeftMenuIsAdmin:NO];
         FMLoginViewController * vc = [[FMLoginViewController alloc]init];
@@ -607,6 +609,15 @@
         //        [FMDBControl asynOwnerSet];//更新ownerSet
         [FMDBControl asynUsers];
     });
+    BOOL switchOn = SWITHCHON_BOOL;
+    NSString *token = DEF_Token;
+    if (token.length>0) {
+        if (switchOn) {
+            [PhotoManager shareManager].canUpload = YES;
+        }else{
+            [PhotoManager shareManager].canUpload = NO;
+        }
+    }
     
 }
 @end

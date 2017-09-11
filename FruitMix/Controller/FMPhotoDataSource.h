@@ -30,4 +30,5 @@
 
 -(void)initPhotosIsRefrash;
 - (void)getNetPhotos;
++ (void)siftPhotos;
 @end

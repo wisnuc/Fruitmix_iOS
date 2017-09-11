@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "ImageHeaderView.h"
 #import "FMLoginVC.h"
-
+#import "FMSetting.h"
 typedef enum : NSInteger{
     LeftMenuInfo = 0,
     LeftMenuOwnCloud,
@@ -35,7 +35,7 @@ typedef enum : NSInteger{
 @property (retain, nonatomic) UIViewController *Info;
 @property (retain, nonatomic) UIViewController *OwnCloud;
 @property (retain, nonatomic) UIViewController *UserSetting;
-@property (retain, nonatomic) UIViewController *Setting;
+@property (retain, nonatomic) FMSetting *Setting;
 @property (retain, nonatomic) UIViewController *Help;
 
 @property (retain, nonatomic) FMLoginVC * zhuxiao;

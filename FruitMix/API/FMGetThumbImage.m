@@ -37,9 +37,9 @@
     if (self = [super init]) {
         _cache = [YYImageCache sharedCache];
         _cache.memoryCache.countLimit = 50;
-        [_cache.diskCache setCountLimit:50];
-        [_cache.diskCache setAutoTrimInterval:30];
-        [_cache.memoryCache setCostLimit:1*1024];
+        [_cache.diskCache setCountLimit:10000];
+//        [_cache.diskCache setAutoTrimInterval:30];
+//        [_cache.memoryCache setCostLimit:1*1024];
         _localIdDic = [NSMutableDictionary dictionaryWithCapacity:0];
         _createQueue = [[NSOperationQueue alloc]init];
         _createQueue.maxConcurrentOperationCount = 1;
@@ -111,6 +111,7 @@
         cropToSquare.normalizedCropRect = cropRect;
         cropToSquare.synchronous = YES;
         cropToSquare.networkAccessAllowed = YES;
+        cropToSquare.deliveryMode = PHImageRequestOptionsDeliveryModeFastFormat;
         
         [[PHImageManager defaultManager]
          requestImageForAsset:asset
@@ -277,6 +278,7 @@
                 block(image,hash);
             });
         else{
+              NSLog(@"%@",error);
             if (error.code == 404) NSLog(@"服务端未查到此照片");
             else
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

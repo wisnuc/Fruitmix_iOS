@@ -8,7 +8,8 @@
 
 #import "FLFIlesHelper.h"
 #import "FLLocalFIleVC.h"
-
+#import "FLFilesVC.h"
+#import "FLSecondFilesVC.h"
 @interface FLFIlesHelper ()
 
 @property (nonatomic) NSMutableArray * chooseFiles;
@@ -161,7 +162,11 @@
                         [viewController.navigationController pushViewController:downloadVC animated:YES];
                     }
                 }else if(buttonIndex == 2) {
-                    
+                    if ([viewController isEqual:[FLFilesVC class]]) {
+                        [(FLFilesVC *)viewController shareFiles];
+                    }else{
+                        [(FLSecondFilesVC *)viewController shareFiles];
+                    }
                 }
             };
             actionSheet.scrolling          = YES;

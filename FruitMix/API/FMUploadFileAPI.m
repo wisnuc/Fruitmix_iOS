@@ -180,7 +180,7 @@ NSInteger imageUploadCount = 0;
 //(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject
 + (void)uploadDirEntryWithFilePath:(NSString *)filePath
                            success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
-                           failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
+                           failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure;
 {
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -199,22 +199,23 @@ NSInteger imageUploadCount = 0;
             
             NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
             NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
-            [formData appendPartWithFileData:data name:exestr fileName:str mimeType:@"image/jpeg"];
-            
-//        }
+        if (data.length>0) {
+           [formData appendPartWithFileData:data name:exestr fileName:str mimeType:@"image/jpeg"];  
+        }else{
+            otherFailure(@"null");
+        }
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"--> %@", responseObject);
+//        NSLog(@"--> %@", responseObject);
         success(task,responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
-    
-    
-//        NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
-//        NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
-//        NSLog(@"error--%@",serializedData);
-        
+        NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+        if(errorData.length >0){
+            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+            NSLog(@"error--%@",serializedData);
+        }
     
 //       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         
@@ -374,7 +375,7 @@ NSInteger imageUploadCount = 0;
                     } progress:^(NSProgress * _Nonnull uploadProgress) {
                         
                     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                        NSLog(@"--> %@", responseObject);
+//                        NSLog(@"--> %@", responseObject);
                         
                         NSDictionary * dic = responseObject;
                         NSArray * arr = [dic objectForKey:@"entries"];
@@ -406,7 +407,7 @@ NSInteger imageUploadCount = 0;
             } progress:^(NSProgress * _Nonnull uploadProgress) {
                 
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                NSLog(@"--> %@", responseObject);
+//                NSLog(@"--> %@", responseObject);
                 
                 NSDictionary * dic = responseObject;
                 NSArray * arr = [dic objectForKey:@"entries"];
@@ -501,7 +502,7 @@ NSInteger imageUploadCount = 0;
     if (mutableArr.count == 0) {
         completeBlock(YES);
     }else{
-        [[PhotoManager shareManager] uploadComplete:YES andSha256:localPhotoHash withFilePath:filePath andAsset:asset andSuccessBlock:success Failure:failure];
+        [[PhotoManager shareManager] uploadComplete:NO andSha256:localPhotoHash withFilePath:filePath andAsset:asset andSuccessBlock:success Failure:failure];
         completeBlock(NO);
     }
 }

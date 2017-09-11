@@ -82,7 +82,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     [self createNavBtns];
     [self.navigationController.view addSubview:self.chooseHeadView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlerStatusChangeNotify:) name:FLFilesStatusChangeNotify object:nil];
-    [self createControlbtn];
+    [self.view addSubview:self.addButton];
     [self initMjRefresh];
 
 }
@@ -110,17 +110,17 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     }
 }
 
--(void)createControlbtn{
+-(VCFloatingActionButton *)addButton{
     if(!_addButton){
         CGRect floatFrame = CGRectMake(JYSCREEN_WIDTH - 80 , __kHeight - 64 - 56 - 88, 56, 56);
         _addButton = [[VCFloatingActionButton alloc]initWithFrame:floatFrame normalImage:[UIImage imageNamed:@"add_album"] andPressedImage:[UIImage imageNamed:@"icon_close"] withScrollview:_fileTableView];
         _addButton.automaticallyInsets = YES;
-        _addButton.imageArray = @[@"download",@"fab_share"];
-        _addButton.labelArray = @[@"",@""];
+        _addButton.imageArray = @[@"download"];
+        _addButton.labelArray = @[@""];
         _addButton.delegate = self;
         _addButton.hidden = YES;
-        [self.view addSubview:_addButton];
     }
+    return _addButton;
 }
 
 -(void)dealloc{
@@ -312,7 +312,6 @@ NSInteger filesNameSort(id file1, id file2, void *context)
                 FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
                 [self.navigationController pushViewController:downloadVC animated:YES];
             }
-  
         }else{
             [self shareFiles];
         }
@@ -416,31 +415,49 @@ NSInteger filesNameSort(id file1, id file2, void *context)
         //准备照片
         @weaky(self);
         [self clickDownloadWithShare:YES andCompleteBlock:^(NSArray *files) {
-            UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:files applicationActivities:nil];
-            //初始化回调方法
-            UIActivityViewControllerCompletionWithItemsHandler myBlock = ^(NSString *activityType,BOOL completed,NSArray *returnedItems,NSError *activityError)
-            {
-                NSLog(@"activityType :%@", activityType);
-                if (completed)
-                {
-                    NSLog(@"share completed");
-                }
-                else
-                {
-                    NSLog(@"share cancel");
-                }
+//            UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:files applicationActivities:nil];
+//            //初始化回调方法
+//            UIActivityViewControllerCompletionWithItemsHandler myBlock = ^(NSString *activityType,BOOL completed,NSArray *returnedItems,NSError *activityError)
+//            {
+//                NSLog(@"activityType :%@", activityType);
+//                if (completed)
+//                {
+//                    NSLog(@"share completed");
+//                }
+//                else
+//                {
+//                    NSLog(@"share cancel");
+//                }
+//                
+//            };
+//            
+//            // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
+//            activityVC.completionWithItemsHandler = myBlock;
+//            
+//            //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop
+//            activityVC.excludedActivityTypes = @[];
+//            
+//            [weak_self presentViewController:activityVC animated:YES completion:nil];
+            for (NSString *filePath in files) {
+                _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
                 
-            };
-            
-            // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
-            activityVC.completionWithItemsHandler = myBlock;
-            
-            //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop
-            activityVC.excludedActivityTypes = @[];
-            
-            [weak_self presentViewController:activityVC animated:YES completion:nil];
+                //设置代理
+                _documentController.delegate = self;
+                
+                BOOL canOpen = [_documentController presentOpenInMenuFromRect:CGRectZero
+                                                                       inView:self.view
+                                                                     animated:YES];
+                
+                if (!canOpen) {
+                    NSLog(@"沒有程序可以打開要分享的文件");
+                }
+
+            }
+          
+        
         }];
-}
+
+   }
 
 -(void)clickDownloadWithShare:(BOOL)share andCompleteBlock:(void(^)(NSArray * files))block{
     NSArray * chooseItems = [[FLFIlesHelper helper].chooseFiles copy];
@@ -472,8 +489,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
                 complete ++;finish ++;
                 if (successCount) successCount++;
                 CGFloat progress =  complete/allCount;
-               NSData *fileData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
-                if (filePath && isShare) [tempDownArr addObject:fileData];
+                if (filePath && isShare) [tempDownArr addObject:filePath];
                 [weak_self.pv setValueForProcess:progress];
                 if (items.count > complete) {
                     [weak_self downloadWithModel:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];

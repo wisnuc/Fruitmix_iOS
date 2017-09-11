@@ -18,4 +18,6 @@
 @property (nonatomic) FLFliesCellStatus cellStatus;
 
 @property (nonatomic, strong) NSString *name;
+
+- (void)shareFiles;
 @end

@@ -13,6 +13,8 @@
 @implementation FMPhotoDataSource{
     NSMutableSet * _photosLocalIds;
     NSMutableArray * _localphotoDigest;
+    CFAbsoluteTime  _start;
+    CFAbsoluteTime _end;
 }
 
 +(instancetype)shareInstance{
@@ -52,6 +54,10 @@
 -(void)initPhotos{
 //    PHFetchOptions * option = [[PHFetchOptions alloc]init];
 //    option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    _start = CFAbsoluteTimeGetCurrent();
+    // do something
+    
+
     [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result){
         NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
         for (FMLocalPhoto * photo in result) {
@@ -79,7 +85,7 @@
         FMMediaAPI * api = [FMMediaAPI new];
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
             [self analysisPhotos:request.responseJsonObject];
-            [self siftPhotos];
+            [FMPhotoDataSource siftPhotos];
 //            NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
             NSLog(@"载入Media失败,%@",request.error);
@@ -87,7 +93,7 @@
     });
 }
 
-- (void)siftPhotos{
++ (void)siftPhotos{
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
         //                    NSLog(@"%@",responseObject);
@@ -118,7 +124,8 @@
             NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
             [[NSUserDefaults standardUserDefaults] synchronize];
-            
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
         }];
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
@@ -160,18 +167,24 @@
                     FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
 //                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
                     [photoArr addObject:nasPhoto];
-//                        NSLog(@"%ld",(NSInteger)photoArr.count);
-//                    }
                 }
             }
-    
-//            [FMDBControl siftMidiaPhotoWithResultArr:nil CompleteBlock:^(NSMutableArray *photoArr) {
-//                
-//            }];
             if (photoArr.count) {
-//                 NSLog(@"%ld",(long)photoArr.count);
                 self.netphotoArr = photoArr;
-                [_imageArr addObjectsFromArray:photoArr];
+//               [_imageArr addObjectsFromArray:photoArr];
+                
+                for (IDMPhoto * photo  in photoArr) {
+                    __block BOOL isExist = NO;
+                    [_imageArr enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        if ([[obj getPhotoHash] isEqual:[photo getPhotoHash]]) {//数组中已经存在该对象
+                            *stop = YES;
+                            isExist = YES;
+                        }
+                    }];
+                    if (!isExist) {//如果不存在就添加进去
+                        [_imageArr addObject:photo];
+                    }
+                }
                 [self initPhotosIsRefrash];
             }
         }
@@ -212,11 +225,9 @@
 }
 
 -(void)sequencePhotosAndCompleteBlock:(void(^)())block{
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        
+       dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSComparator cmptr = ^(IDMPhoto * photo1, IDMPhoto * photo2){
             NSDate * tempDate = [[photo1 getPhotoCreateTime]laterDate:[photo2 getPhotoCreateTime]];
-//            NSLog(@"%@😁",tempDate);
             if ([tempDate isEqualToDate:[photo1 getPhotoCreateTime]]) {
                 return (NSComparisonResult)NSOrderedAscending;
             }
@@ -226,7 +237,6 @@
             return (NSComparisonResult)NSOrderedSame;
         };
         [self.imageArr sortUsingComparator:cmptr];
-//        NSLog(@"%ld😁",(long)self.imageArr.count);
         @weaky(self);
         [self getTimeArrAndPhotoGroupArrWithCompleteBlock:^(NSMutableArray *tGroup, NSMutableArray *pGroup) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -250,7 +260,6 @@
             NSMutableArray * tArr = [NSMutableArray array];//时间组
             NSMutableArray * pGroupArr = [NSMutableArray array];//照片组数组
             if (self.imageArr.count>0) {
-         
                 IDMPhoto * photo = self.imageArr[0];
                 NSMutableArray * photoDateGroup1 = [NSMutableArray array];//第一组照片
                 [photoDateGroup1 addObject:photo];
@@ -263,18 +272,16 @@
                         [self.imageArr removeObject:photoNull];
                     }
                 }
-                
                 NSMutableArray * photoDateGroup2 = photoDateGroup1;//最近的一组
                 for (int i = 1 ; i < self.imageArr.count; i++) {
                     @autoreleasepool {
-                      
 //                        IDMPhoto * photoUp =  self.imageArr[i];
 //                        IDMPhoto * photoDown = self.imageArr[i-1];
-//                         NSLog(@"%@😁%@",[photoUp getPhotoHash],[photoDown getPhotoHash]);
+////                         NSLog(@"%@😁%@",[photoUp getPhotoHash],[photoDown getPhotoHash]);
 //                        if ([self isSamePhotoHash:[photoUp getPhotoHash] photoHash2:[photoDown getPhotoHash]]) {
 //                            [self.imageArr removeObject:photoUp];
 //                        }
-                       
+
                         IDMPhoto * photo1 =  self.imageArr[i];
                         IDMPhoto * photo2 = self.imageArr[i-1];
                         if ([self isSameDay:[photo1 getPhotoCreateTime] date2:[photo2 getPhotoCreateTime]]) {
@@ -287,12 +294,15 @@
                             [photoDateGroup2 addObject:photo1];
                             [pGroupArr addObject:photoDateGroup2];
                         }
-//
                     }
                 }
             }
             //主线程
             dispatch_async(dispatch_get_main_queue(), ^{
+//                NSLog(@"%@",pGroupArr);
+                _end = CFAbsoluteTimeGetCurrent();
+                
+//                NSLog(@"时间：========>%f", _end - _start);
                 block(tArr,pGroupArr);
             });
         }

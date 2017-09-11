@@ -13,4 +13,5 @@
 
 @property (nonatomic) FMSerachService * service;
 
++ (void)siftPhotoFromNetwork;
 @end
