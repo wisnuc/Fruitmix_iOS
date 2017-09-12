@@ -454,7 +454,7 @@ ServerBrowserDelegate
     userLoginVC.user = model;
     
     [self.navigationController pushViewController:userLoginVC animated:YES];
-    [ser.task cancel];
+
     [self applicationWillResignActive:nil];
 }
 

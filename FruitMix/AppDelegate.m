@@ -147,7 +147,7 @@
 //    NSLog(@"手机名称：%@",device.name);
     if (![[device name] isEqualToString:@"iPhone Simulator"] && ![device.name containsString:@"JackYang"]) {
 //         开始保存日志文件
-//        [self redirectNSlogToDocumentFolder];
+        [self redirectNSlogToDocumentFolder];
         [FMConfiguation shareConfiguation].shouldUpload = NO;
     }
 }

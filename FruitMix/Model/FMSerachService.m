@@ -24,8 +24,8 @@
 }
 
 -(void)getData{
-    static int i = 0;
-    __weak typeof(self) weakSelf = self;
+//    static int i = 0;
+//    __weak typeof(self) weakSelf = self;
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     
     manager.requestSerializer.timeoutInterval = 15;
@@ -46,11 +46,11 @@
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"%@",error);
-        NSLog(@"ERROR: %@",error.code == -1004?@"请求超时":(error.code == -1003?@"无法解析ip":@"未知错误"));
-        if(++i < 5)
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [weakSelf getData];
-            });
+//        NSLog(@"ERROR: %@",error.code == -1004?@"请求超时":(error.code == -1003?@"无法解析ip":@"未知错误"));
+//        if(++i < 5)
+//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//                [weakSelf getData];
+//            });
         
     }];
 }

@@ -95,9 +95,11 @@
 //登录完成 做的事
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
+    [_service.task cancel];
     NSString * def_token = DEF_Token;
     MyAppDelegate.leftMenu = nil;
     [MyAppDelegate initLeftMenu];
+    
     if (def_token.length == 0 ) {
         UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
         // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
@@ -108,10 +110,7 @@
                 [PhotoManager shareManager].canUpload = NO;
                  [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
                 NSLog(@"点击了确定按钮");
-
             });
-
-          
         }];
         
         UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -120,10 +119,7 @@
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
                 NSLog(@"点击了确定按钮");
             });
-           
-           
         }];
-
         // 3.将“取消”和“确定”按钮加入到弹框控制器中
         [alertVc addAction:cancle];
         [alertVc addAction:confirm];
@@ -197,8 +193,6 @@
     }else{
         [FMUserLoginViewController siftPhotoFromNetwork];
     }
-    
-    
 }
 
 + (void)siftPhotoFromNetwork{

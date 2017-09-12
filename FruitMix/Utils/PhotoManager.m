@@ -867,6 +867,7 @@ BOOL shouldUpload = NO;
         NSLog(@"上传失败");
         failure();
         if (_canUpload && shouldUpload && switchOn) {
+         [_uploadarray removeObjectAtIndex:currentIndex];
           [PhotoManager shareManager].canUpload = YES;
         }
         return;
@@ -882,7 +883,7 @@ BOOL shouldUpload = NO;
 //        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 //        
 //        [center postNotificationName:@"currentImage" object:nil userInfo:dict];
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
+   
      NSLog(@"%ld张=========%ld张",(unsigned long)[array count],(unsigned long)[imageArr count]);
         if ([array count] >= [imageArr count]) {
             success([array copy]);
@@ -892,12 +893,15 @@ BOOL shouldUpload = NO;
         else {
             if(_canUpload && shouldUpload){
                 [weakSelf uploadImage:imageArr[currentIndex] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
-            }else
+            }else{
                 [PhotoManager shareManager].isUploading = NO;
+            }
         }
     };
-    if(imageArr.count>0){
-    [self uploadImage:imageArr[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+    if(_canUpload && shouldUpload && switchOn){
+     if(imageArr.count>0){
+      [self uploadImage:imageArr[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+    }
     }
 }
 
@@ -1210,6 +1214,7 @@ BOOL shouldUpload = NO;
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 NSLog(@"上传成功！%@",str);
 //            }];
+         [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
             if (success) success(str);
 //        });
     }else{ //失败
@@ -1334,26 +1339,27 @@ static NSInteger s = 1;
         }
     }else {
         ++s;
-        if (s>10) {
-        if ( [PhotoManager shareManager].canUpload) {
-            [PhotoManager shareManager].canUpload = NO;
-            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0/*延迟执行时间*/ * NSEC_PER_SEC));
-            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
-                [self saveUploadArrayWithHash:hashStr];
-            });
-        }
-        }else{
+//        if (s>10) {
+//        if ( [PhotoManager shareManager].canUpload) {
+//            [PhotoManager shareManager].canUpload = NO;
+//            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0/*延迟执行时间*/ * NSEC_PER_SEC));
+//            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+//                [self saveUploadArrayWithHash:hashStr];
+//            });
+//        }
+//        }else{
             if ( [PhotoManager shareManager].canUpload) {
-                [PhotoManager shareManager].canUpload = NO;
-                dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6.0/*延迟执行时间*/ * NSEC_PER_SEC));
+//                [PhotoManager shareManager].canUpload = NO;
+                dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0/*延迟执行时间*/ * NSEC_PER_SEC));
                 dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+                    [PhotoManager shareManager].canUpload = YES;
                     [self saveUploadArrayWithHash:hashStr];
                 });
             }
-
-
-        }
-    }
+//
+//
+//        }
+    }   
  }
 
 - (void)saveUploadArrayWithHash:(NSString *)hashString{
@@ -1369,16 +1375,15 @@ static NSInteger s = 1;
     [_uploadarray removeObject:hashString];
     [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    if (switchOn &&_canUpload && shouldUpload) {
-        [self uploadImages:_uploadarray success:^(NSArray *arr) {
-            //                [FMPhotoDataSource siftPhotos];
-            if (switchOn &&_canUpload && shouldUpload) {
-                [[PhotoManager shareManager] startUploadPhotos];
-            }
-        } failure:^{
-        }];
-    }
-    
+//    if (switchOn &&_canUpload && shouldUpload) {
+//        [self uploadImages:_uploadarray success:^(NSArray *arr) {
+//            //                [FMPhotoDataSource siftPhotos];
+//            if (switchOn &&_canUpload && shouldUpload) {
+//                [[PhotoManager shareManager] startUploadPhotos];
+//            }
+//        } failure:^{
+//        }];
+//    }
     if (switchOn &&_canUpload && shouldUpload) {
         [[PhotoManager shareManager] setCanUpload:YES];
     }
