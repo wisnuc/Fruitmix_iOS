@@ -36,6 +36,7 @@ typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
 @property (nonatomic) NSOperationQueue * getImageQueue;
 
 @property (nonatomic) AFURLSessionManager * afManager;
+@property (nonatomic,strong) NSMutableArray *uploadarray;
 
 +(__kindof PhotoManager *)shareManager;
 

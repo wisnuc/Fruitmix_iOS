@@ -52,7 +52,7 @@ NSString * JY_UUID() {
 //    NSMutableArray *_imageUploadArr;
 //    NSTimer *_reachabilityTimer;
 }
-@property (nonatomic,strong) NSMutableArray *uploadarray;
+
 @property (nonatomic,weak) NSTimer *reachabilityTimer;
 @end
 
@@ -80,10 +80,8 @@ NSString * JY_UUID() {
         _getImageQueue.maxConcurrentOperationCount = 1;
         _getImageQueue.qualityOfService = NSQualityOfServiceUserInitiated;
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
-        if (!_reachabilityTimer) {
-         _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:20.0f target:self selector:@selector(refresh) userInfo:nil repeats:YES];
-        }
-      [[NSRunLoop currentRunLoop]addTimer:_reachabilityTimer forMode:NSDefaultRunLoopMode];
+      
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(siftUploadArrCompleteBlock:) name:@"siftPhoto" object:nil];
     }
     return self;
@@ -566,8 +564,9 @@ NSString * JY_UUID() {
 
 - (void)refresh{
    BOOL switchOn = SWITHCHON_BOOL
-    if (switchOn &&_canUpload && shouldUpload && _uploadarray.count == 0) {
-        [PhotoManager reStartUploader];
+    if (switchOn &&_canUpload && shouldUpload) {
+        self.canUpload = NO;
+        self.canUpload = YES;
     }
 }
 
@@ -653,8 +652,13 @@ BOOL shouldUpload = NO;
     BOOL switchOn = SWITHCHON_BOOL;
     @autoreleasepool {
         __weak typeof(self) weakSelf = self;
+        if (!_reachabilityTimer) {
+            _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:25.0f target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+            [_reachabilityTimer fire];
+        }
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        if (_uploadarray.count == 0) {
+               
+            if (_uploadarray.count == 0) {
                 [self siftUploadArrCompleteBlock:^(NSMutableArray *uploadArr) {
                     _uploadarray = [NSMutableArray arrayWithArray:uploadArr];
                     dispatch_group_t group =  dispatch_group_create();
@@ -1316,9 +1320,11 @@ BOOL shouldUpload = NO;
     }else
         if (block) block(NO,nil);
 }
-
+static NSInteger s = 1;
 - (void)errorActionWithTask:(NSURLSessionDataTask *)task HashString:(NSString *)hashStr{
     BOOL switchOn = SWITHCHON_BOOL;
+   
+    @weaky(self)
     NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
     NSLog(@"%@",task.error);
     if (rep.statusCode == 404) {
@@ -1327,9 +1333,28 @@ BOOL shouldUpload = NO;
             [PhotoManager shareManager].canUpload = YES;
         }
     }else {
-        [self saveUploadArrayWithHash:hashStr];
+        ++s;
+        if (s>10) {
+        if ( [PhotoManager shareManager].canUpload) {
+            [PhotoManager shareManager].canUpload = NO;
+            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0/*延迟执行时间*/ * NSEC_PER_SEC));
+            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+                [self saveUploadArrayWithHash:hashStr];
+            });
+        }
+        }else{
+            if ( [PhotoManager shareManager].canUpload) {
+                [PhotoManager shareManager].canUpload = NO;
+                dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6.0/*延迟执行时间*/ * NSEC_PER_SEC));
+                dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+                    [self saveUploadArrayWithHash:hashStr];
+                });
+            }
+
+
+        }
     }
-}
+ }
 
 - (void)saveUploadArrayWithHash:(NSString *)hashString{
     BOOL switchOn = SWITHCHON_BOOL;
@@ -1352,6 +1377,10 @@ BOOL shouldUpload = NO;
             }
         } failure:^{
         }];
+    }
+    
+    if (switchOn &&_canUpload && shouldUpload) {
+        [[PhotoManager shareManager] setCanUpload:YES];
     }
 }
 

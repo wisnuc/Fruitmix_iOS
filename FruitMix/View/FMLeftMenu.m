@@ -82,7 +82,6 @@
         make.right.equalTo(_progressLabel.mas_left).offset(-6);
     }];
     
-   
 }
 - (IBAction)smallBtnClick:(id)sender {
     if (sender == _userBtn1) {
@@ -295,6 +294,11 @@
                         self.backUpProgressView.progress = 1;
                          self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
                         self.progressLabel.text = [NSString stringWithFormat:@"%ld/%ld",(long)allPhotos,(long)allPhotos];
+                        if ([PhotoManager shareManager].canUpload) {
+                            [PhotoManager shareManager].canUpload = NO;
+                            [[PhotoManager shareManager].uploadarray removeAllObjects];
+                            [PhotoManager shareManager].canUpload = YES;
+                        }
                     }else{
                         self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                         self.backUpProgressView.progress = progress;

@@ -69,6 +69,7 @@ ServerBrowserDelegate
 
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     [_reachabilityTimer invalidate];
     _reachabilityTimer = nil;
 }
@@ -161,6 +162,7 @@ ServerBrowserDelegate
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
     NSLog(@"%@", urlString);
     FMSerachService * ser = [FMSerachService new];
+    
     ser.path = urlString;
     ser.name = service.name;
     ser.type = service.type;

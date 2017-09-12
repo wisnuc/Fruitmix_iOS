@@ -152,7 +152,7 @@
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
                                                                      delegate:nil
                                                             cancelButtonTitle:@"取消"
-                                                        otherButtonTitleArray:@[@"下载该文件",@"分享"]];
+                                                        otherButtonTitleArray:@[@"下载该文件"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
                     [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel parentUUID:uuid];
