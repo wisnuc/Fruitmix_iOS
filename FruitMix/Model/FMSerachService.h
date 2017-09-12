@@ -18,5 +18,5 @@
 @property (nonatomic) NSString * hostName;
 @property (nonatomic) NSString * ws215i;
 @property (nonatomic) BOOL isReadly;
-
+@property (nonatomic) NSURLSessionDataTask *task;
 @end

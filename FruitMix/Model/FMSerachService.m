@@ -27,9 +27,10 @@
     static int i = 0;
     __weak typeof(self) weakSelf = self;
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
-    manager.requestSerializer.timeoutInterval = 30;
+    
+    manager.requestSerializer.timeoutInterval = 15;
     NSLog(@"%@",_path);
-    [manager GET:[NSString stringWithFormat:@"%@users",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+    _task = [manager GET:[NSString stringWithFormat:@"%@users",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray * userArr = responseObject;
 //        NSLog(@"%@",responseObject);
