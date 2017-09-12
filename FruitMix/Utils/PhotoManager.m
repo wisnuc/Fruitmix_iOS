@@ -885,18 +885,18 @@ BOOL shouldUpload = NO;
 //        [center postNotificationName:@"currentImage" object:nil userInfo:dict];
    
      NSLog(@"%ld张=========%ld张",(unsigned long)[array count],(unsigned long)[imageArr count]);
-        if ([array count] >= [imageArr count]) {
-            success([array copy]);
-            [PhotoManager shareManager].isUploading = NO;
-            return;
-        }
-        else {
-            if(_canUpload && shouldUpload){
-                [weakSelf uploadImage:imageArr[currentIndex] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
-            }else{
-                [PhotoManager shareManager].isUploading = NO;
-            }
-        }
+//        if ([array count] >= [imageArr count]) {
+//            success([array copy]);
+//            [PhotoManager shareManager].isUploading = NO;
+//            return;
+//        }
+//        else {
+//            if(_canUpload && shouldUpload){
+//                [weakSelf uploadImage:imageArr[currentIndex] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+//            }else{
+//                [PhotoManager shareManager].isUploading = NO;
+//            }
+//        }
     };
     if(_canUpload && shouldUpload && switchOn){
      if(imageArr.count>0){
