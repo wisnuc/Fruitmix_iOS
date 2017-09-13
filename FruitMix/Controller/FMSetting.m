@@ -34,7 +34,7 @@
     [self createNavbtn];
     [self anySwitch];
     [self setSwitch];
-    if (_switchBtn.on) {
+    if (_switchOn) {
         MyNSLog(@"备份开关开启");
     }else{
         MyNSLog(@"备份开关关闭");
@@ -256,18 +256,20 @@
 //    NSLog(@"%@",name);
     if (switchBtn.isOn) {
         MyNSLog(@"备份开关开启");
-        [PhotoManager shareManager].canUpload = YES;
+   
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] synchronize];
+             [PhotoManager shareManager].canUpload = YES;
         _switchOn = YES;
     }else{
         MyNSLog(@"备份开关关闭");
 //        NSLog(@"%@",USER_SHOULD_SYNC_PHOTO);
 //        if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)) {
-             [PhotoManager shareManager].canUpload = NO;
+        
          _switchOn = NO;
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] synchronize];
+          [PhotoManager shareManager].canUpload = NO;
 //        }
     }
 //    [self.settingTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:100];

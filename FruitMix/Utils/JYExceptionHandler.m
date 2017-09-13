@@ -55,7 +55,7 @@ void exceptionHandler(NSException *exception)
     NSArray *callStack = [JYExceptionHandler backtrace];
     NSMutableDictionary *userInfo =[NSMutableDictionary dictionaryWithDictionary:[exception userInfo]];
     [userInfo setObject:callStack forKey:ExceptionHandlerAddressesKey];
-    NSLog(@"JY Exception Invoked: %@", userInfo);
+    MyNSLog(@"JY Exception Invoked: %@", userInfo);
     
     // 保存信息到本地［］
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:EXCEPTION_HANDLER_STR];

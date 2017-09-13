@@ -52,7 +52,8 @@
 //    [[RRFPSBar sharedInstance]setHidden:YES];
 //    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     //配置侧拉
-    [self initLeftMenu];
+ 
+   
     //配置app的模式
     [self configAppMode];
     //检测奔溃
@@ -110,7 +111,7 @@
     if (!IsNilString(DEF_Token)) {
         NSLog(@"UserToken : %@",DEF_Token);
         NSLog(@"Last Connect IP : %@",BASE_URL);
-        
+         [self initLeftMenu];
         self.sharesTabBar = [[RDVTabBarController alloc]init];
         [self initWithTabBar:self.sharesTabBar];
         self.window.rootViewController = self.sharesTabBar;
@@ -123,6 +124,7 @@
         NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
         self.window.rootViewController = nav;
         [self.window makeKeyAndVisible];
+        
     }
     [[UIApplication sharedApplication]setStatusBarStyle:UIStatusBarStyleDefault];
 }
@@ -271,6 +273,7 @@
 
 
 -(void)initWithTabBar:(RDVTabBarController *)tabbar{
+    
     /* 页面 */
     FMBoxViewController * boxVC = [[FMBoxViewController alloc]init];
     FMPhotosViewController * photosVC = [[FMPhotosViewController alloc]init];
@@ -616,7 +619,6 @@
     if (token.length>0) {
         if (switchOn) {
             [PhotoManager shareManager].canUpload = YES;
-            
         }else{
             [PhotoManager shareManager].canUpload = NO;
         }
