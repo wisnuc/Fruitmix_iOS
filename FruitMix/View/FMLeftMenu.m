@@ -14,6 +14,9 @@
 #import "FMPhotoDataSource.h"
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
+{
+    NSInteger *_allCount;
+}
 @property (weak, nonatomic) IBOutlet UILabel *versionLb;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn1;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn2;
@@ -27,6 +30,19 @@
 
 -(void)awakeFromNib{
     [super awakeFromNib];
+    [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+        NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+        NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+        for (FMLocalPhoto * p in result) {
+            [tmp addObject:p.localIdentifier];
+            if(p.degist.length >0){
+                [localPhotoHashArr addObject:p.degist];
+            }
+        }
+        NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+        NSNumber  *count = [NSNumber numberWithUnsignedInteger:[localPhotoHashArrSet allObjects].count];
+        _allCount = (NSInteger)count;
+    }];
 //    self.userHeaderIV.layer.cornerRadius = self.userHeaderIV.frame.size.width/2;
 //    self.userHeaderIV.backgroundColor = [UIColor blackColor];
     _settingTabelView.delegate = self;
@@ -165,6 +181,7 @@
     NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
     [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
     [notiCenter addObserver:self selector:@selector(receiveNotificationForPhotoChange:) name:@"photoChange" object:nil];
+    [notiCenter addObserver:self selector:@selector(receiveNotificationForUploadOverNoti:) name:@"uploadOverNoti" object:nil];
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
     self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
     
@@ -227,12 +244,15 @@
                         }
                     });
                 }
+                MyNSLog(@"已上传：%ld/本地照片总数:%ld",(long)uploadImageArr.count,(long)allPhotos);
+
             }];
             
         }];
     });
 //    [cell.contentView addSubview:progressLb];
 //    progressLb.hidden = !_displayProgress;
+    ;
 }
 -(NSString *)notRounding:(float)price afterPoint:(int)position{
     NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:position raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:NO];
@@ -307,6 +327,7 @@
                     }
                 });
                 }
+                MyNSLog(@"已上传：%ld/本地照片总数:%ld",(long)uploadImageArr.count,(long)allPhotos);
             }];
             
         }];
@@ -316,9 +337,12 @@
 - (void)receiveNotificationForPhotoChange:(NSNotification *)noti{
     [self receiveNotification:nil];
 }
+- (void)receiveNotificationForUploadOverNoti:(NSNotification *)noti{
+    [self receiveNotification:nil];
+}
 
 - (void)synchronizeStationPhoto{
-    if (![PhotoManager shareManager].isUploading && [PhotoManager shareManager].canUpload) {
+
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
@@ -366,7 +390,6 @@
         }];
     });
    }
-}
 
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{

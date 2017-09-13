@@ -224,7 +224,7 @@
             NSArray * filter_no = [[photoArrHashSet allObjects] filteredArrayUsingPredicate:filterPredicate_same];
             NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
             [siftPhotoArrHash addObjectsFromArray:filter_no];
-            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
+//            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
             [[NSUserDefaults standardUserDefaults]  synchronize];
             [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];

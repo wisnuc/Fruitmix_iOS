@@ -49,6 +49,9 @@ NSString * JY_UUID() {
 @interface PhotoManager  ()<PHPhotoLibraryChangeObserver,NSURLSessionDelegate>{
     PHFetchResult * _lastResult;
     FMFileUploadInfo * _currentUploadInfo;
+    CFAbsoluteTime  _start;
+    CFAbsoluteTime _end;
+    BOOL _switchOn;
 //    NSMutableArray *_imageUploadArr;
 //    NSTimer *_reachabilityTimer;
 }
@@ -83,6 +86,8 @@ NSString * JY_UUID() {
       
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(siftUploadArrCompleteBlock:) name:@"siftPhoto" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:@"enterForeground" object:nil];
+
     }
     return self;
 }
@@ -176,6 +181,8 @@ NSString * JY_UUID() {
     [_reachabilityTimer invalidate];
     _reachabilityTimer = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"siftPhoto" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"enterForeground" object:nil];
+    
 }
 /****************************************************************************************************************************************************************/
 /***********************************************************    Utils   *****************************************************************************************/
@@ -564,13 +571,15 @@ NSString * JY_UUID() {
 
 - (void)refresh{
    BOOL switchOn = SWITHCHON_BOOL
-    if (switchOn &&_canUpload && shouldUpload) {
+    if (switchOn && shouldUpload) {
+      
         self.canUpload = NO;
         self.canUpload = YES;
     }
 }
 
 -(void)setCanUpload:(BOOL)canUpload{
+
     _canUpload = canUpload;
     if (canUpload){
         [PhotoManager reStartUploader];
@@ -582,6 +591,9 @@ NSString * JY_UUID() {
 
 +(void)reStartUploader{
     [[PhotoManager shareManager] startUploadPhotos];//上传照片
+     BOOL swichOn = SWITHCHON_BOOL;
+    MyNSLog(@"开关状态======>%@",swichOn?@"备份开关状态：开启":@"备份开关状态：关闭");
+    
 }
 
 
@@ -608,7 +620,7 @@ NSString * JY_UUID() {
         }];
     }else{
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-        //                    NSLog(@"😆🍄%@",responseObject);
+        MyNSLog (@"请求的URL======>%@\n获取NAS照片的responseObject======>:%@",task.currentRequest.URL,responseObject);
         NSDictionary * dic = responseObject;
         NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
         
@@ -617,6 +629,8 @@ NSString * JY_UUID() {
             FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
             [photoArrHash addObject:nasPhoto.fmhash];
         }
+        MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
+      
         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
             for (FMLocalPhoto * p in result) {
@@ -624,6 +638,8 @@ NSString * JY_UUID() {
                     [localPhotoHashArr addObject:p.degist];
                 }
             }
+              MyNSLog (@"本地照片的所有Hash======>%@",localPhotoHashArr);
+            
             //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
             //                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
             NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
@@ -649,7 +665,7 @@ NSString * JY_UUID() {
 //标注是否可以上传（wifi）
 BOOL shouldUpload = NO;
 -(void)startUploadPhotos{
-    BOOL switchOn = SWITHCHON_BOOL;
+ 
     @autoreleasepool {
         __weak typeof(self) weakSelf = self;
         if (!_reachabilityTimer) {
@@ -664,12 +680,13 @@ BOOL shouldUpload = NO;
                     dispatch_group_t group =  dispatch_group_create();
                     dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                         if (_uploadarray.count >0){
+                            [[NSNotificationCenter defaultCenter]postNotificationName:@"uploadOverNoti" object:nil];
                         // 执行1个耗时的异步操作
                         [weakSelf uploadImages:_uploadarray success:^(NSArray *arr) {
                             // [FMPhotoDataSource siftPhotos];
-                            if (switchOn &&_canUpload && shouldUpload) {
-                                [weakSelf startUploadPhotos];
-                            }
+//                            if (switchOn &&_canUpload && shouldUpload) {
+//                                [weakSelf startUploadPhotos];
+//                            }
                         } failure:^{
                         }];
                         }
@@ -682,9 +699,9 @@ BOOL shouldUpload = NO;
                 // 执行1个耗时的异步操作
                 [weakSelf uploadImages:_uploadarray success:^(NSArray *arr) {
 //                    [FMPhotoDataSource siftPhotos];
-                    if (switchOn &&_canUpload && shouldUpload) {
-                        [weakSelf startUploadPhotos];
-                    }
+//                    if (switchOn &&_canUpload && shouldUpload) {
+//                        [weakSelf startUploadPhotos];
+//                    }
                 } failure:^{
                 }];
             });
@@ -856,6 +873,7 @@ BOOL shouldUpload = NO;
 }
 
 -(void)uploadImages:(NSArray *)imageArr success:(void (^)(NSArray *))success failure:(void (^)())failure{
+ 
     NSMutableArray *array = [[NSMutableArray alloc] init];
     __block NSUInteger currentIndex = 0;
      BOOL switchOn = SWITHCHON_BOOL;
@@ -863,6 +881,11 @@ BOOL shouldUpload = NO;
     __weak typeof(uploadHelper) weakHelper = uploadHelper;
     __weak typeof(self) weakSelf = self;
     [PhotoManager shareManager].isUploading = YES;
+    if(_canUpload && shouldUpload && switchOn){
+        if(imageArr.count>0){
+            [self uploadImage:imageArr[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+        }
+    }
     uploadHelper.singleFailureBlock = ^() {
         NSLog(@"上传失败");
         failure();
@@ -885,11 +908,11 @@ BOOL shouldUpload = NO;
 //        [center postNotificationName:@"currentImage" object:nil userInfo:dict];
    
      NSLog(@"%ld张=========%ld张",(unsigned long)[array count],(unsigned long)[imageArr count]);
-//        if ([array count] >= [imageArr count]) {
-//            success([array copy]);
-//            [PhotoManager shareManager].isUploading = NO;
-//            return;
-//        }
+        if ([array count] >= [imageArr count]) {
+            success([array copy]);
+            [PhotoManager shareManager].isUploading = NO;
+            return;
+        }
 //        else {
 //            if(_canUpload && shouldUpload){
 //                [weakSelf uploadImage:imageArr[currentIndex] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
@@ -898,11 +921,7 @@ BOOL shouldUpload = NO;
 //            }
 //        }
     };
-    if(_canUpload && shouldUpload && switchOn){
-     if(imageArr.count>0){
-      [self uploadImage:imageArr[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
-    }
-    }
+
 }
 
 
@@ -914,8 +933,19 @@ BOOL shouldUpload = NO;
     }];
 }
 
+- (void)applicationWillEnterForeground{
+    BOOL switch_bool = SWITHCHON_BOOL;
+    [_uploadarray removeAllObjects];
+    if (switch_bool && _canUpload) {
+        _canUpload = YES;
+    }
+}
+
 
 - (void)uploadImage:(NSString *)photoHash success:(void (^)(NSString *url))success failure:(void (^)())failure{
+    
+    _start = CFAbsoluteTimeGetCurrent();
+     MyNSLog(@"每张上传照片开始时间：%f",_start);
     BOOL switchOn = SWITHCHON_BOOL;
     @autoreleasepool {
         if (shouldUpload && _canUpload) {
@@ -923,7 +953,10 @@ BOOL shouldUpload = NO;
             PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
             if(!asset){
                 [self _uploadFailedWithNotFoundAsset:YES andLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
-                [_uploadarray removeObject:photoHash];
+                if (_uploadarray.count >0) {
+                     [_uploadarray removeObjectAtIndex:0];
+                }
+               
                 if (switchOn && _canUpload &&shouldUpload) {
                     [PhotoManager shareManager].canUpload = YES;
                 }
@@ -1075,8 +1108,8 @@ BOOL shouldUpload = NO;
                                 [self removeNullWithString:null filePathHash:hashStr];
                             }];
                         }else{
-                            [FMUploadFileAPI uploadsSiftWithDataSouce:arr Asset:asset LocalPhotoHash:hashStr filePath:filePath SuccessBlock:success Failure:failure  CopmleteBlock:^(BOOL upload) {
-                                if (upload) {
+//                            [FMUploadFileAPI uploadsSiftWithDataSouce:arr Asset:asset LocalPhotoHash:hashStr filePath:filePath SuccessBlock:success Failure:failure  CopmleteBlock:^(BOOL upload) {
+//                                if (upload) {
                                     [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
                                         NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                                         
@@ -1091,8 +1124,8 @@ BOOL shouldUpload = NO;
                                     } otherFailure:^(NSString *null) {
                                         [self removeNullWithString:null filePathHash:hashStr];
                                     }];
-                               }
-                           }];
+//                               }
+//                           }];
                         }
 
                     } failure:^(NSURLSessionDataTask *task, NSError *error) {
@@ -1209,9 +1242,17 @@ BOOL shouldUpload = NO;
                 } 
 
                 [uploadImageArr addObject:sha256Str];
-                [_uploadarray removeObject:sha256Str];
+                if (_uploadarray.count >0) {
+                     [_uploadarray removeObjectAtIndex:0];
+                }
+        
                 [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
+                _end = CFAbsoluteTimeGetCurrent();
+                MyNSLog(@"上传成功！该照片Hash=====>%@",str);
+        
+                MyNSLog(@"结束时间%f======>",_end);
+                MyNSLog(@"上传一张用时时间%f======>",_end-_start);
                 NSLog(@"上传成功！%@",str);
 //            }];
          [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
@@ -1372,7 +1413,9 @@ static NSInteger s = 1;
         uploadImageArr = [NSMutableArray arrayWithCapacity:0];
     }
     [uploadImageArr addObject:hashString];
-    [_uploadarray removeObject:hashString];
+    if (_uploadarray.count >0) {
+        [_uploadarray removeObjectAtIndex:0];
+    }
     [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 //    if (switchOn &&_canUpload && shouldUpload) {
@@ -1384,7 +1427,7 @@ static NSInteger s = 1;
 //        } failure:^{
 //        }];
 //    }
-    if (switchOn &&_canUpload && shouldUpload) {
+    if (switchOn  && shouldUpload) {
         [[PhotoManager shareManager] setCanUpload:YES];
     }
 }

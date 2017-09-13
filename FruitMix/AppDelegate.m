@@ -88,6 +88,8 @@
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [[BackgroundRunner shared] stop];
     self.isBackground = NO;
+    
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"enterForeground" object:nil];
 }
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
@@ -147,7 +149,7 @@
 //    NSLog(@"手机名称：%@",device.name);
     if (![[device name] isEqualToString:@"iPhone Simulator"] && ![device.name containsString:@"JackYang"]) {
 //         开始保存日志文件
-        [self redirectNSlogToDocumentFolder];
+//        [self redirectNSlogToDocumentFolder];
         [FMConfiguation shareConfiguation].shouldUpload = NO;
     }
 }
@@ -614,6 +616,7 @@
     if (token.length>0) {
         if (switchOn) {
             [PhotoManager shareManager].canUpload = YES;
+            
         }else{
             [PhotoManager shareManager].canUpload = NO;
         }

@@ -10,6 +10,42 @@
 #define FruitMix_pch
 
 #ifdef __OBJC__
+
+//#define DEBUG
+
+//宏输出函数
+
+//#ifdef DEBUG
+//
+//#define SFun_Log(fmt, ...) NSLog((@"%s," "[lineNum:%d]" fmt) , __FUNCTION__, __LINE__, ##__VA_ARGS__); //带函数名和行数
+//
+//#define SL_Log(fmt, ...) NSLog((@"===[lineNum:%d]" fmt), __LINE__, ##__VA_ARGS__);  //带行数
+//
+//#define SC_Log(fmt, ...) NSLog((fmt), ##__VA_ARGS__); //不带函数名和行数
+//
+//#define NSLog(...)
+//#else
+//
+//#define SFun_Log(fmt, ...)
+//
+//#define SL_Log(fmt, ...)
+//
+//#define SC_Log(fmt, ...)
+//
+//#endif
+
+#ifdef DEBUG
+#define DLog(fmt, ...) NSLog((@"[文件名:%s]\n" "[函数名:%s]\n" "[行号:%d] \n" fmt), __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+#define DeBugLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+#define NSLog(...) NSLog(__VA_ARGS__)
+#define MyNSLog(FORMAT, ...) fprintf(stderr,"[%s]:[line %d行] %s\n --------------—--------------—\n",[[[NSString stringWithUTF8String:__FILE__] lastPathComponent] UTF8String], __LINE__, [[NSString stringWithFormat:FORMAT, ##__VA_ARGS__] UTF8String]);
+#else
+#define DLog(...)
+#define DeBugLog(...)
+#define NSLog(...)
+#define MyNSLog(FORMAT, ...)
+#endif
+
 #import "AppDelegate.h"
 
 //第三方库

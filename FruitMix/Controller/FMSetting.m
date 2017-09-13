@@ -34,6 +34,11 @@
     [self createNavbtn];
     [self anySwitch];
     [self setSwitch];
+    if (_switchBtn.on) {
+        MyNSLog(@"备份开关开启");
+    }else{
+        MyNSLog(@"备份开关关闭");
+    }
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -234,8 +239,10 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
     if([PhotoManager shareManager].netStatus == FMNetStatusWWAN ){
         if (switchBtn.isOn) {
+            MyNSLog(@"备份开关开启");
             [PhotoManager shareManager].canUpload = YES;
         }else{
+            MyNSLog(@"备份开关关闭");
             [PhotoManager shareManager].canUpload = NO;
         }
     }
@@ -248,11 +255,13 @@
 //    NSString *name= [[NSUserDefaults standardUserDefaults] objectForKey:@"USER_SHOULD_SYNC_PHOTO_STR"];
 //    NSLog(@"%@",name);
     if (switchBtn.isOn) {
+        MyNSLog(@"备份开关开启");
         [PhotoManager shareManager].canUpload = YES;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] synchronize];
         _switchOn = YES;
     }else{
+        MyNSLog(@"备份开关关闭");
 //        NSLog(@"%@",USER_SHOULD_SYNC_PHOTO);
 //        if (IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)) {
              [PhotoManager shareManager].canUpload = NO;
@@ -273,7 +282,7 @@
         [PhotoManager shareManager].canUpload = NO;
         
     }
-
+    MyNSLog(@"备份开关关闭");
     
 }
 
@@ -286,7 +295,7 @@
         [PhotoManager shareManager].canUpload = YES;
 
     }
-  
+    MyNSLog(@"备份开关开启");
 }
 
 - (IBAction)cleanBtnClick:(id)sender {
