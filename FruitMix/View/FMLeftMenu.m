@@ -15,7 +15,7 @@
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
 {
-    NSInteger *_allCount;
+    NSNumber *_allCount;
 }
 @property (weak, nonatomic) IBOutlet UILabel *versionLb;
 @property (weak, nonatomic) IBOutlet UIButton *userBtn1;
@@ -40,9 +40,9 @@
             }
         }
         NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
-        NSNumber  *count = [NSNumber numberWithUnsignedInteger:[localPhotoHashArrSet allObjects].count];
-        _allCount = (NSInteger)count;
+        NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];_allCount = [NSNumber numberWithUnsignedInteger:arr.count];
     }];
+    MyNSLog(@"本地所有照片left++++++++>%@",_allCount);
 //    self.userHeaderIV.layer.cornerRadius = self.userHeaderIV.frame.size.width/2;
 //    self.userHeaderIV.backgroundColor = [UIColor blackColor];
     _settingTabelView.delegate = self;
