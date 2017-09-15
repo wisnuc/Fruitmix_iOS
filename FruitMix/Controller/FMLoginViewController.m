@@ -69,14 +69,15 @@ ServerBrowserDelegate
 
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
     [_reachabilityTimer invalidate];
     _reachabilityTimer = nil;
+    [_browser stopServer];
 }
 
 -(void)dealloc{
     [_reachabilityTimer invalidate];
     _reachabilityTimer = nil;
+    [_browser stopServer];
 }
 
 - (void)viewDidLoad {
@@ -168,7 +169,7 @@ ServerBrowserDelegate
     ser.type = service.type;
     ser.displayPath = addressString;
     ser.hostName = service.hostName;
-
+    _expandCell = ser;
     BOOL isNew = YES;
     for (FMSerachService * s in _dataSource) {
         if (IsEquallString(s.path, ser.path)) {

@@ -493,6 +493,7 @@
             }
         }
     else if(IsEquallString(title,@"注销")){
+        MyNSLog(@"注销");
         vc = self.zhuxiao;
         [SXLoadingView showProgressHUD:@"正在注销"];
         [PhotoManager shareManager].canUpload = NO;//停止上传
@@ -505,6 +506,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"siftPhoto"];
+//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
 
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];
         [SXLoadingView hideProgressHUD];

@@ -236,12 +236,9 @@
                 if (p.degist.length >0) {
                     [localPhotoHashArr addObject:p.degist];
                 }
-                
             }
-            
             NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
             NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
-            
             NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",[localPhotoHashArrSet allObjects]];
             NSArray * filter_no = [[photoArrHashSet allObjects] filteredArrayUsingPredicate:filterPredicate_same];
             NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
@@ -249,7 +246,6 @@
 //            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
             [[NSUserDefaults standardUserDefaults]  synchronize];
-            
         }];
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {

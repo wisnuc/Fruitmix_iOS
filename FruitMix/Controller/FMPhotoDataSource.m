@@ -113,7 +113,6 @@
                 }
                 
             }
-            
             NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
             NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
             
@@ -124,6 +123,8 @@
 //            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
             [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
             [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            MyNSLog(@"请求NAS 照片返回%@",responseObject);
 //            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];
 //            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
         }];

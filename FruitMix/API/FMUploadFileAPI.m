@@ -182,7 +182,7 @@ NSInteger imageUploadCount = 0;
                            success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure;
 {
-    
+    MyNSLog(@"==========================开始上传==============================");
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.requestSerializer = [AFHTTPRequestSerializer serializer];
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
@@ -191,7 +191,7 @@ NSInteger imageUploadCount = 0;
    NSInteger sizeNumber = (NSInteger)[FMUploadFileAPI fileSizeAtPath:filePath];
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
     NSString * exestr = [filePath lastPathComponent];
-
+    MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
     [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         // 上传 多张图片
 //        for(NSInteger i = 0; i < photoArr.count; i++)
@@ -207,9 +207,9 @@ NSInteger imageUploadCount = 0;
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        NSLog(@"--> %@", responseObject);
+        MyNSLog(@"上传请求成功,POST返回成功");
         success(task,responseObject);
-        MyNSLog (@"上传照片请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n", task.currentRequest.URL,exestr,hashString);
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
         NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
@@ -218,6 +218,7 @@ NSInteger imageUploadCount = 0;
             NSLog(@"error--%@",serializedData);
             MyNSLog (@"上传照片error======>%@",serializedData);
         }
+          MyNSLog (@"上传照片error======>%@",error);
 //       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
         failure(task,error);

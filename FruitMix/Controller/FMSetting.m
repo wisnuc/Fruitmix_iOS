@@ -32,8 +32,9 @@
     self.settingTableView.tableFooterView = [UIView new];
     self.displayProgress = NO;
     [self createNavbtn];
-    [self anySwitch];
     [self setSwitch];
+    [self anySwitch];
+
     if (_switchOn) {
         MyNSLog(@"备份开关开启");
     }else{
@@ -65,11 +66,13 @@
 
 -(void)anySwitch{
     if (_switchOn) {
-        [PhotoManager shareManager].canUpload = YES;
+        if (![PhotoManager shareManager].canUpload) {
+           [PhotoManager shareManager].canUpload = YES;
+        }
     }else{
-        
-        [PhotoManager shareManager].canUpload = NO;
-
+        if ([PhotoManager shareManager].canUpload) {
+           [PhotoManager shareManager].canUpload = NO;
+        }
     }
     
 }
@@ -240,10 +243,14 @@
     if([PhotoManager shareManager].netStatus == FMNetStatusWWAN ){
         if (switchBtn.isOn) {
             MyNSLog(@"备份开关开启");
-            [PhotoManager shareManager].canUpload = YES;
+            if (![PhotoManager shareManager].canUpload) {
+                 [PhotoManager shareManager].canUpload = YES;
+            }
         }else{
             MyNSLog(@"备份开关关闭");
+            if ([PhotoManager shareManager].canUpload) {
             [PhotoManager shareManager].canUpload = NO;
+            }
         }
     }
 }
@@ -280,10 +287,10 @@
        _tag = 1;
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:KSWITHCHON];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    if ([PhotoManager shareManager].canUpload) {
+//    if ([PhotoManager shareManager].canUpload) {
         [PhotoManager shareManager].canUpload = NO;
         
-    }
+//    }
     MyNSLog(@"备份开关关闭");
     
 }
@@ -293,10 +300,10 @@
        _tag = 1;
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KSWITHCHON];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    if (![PhotoManager shareManager].canUpload) {
+//    if (![PhotoManager shareManager].canUpload) {
         [PhotoManager shareManager].canUpload = YES;
 
-    }
+//    }
     MyNSLog(@"备份开关开启");
 }
 

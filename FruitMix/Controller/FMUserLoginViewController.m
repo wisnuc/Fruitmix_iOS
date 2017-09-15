@@ -72,6 +72,8 @@
 - (void)loginButtonClick:(UIButton *)sender{
     [self.view endEditing:YES];
     sender.userInteractionEnabled = NO;
+    
+    
     [SXLoadingView showProgressHUD:@"正在登录"];
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
@@ -99,7 +101,7 @@
     NSString * def_token = DEF_Token;
     MyAppDelegate.leftMenu = nil;
     [MyAppDelegate initLeftMenu];
-    
+    MyNSLog(@"登录");
     if (def_token.length == 0 ) {
         UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
         // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
@@ -107,7 +109,7 @@
             NSLog(@"点击了取消按钮");
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [PhotoManager shareManager].canUpload = NO;
+//                [PhotoManager shareManager].canUpload = NO;
                  [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
                 NSLog(@"点击了确定按钮");
             });
@@ -115,7 +117,7 @@
         
         UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                 [PhotoManager shareManager].canUpload = YES;
+//                 [PhotoManager shareManager].canUpload = YES;
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
                 NSLog(@"点击了确定按钮");
             });
@@ -143,7 +145,7 @@
         [[NSUserDefaults standardUserDefaults] setObject:_user.uuid forKey:USER_SHOULD_SYNC_PHOTO_STR];
         [[NSUserDefaults standardUserDefaults] synchronize];
         //重启photoSyncer
-        [PhotoManager shareManager].canUpload = YES;
+//        [PhotoManager shareManager].canUpload = YES;
     }
     //重置数据
     [MyAppDelegate resetDatasource];
@@ -252,6 +254,32 @@
     }];
 //     [condition wait];
 //    [condition unlock];
+}
+
+#pragma mark - 验证手机号
++(BOOL)checkForMobilePhoneNo:(NSString *)mobilePhone{
+    
+    NSString *regEx = @"^1[3|4|5|7|8][0-9]\\d{8}$";
+    return [self baseCheckForRegEx:regEx data:mobilePhone];
+}
+
+#pragma mark - 私有方法
+/**
+ *  基本的验证方法
+ *
+ *  @param regEx 校验格式
+ *  @param data  要校验的数据
+ *
+ *  @return YES:成功 NO:失败
+ */
++(BOOL)baseCheckForRegEx:(NSString *)regEx data:(NSString *)data{
+    
+    NSPredicate *card = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regEx];
+    
+    if (([card evaluateWithObject:data])) {
+        return YES;
+    }
+    return NO;
 }
 
 - (UILabel *)setTextFieldLine{
