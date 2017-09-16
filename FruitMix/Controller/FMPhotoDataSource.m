@@ -80,12 +80,14 @@
 }
 
 -(void)getNetPhotos{
+    @weaky(self)
     NSLog(@"当前 UUID: %@ ",DEF_UUID);
+
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         FMMediaAPI * api = [FMMediaAPI new];
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-            [self analysisPhotos:request.responseJsonObject];
-            [FMPhotoDataSource siftPhotos];
+            [weak_self analysisPhotos:request.responseJsonObject];
+            [weak_self siftPhotos];
 //            NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
             NSLog(@"载入Media失败,%@",request.error);
@@ -93,7 +95,8 @@
     });
 }
 
-+ (void)siftPhotos{
+- (void)siftPhotos{
+    @weaky(self)
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
         //                    NSLog(@"%@",responseObject);
@@ -105,13 +108,13 @@
             FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
             [photoArrHash addObject:nasPhoto.fmhash];
         }
+         dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
             for (FMLocalPhoto * p in result) {
                 if (p.degist.length >0) {
                     [localPhotoHashArr addObject:p.degist];
                 }
-                
             }
             NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
             NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
@@ -129,6 +132,7 @@
 //            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
         }];
         
+         });
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         NSLog(@"%ld",(long)rep.statusCode);
@@ -140,7 +144,7 @@
                         if (successful) {
                             [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
                                 if (successful) {
-                                    [self siftPhotos];
+                                    [weak_self siftPhotos];
                                 }
                             }];
                         }

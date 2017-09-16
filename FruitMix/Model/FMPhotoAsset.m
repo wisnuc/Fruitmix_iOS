@@ -70,7 +70,7 @@ caption = _caption;
 -(NSString *)getPhotoHash{
     if (IsNilString(self.degist))
     
-        self.degist = [[FMLocalPhotoStore shareStore] getPhotoHashWithLocalId:self.localId];
+    self.degist = [[FMLocalPhotoStore shareStore] getPhotoHashWithLocalId:self.localId];
     return _degist;
 }
 

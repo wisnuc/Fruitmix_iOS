@@ -180,8 +180,7 @@ NSInteger imageUploadCount = 0;
 //(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject
 + (void)uploadDirEntryWithFilePath:(NSString *)filePath
                            success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
-                           failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure;
-{
+                           failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure{
     MyNSLog(@"==========================开始上传==============================");
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.requestSerializer = [AFHTTPRequestSerializer serializer];

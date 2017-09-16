@@ -151,7 +151,7 @@
 //    NSLog(@"手机名称：%@",device.name);
     if (![[device name] isEqualToString:@"iPhone Simulator"] && ![device.name containsString:@"JackYang"]) {
 //         开始保存日志文件
-//        [self redirectNSlogToDocumentFolder];
+        [self redirectNSlogToDocumentFolder];
         [FMConfiguation shareConfiguation].shouldUpload = NO;
     }
 }
@@ -262,8 +262,8 @@
     NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
     NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
     // 先删除已经存在的文件
-//    NSFileManager *defaultManager = [NSFileManager defaultManager];
-//    [defaultManager removeItemAtPath:logFilePath error:nil];
+    NSFileManager *defaultManager = [NSFileManager defaultManager];
+    [defaultManager removeItemAtPath:logFilePath error:nil];
     
     // 将log输入到文件
     freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stdout);
@@ -506,6 +506,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"siftPhoto"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCount"];
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
 
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];

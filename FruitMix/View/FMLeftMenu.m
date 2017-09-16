@@ -12,6 +12,7 @@
 #import "FMLeftUserFooterView.h"
 #import "FMGetUserInfo.h"
 #import "FMPhotoDataSource.h"
+#import "FMUserLoginViewController.h"
 
 @interface FMLeftMenu ()<UITableViewDelegate,UITableViewDataSource>
 {
@@ -199,26 +200,34 @@
     progressLb.font = [UIFont systemFontOfSize:12];
     progressLb.textAlignment = NSTextAlignmentCenter;
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-            NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
-            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
-            for (FMLocalPhoto * p in result) {
-                [tmp addObject:p.localIdentifier];
-                if(p.degist.length >0){
-                    [localPhotoHashArr addObject:p.degist];
-                }
-            }
-            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
-            NSMutableArray *uploadImageArr = [NSMutableArray array];
+//        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+//            NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
+//            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+//            for (FMLocalPhoto * p in result) {
+//                [tmp addObject:p.localIdentifier];
+//                if(p.degist.length >0){
+//                    [localPhotoHashArr addObject:p.degist];
+//                }
+//            }
+//            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+            NSMutableArray *uploadImageArr = [NSMutableArray arrayWithCapacity:0];
             uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
-            NSInteger allPhotos = [localPhotoHashArrSet allObjects].count;
-            FMDBSet * dbSet = [FMDBSet shared];
-            FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
-            [scmd where:@"userId" equalTo:DEF_UUID];
-            [scmd where:@"localId" containedIn:tmp];
-            [scmd fetchArrayInBackground:^(NSArray *results) {
-                float progress = (float)uploadImageArr.count/[_allCount floatValue];
-                //                 NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:0 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:YES];
+            NSNumber *alreadyCountNumber;
+            NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]valueForKey:@"addCount"];
+            if (addCountNumber==nil) {
+                alreadyCountNumber = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+            }else{
+                alreadyCountNumber = addCountNumber;
+            }
+        
+//            NSInteger allPhotos = [localPhotoHashArrSet allObjects].count;
+//            FMDBSet * dbSet = [FMDBSet shared];
+//            FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
+//            [scmd where:@"userId" equalTo:DEF_UUID];
+//            [scmd where:@"localId" containedIn:tmp];
+//            [scmd fetchArrayInBackground:^(NSArray *results) {
+                float progress = [alreadyCountNumber floatValue]/[_allCount floatValue];
+          //  NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:0 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:YES];
                 NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:progress afterPoint:2]]];
                 NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
                 
@@ -229,35 +238,35 @@
                     mutiplyDecimal = [progressDecimalNumber decimalNumberByMultiplyingBy:decimalNumber];
                 }
                 if ([NSThread isMainThread] ) {
-                    if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
+                    if ([alreadyCountNumber unsignedIntegerValue]/[_allCount unsignedIntegerValue]>=1) {
                         self.backUpProgressView.progress = 1;
                         self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
                         self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
                     }else{
                         self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                         self.backUpProgressView.progress = progress;
-                        NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
-                        self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
+//                        NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+                        self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",alreadyCountNumber,_allCount];
                     }
                 }else{
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
+                        if ([alreadyCountNumber unsignedIntegerValue]/[_allCount unsignedIntegerValue]>=1) {
                             self.backUpProgressView.progress = 1;
                             self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
                             self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
                         }else{
                             self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                             self.backUpProgressView.progress = progress;
-                            NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
-                            self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
+//                            NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+                            self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",alreadyCountNumber,_allCount];
                         }
                     });
                 }
                 MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
 
-            }];
-            
-        }];
+//            }];
+//            
+//        }];
     });
 //    [cell.contentView addSubview:progressLb];
 //    progressLb.hidden = !_displayProgress;
@@ -277,7 +286,14 @@ static NSInteger overCount = 0;
 - (void)receiveNotification:(NSNotification *)noti{
     NSMutableArray *uploadImageArr = [NSMutableArray array];
     uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
-        float progress = (float)uploadImageArr.count/[_allCount floatValue];
+    NSNumber *alreadyCountNumber;
+    NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]valueForKey: @"addCount"];
+    if (addCountNumber==nil) {
+        alreadyCountNumber = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+    }else{
+        alreadyCountNumber = addCountNumber;
+    }
+        float progress = [alreadyCountNumber floatValue]/[_allCount floatValue];
         NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:progress afterPoint:2]]];
         NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
 
@@ -288,16 +304,16 @@ static NSInteger overCount = 0;
             mutiplyDecimal = [progressDecimalNumber decimalNumberByMultiplyingBy:decimalNumber];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
+            if ([alreadyCountNumber unsignedIntegerValue]/[_allCount unsignedIntegerValue]>=1) {
                 self.backUpProgressView.progress = 1;
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
                 self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
             }else{
                 self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                 self.backUpProgressView.progress = progress;
-                NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+//                NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
 
-                self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
+                self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",alreadyCountNumber,_allCount];
             }
         });
         MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
@@ -308,7 +324,7 @@ static NSInteger overCount = 0;
 }
 - (void)receiveNotificationForUploadOverNoti:(NSNotification *)noti{
       [self getAllPhotoCount];
-      [FMPhotoDataSource siftPhotos];
+//      [FMUserLoginViewController siftPhotoFromNetwork];
     dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
     
     dispatch_after(delayTime, dispatch_get_main_queue(), ^{
@@ -321,10 +337,10 @@ static NSInteger overCount = 0;
 
 - (void)overUploadAction{
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
+          [FMUserLoginViewController siftPhotoFromNetwork];
             NSMutableArray *uploadImageArr = [NSMutableArray array];
             uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
-
+//  NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]valueForKey: @"addCount"];
                 float progress = (float)uploadImageArr.count/[_allCount floatValue];
                 //                 NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:0 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:YES];
                 NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:progress afterPoint:2]]];
