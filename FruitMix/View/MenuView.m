@@ -108,6 +108,7 @@
 
 
 -(void)show{
+    
 //    UIWindow * window = [[UIApplication sharedApplication].delegate window];
     [self.menuWindow addSubview:self.coverView];
     [self.menuWindow addSubview:self.leftMenuView];

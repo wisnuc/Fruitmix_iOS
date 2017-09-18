@@ -50,6 +50,24 @@ static MBProgressHUD  *s_progressHUD = nil;
     });
 }
 
++ (void)showProgressHUDText:(NSString *)aString duration:(CGFloat)duration {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self hideProgressHUD];
+        MBProgressHUD *progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
+        progressHUD.mode = MBProgressHUDModeText;
+        progressHUD.labelText = aString;
+        [_mainWindow() addSubview:progressHUD];
+        progressHUD.animationType = MBProgressHUDAnimationZoom;
+        progressHUD.labelText = aString;
+        
+        progressHUD.removeFromSuperViewOnHide = YES;
+        progressHUD.opacity = 0.7;
+        [progressHUD show:NO];
+        [progressHUD hide:YES afterDelay:duration];
+    });
+}
+
+
 + (void)showProgressHUD:(NSString *)aString {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!s_progressHUD) {

@@ -87,7 +87,7 @@
         FMMediaAPI * api = [FMMediaAPI new];
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
             [weak_self analysisPhotos:request.responseJsonObject];
-            [weak_self siftPhotos];
+//            [weak_self siftPhotos];
 //            NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
             NSLog(@"载入Media失败,%@",request.error);

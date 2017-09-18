@@ -36,6 +36,7 @@
 
 #import <CocoaLumberjack/CocoaLumberjack.h>
 #import "JYExceptionHandler.h"
+#import "FMUploadFileAPI.h"
 
 // Log levels: off, error, warn, info, verbose
 //static const DDLogLevel ddLogLevel = DDLogLevelVerbose;
@@ -53,7 +54,7 @@
 //    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     //配置侧拉
  
-   
+    MyNSLog(@"重新启动应用");
     //配置app的模式
     [self configAppMode];
     //检测奔溃
@@ -147,7 +148,6 @@
     FMConfigInstance.isDebug = NO;
     FMConfigInstance.shouldUpload = NO;
     UIDevice *device = [UIDevice currentDevice];
-    
 //    NSLog(@"手机名称：%@",device.name);
     if (![[device name] isEqualToString:@"iPhone Simulator"] && ![device.name containsString:@"JackYang"]) {
 //         开始保存日志文件
@@ -186,9 +186,11 @@
 
 //配置侧拉
 -(void)initLeftMenu{
+
     FMLeftMenu * leftMenu = [[[NSBundle mainBundle]loadNibNamed:@"FMLeftMenu" owner:nil options:nil]lastObject];
     leftMenu.frame = CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width * 0.8, [[UIScreen mainScreen] bounds].size.height);
     _leftMenu = leftMenu;
+    [leftMenu getAllPhoto];
     leftMenu.delegate = self;
     leftMenu.menus = [NSMutableArray arrayWithObjects:@"文件下载",@"设置",@"注销",nil];//@"个人信息", @"我的私有云", @"用户管理", @"设置", @"帮助",
     leftMenu.imageNames = [NSMutableArray arrayWithObjects:@"storage",@"set",@"cancel",nil];//@"personal",@"cloud",@"user",@"set",@"help",
@@ -216,8 +218,7 @@
         }
         return NO;
     };
-    
-}
+   }
 
 -(NSMutableArray *)getUsersInfo{
     NSMutableArray * arr = [NSMutableArray arrayWithArray:[FMDBControl getAllUserLoginInfo]];
@@ -262,8 +263,8 @@
     NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
     NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
     // 先删除已经存在的文件
-    NSFileManager *defaultManager = [NSFileManager defaultManager];
-    [defaultManager removeItemAtPath:logFilePath error:nil];
+//    NSFileManager *defaultManager = [NSFileManager defaultManager];
+//    [defaultManager removeItemAtPath:logFilePath error:nil];
     
     // 将log输入到文件
     freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stdout);
@@ -503,10 +504,11 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCount"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"siftPhoto"];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCount"];
+       
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
 
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];

@@ -45,6 +45,6 @@
 @property (nonatomic) void(^footViewClickBlock)();
 
 -(void)checkToStart;
-
+-(void)getAllPhoto;
 
 @end

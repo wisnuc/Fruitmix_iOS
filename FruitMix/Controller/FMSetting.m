@@ -99,7 +99,6 @@
 //    [finishBtn setTitle:@"完成" forState:UIControlStateNormal];
 //    UIBarButtonItem * item2 = [[UIBarButtonItem alloc]initWithCustomView:finishBtn];
 //    self.navigationItem.rightBarButtonItem = item2;
-    
 }
 
 - (instancetype)initPrivate {
@@ -190,15 +189,26 @@
             });
         });        
         cell.accessoryView = cleanBtn;
-    }
+   }
+//        else if(indexPath.row == 3){
+//        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+//        titleLb.text = @"清除log";
+//        titleLb.font = [UIFont systemFontOfSize:17];
+//        [cell.contentView addSubview:titleLb];
+//        UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
+//        label.text = @"点击清除";
+//        label.font = [UIFont systemFontOfSize:14];
+//        [label setTextColor:[UIColor blackColor]];
+//        cell.accessoryView = label;
+//    }
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     if(indexPath.row == 0){
-        _displayProgress = !_displayProgress;
-        [self.settingTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+//        _displayProgress = !_displayProgress;
+//        [self.settingTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     else if (indexPath.row == 2) {
         LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"确认清除缓存"
@@ -210,12 +220,30 @@
         actionSheet.visibleButtonCount = 3.6f;
         [actionSheet show];
     }
+//    else if (indexPath.row ==3){
+//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//        NSString *documentDirectory = [paths objectAtIndex:0];
+//        NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
+//        NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
+//        NSFileManager *defaultManager = [NSFileManager defaultManager];
+//        BOOL bRet = [defaultManager fileExistsAtPath:logFilePath];
+//        if (bRet) {
+//            //
+//            NSError *err;
+//           BOOL isDelete= [defaultManager removeItemAtPath:logFilePath error:&err];
+//            if (isDelete) {
+//              [SXLoadingView showProgressHUDText:@"log 清除成功" duration:1.0];
+//            }else{
+//              [SXLoadingView showProgressHUDText:@"log 清除失败" duration:1.0];
+//            }
+//        }
+//    }
 }
 
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    if(IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO) && indexPath.row == 0 && _displayProgress)
-        return 100;
+//    if(IsEquallString(DEF_UUID, USER_SHOULD_SYNC_PHOTO) && indexPath.row == 0 && _displayProgress)
+//        return 100;
     return 64;
         
 }

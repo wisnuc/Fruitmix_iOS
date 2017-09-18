@@ -89,6 +89,7 @@ NSString * JY_UUID() {
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(siftUploadArrCompleteBlock:) name:@"siftPhoto" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:@"enterForeground" object:nil];
+        [FMDBControl asyncLoadPhotoToDB];
        
     }
     return self;
@@ -538,15 +539,18 @@ NSString * JY_UUID() {
                 [PhotoManager shareManager].netStatus = FMNetStatusWIFI;
                  [[NSNotificationCenter defaultCenter] postNotificationName:FM_NET_STATUS_WIFI_NOTIFY object:nil];
                  NSLog(@"WiFi网络");
+                 if (!network) {
+                     shouldUpload = YES;
+                     if (![PhotoManager shareManager].isUploading ) {
+                         if(IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)){
+                            [PhotoManager shareManager].canUpload = YES;
+                         }
+                     }
+
+                 }
                  network = YES;
                  change = YES;
-                 shouldUpload = YES;
-                 if (![PhotoManager shareManager].isUploading ) {
-                     if(IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)){
-//                        [PhotoManager shareManager].canUpload = YES;
-                 }
-                 }
-                 break;
+                break;
              }
              case AFNetworkReachabilityStatusReachableViaWWAN:
              {
@@ -589,6 +593,8 @@ NSString * JY_UUID() {
     if (canUpload){
         [PhotoManager reStartUploader];
     }else{
+        [_reachabilityTimer invalidate];
+        _reachabilityTimer = nil;
         self.isUploading = NO;
     }
 }
@@ -618,9 +624,60 @@ NSString * JY_UUID() {
                     if (successful) {
                         [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
                             if (successful) {
-                                [weak_self siftUploadArrCompleteBlock:^(NSMutableArray *uploadArr) {
-                              }];
-                            }
+                                [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+                                    MyNSLog (@"请求的URL======>%@\n获取NAS照片的responseObject======>:%@",task.currentRequest.URL,responseObject);
+                                    NSDictionary * dic = responseObject;
+                                    NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
+                                    
+                                    NSArray * arr = [dic objectForKey:@"entries"];
+                                    for (NSDictionary *dic in arr) {
+                                        FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
+                                        [photoArrHash addObject:nasPhoto.fmhash];
+                                    }
+                                    MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
+                                    MyNSLog (@"NAS里的照片数量======>%u",photoArrHash.count);
+                                    [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
+                                        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                                            _allCount = [NSNumber numberWithUnsignedInteger:result.count];
+                                            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+                                            for (FMLocalPhoto * p in result) {
+                                                if (p.degist.length >0) {
+                                                    [localPhotoHashArr addObject:p.degist];
+                                                }
+                                            }
+                                            
+                                            //              MyNSLog (@"本地照片的所有Hash======>%@",localPhotoHashArr);
+                                            
+                                            //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
+                                            //                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
+                                            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+                                            NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
+                                            
+                                            NSMutableArray *uploadArray = [NSMutableArray arrayWithCapacity:0];
+                                            for (NSString *hashString in [localPhotoHashArrSet allObjects]) {
+                                                if (![[photoArrHashSet allObjects] containsObject:hashString]) {
+                                                    [uploadArray addObject:hashString];
+                                                }
+                                            }
+                                            NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",[photoArrHashSet allObjects]];
+                                            NSArray * filter1 = [[localPhotoHashArrSet allObjects] filteredArrayUsingPredicate:filterPredicate1];
+                                            //                        //找到在arr1中不在数组arr2中的数据
+                                            //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
+                                            //                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
+                                            //拼接数组
+                                            NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
+                                            [array addObjectsFromArray:filter1];
+                                            NSSet *arrSet = [NSSet setWithArray:array];
+                                            //            NSMutableArray *uploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
+                                            MyNSLog(@"比对结果Array=======>%@",uploadArray);
+                                            block (uploadArray);
+                                        }];
+                                    }];
+                                    
+                                } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                }];
+
+                                }
                         }];
                     }
                 }];
@@ -639,41 +696,43 @@ NSString * JY_UUID() {
         }
         MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
         MyNSLog (@"NAS里的照片数量======>%u",photoArrHash.count);
-        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-            _allCount = [NSNumber numberWithUnsignedInteger:result.count];
-            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
-            for (FMLocalPhoto * p in result) {
-                if (p.degist.length >0) {
-                    [localPhotoHashArr addObject:p.degist];
+        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
+            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                _allCount = [NSNumber numberWithUnsignedInteger:result.count];
+                NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
+                for (FMLocalPhoto * p in result) {
+                    if (p.degist.length >0) {
+                        [localPhotoHashArr addObject:p.degist];
+                    }
                 }
-            }
-            
-//              MyNSLog (@"本地照片的所有Hash======>%@",localPhotoHashArr);
-            
-            //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
-            //                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
-            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
-            NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
-            
-            NSMutableArray *uploadArray = [NSMutableArray arrayWithCapacity:0];
-            for (NSString *hashString in [localPhotoHashArrSet allObjects]) {
-                if (![[photoArrHashSet allObjects] containsObject:hashString]) {
-                    [uploadArray addObject:hashString];
+                
+                //              MyNSLog (@"本地照片的所有Hash======>%@",localPhotoHashArr);
+                
+                //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",photoArrHash];
+                //                        NSArray * filter2 = [localPhotoHashArr filteredArrayUsingPredicate:filterPredicate2];
+                NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
+                NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
+                
+                NSMutableArray *uploadArray = [NSMutableArray arrayWithCapacity:0];
+                for (NSString *hashString in [localPhotoHashArrSet allObjects]) {
+                    if (![[photoArrHashSet allObjects] containsObject:hashString]) {
+                        [uploadArray addObject:hashString];
+                    }
                 }
-            }
-            NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",[photoArrHashSet allObjects]];
-            NSArray * filter1 = [[localPhotoHashArrSet allObjects] filteredArrayUsingPredicate:filterPredicate1];
-            //                        //找到在arr1中不在数组arr2中的数据
-            //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
-            //                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
-            //拼接数组
-            NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
-            [array addObjectsFromArray:filter1];
-            NSSet *arrSet = [NSSet setWithArray:array];
-//            NSMutableArray *uploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
-            MyNSLog(@"比对结果Array=======>%@",uploadArray);
-            block (uploadArray);
+                NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",[photoArrHashSet allObjects]];
+                NSArray * filter1 = [[localPhotoHashArrSet allObjects] filteredArrayUsingPredicate:filterPredicate1];
+                //                        //找到在arr1中不在数组arr2中的数据
+                //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
+                //                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
+                //拼接数组
+                NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
+                [array addObjectsFromArray:filter1];
+                NSSet *arrSet = [NSSet setWithArray:array];
+                //            NSMutableArray *uploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
+                MyNSLog(@"比对结果Array=======>%@",uploadArray);
+                block (uploadArray);
         }];
+    }];
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
     }];
@@ -685,14 +744,18 @@ static  NSInteger overCount = 0;
 BOOL shouldUpload = NO;
 -(void)startUploadPhotos{
 
-    @autoreleasepool {
+//    @autoreleasepool {
         __weak typeof(self) weakSelf = self;
 //        if (!_reachabilityTimer) {
 //          _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:20 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
 //        }
-//        
-            if (_uploadarray.count == 0) {
+//            if (_uploadarray.count == 0) {
+    dispatch_queue_t queue = dispatch_queue_create("tk.bourne.Queue", DISPATCH_QUEUE_SERIAL);
+    //2.把任务添加到队列中执行
+    dispatch_async(queue, ^{
+        
                 [self siftUploadArrCompleteBlock:^(NSMutableArray *uploadArr) {
+                  MyNSLog(@"回调后进入上传序列");
                     _uploadarray = [NSMutableArray arrayWithArray:uploadArr];
                         if (_uploadarray.count >0){
                         // 执行1个耗时的异步操作
@@ -702,29 +765,30 @@ BOOL shouldUpload = NO;
                         }];
                         }else if (_uploadarray.count ==0) {
                     if (!_reachabilityTimer) {
-                        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:20 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
-                        [_reachabilityTimer fire];
+                        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+//                        [_reachabilityTimer fire];
                     }
                     
                 }
 
                 }];
-            }else{
-              
-                [weakSelf uploadImages:_uploadarray success:^(NSArray *arr) {
-                 if (_uploadarray.count==0) {
-                     if (!_reachabilityTimer) {
-                     _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:20 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
-                         [_reachabilityTimer fire];
+    });
+//            }else{
+//
+//                [weakSelf uploadImages:_uploadarray success:^(NSArray *arr) {
+//                 if (_uploadarray.count==0) {
+////                     if (!_reachabilityTimer) {
+////                     _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:20 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+////                         [_reachabilityTimer fire];
+////
+////                 }
+//
+//                }
+//                } failure:^{
+//                }];
+//        }
 
-                 }
-
-                }
-                } failure:^{
-                }];
-        }
-
-    }
+//    }
 }
 
 -(void)uploadImages:(NSArray *)imageArr success:(void (^)(NSArray *))success failure:(void (^)())failure{
@@ -744,7 +808,7 @@ BOOL shouldUpload = NO;
             [[NSNotificationCenter defaultCenter]postNotificationName:@"uploadOverNoti" object:nil];
             [PhotoManager shareManager].canUpload = YES;
             if (!_reachabilityTimer) {
-                _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:20 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+                _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
             }
     
  
@@ -768,6 +832,10 @@ BOOL shouldUpload = NO;
 
         }
         if (!_canUpload) {
+            if (_reachabilityTimer) {
+                [_reachabilityTimer invalidate];
+                _reachabilityTimer = nil;
+            }
             MyNSLog(@"上传通道关闭");
         }
       
@@ -778,18 +846,38 @@ BOOL shouldUpload = NO;
         [[NSNotificationCenter defaultCenter]postNotificationName:@"uploadOverNoti" object:nil];
         [PhotoManager shareManager].canUpload = YES;
             if (!_reachabilityTimer) {
-              _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:20 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+              _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
             }
         }
         else {
             
             if(_canUpload && shouldUpload){
+                @autoreleasepool {
+                    
+                
                   MyNSLog(@"上传返回成功，即将上传下一张");
+                
+                NSOperationQueue *queue = [[NSOperationQueue alloc] init];
                 if(imageArr.count>0){
-                [weakSelf uploadImage:_uploadarray[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+                    if (queue.isSuspended) {
+                        MyNSLog(@"线程暂停");
+                        [queue cancelAllOperations];
+                        
+                    }
+                    queue.maxConcurrentOperationCount = 1;
+                    // 2. 添加操作到队列中：addOperationWithBlock:
+                    [queue addOperationWithBlock:^{
+                         MyNSLog(@"加入队列上传");
+                        [weakSelf uploadImage:_uploadarray[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+                         MyNSLog(@"%@",[NSThread currentThread]);
+                    }];
+//
+             
                 }else{
+                    [queue cancelAllOperations];
                     return ;
                 }
+            }
             }else{
                 [PhotoManager shareManager].isUploading = NO;
             }
@@ -798,6 +886,7 @@ BOOL shouldUpload = NO;
     
     if(_canUpload && shouldUpload && switchOn){
         if(imageArr.count>0){
+            MyNSLog(@"加入队列上传");
             [self uploadImage:_uploadarray[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
         }
     }
@@ -826,6 +915,7 @@ BOOL shouldUpload = NO;
     BOOL switchOn = SWITHCHON_BOOL;
     @autoreleasepool {
         if (shouldUpload && _canUpload) {
+            MyNSLog(@"获取asset");
             FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
             PHAsset * asset = [store checkPhotoIsLocalWithLocalId:[store checkPhotoIsLocalWithDigest:photoHash]];
             
@@ -1121,8 +1211,7 @@ BOOL shouldUpload = NO;
                 }
                MyNSLog(@"新算出来的已经上传的数量👌====>%u",[_allCount unsignedIntegerValue] - _uploadarray.count);
                NSNumber *number = [NSNumber numberWithUnsignedInteger:[_allCount unsignedIntegerValue] - _uploadarray.count];
-        
-               [[NSUserDefaults standardUserDefaults]setValue:number forKey:@"addCount"];
+        [[NSUserDefaults standardUserDefaults]setObject:number forKey: @"addCount"];
                [[NSUserDefaults standardUserDefaults] synchronize];
 //                [uploadImageArr addObject:sha256Str];
         
@@ -1136,7 +1225,8 @@ BOOL shouldUpload = NO;
     //            }];
              [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
             if (success) success(str);
-//        });
+            
+     
     }else{ //失败
         [self saveUploadArrayWithHash:sha256Str];
         if (failure) failure();
@@ -1284,7 +1374,7 @@ static NSInteger s;
     }
     NSNumber *number = [NSNumber numberWithUnsignedInteger:[_allCount unsignedIntegerValue] - _uploadarray.count];
     
-    [[NSUserDefaults standardUserDefaults]setValue:number forKey:@"addCount"];
+    [[NSUserDefaults standardUserDefaults]setObject:number forKey:@"addCount"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 //    [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
 //    [[NSUserDefaults standardUserDefaults] synchronize];

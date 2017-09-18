@@ -15,5 +15,5 @@
 + (void)showProgressHUD:(NSString *)aString;
 + (void)hideProgressHUD;
 + (void)updateProgressHUD:(NSString*)progress;
-
++ (void)showProgressHUDText:(NSString *)aString duration:(CGFloat)duration;
 @end

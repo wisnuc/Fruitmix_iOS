@@ -31,5 +31,5 @@
 + (void)uploadsSiftWithDataSouce:(NSArray *)dataSouce Asset:(PHAsset *)asset LocalPhotoHash:(NSString*)localPhotoHash filePath:(NSString *)filePath SuccessBlock:(void (^)(NSString *url))success Failure:(void (^)())failure CopmleteBlock:(void(^)(BOOL upload))completeBlock;
 + (NSString *)getDeviceName;
 
-
++ (void)getPhotoUUIDWithBlock:(void(^)(BOOL successful))completeBlock;
 @end

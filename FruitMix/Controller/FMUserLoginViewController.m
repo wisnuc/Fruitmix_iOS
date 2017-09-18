@@ -97,10 +97,11 @@
 //登录完成 做的事
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
+    [FMDBControl reloadTables];
+    [FMDBControl asyncLoadPhotoToDB];
     [_service.task cancel];
     NSString * def_token = DEF_Token;
-    MyAppDelegate.leftMenu = nil;
-    [MyAppDelegate initLeftMenu];
+
     MyNSLog(@"登录");
     if (def_token.length == 0 ) {
         UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
@@ -108,7 +109,7 @@
         UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             NSLog(@"点击了取消按钮");
             
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 //                [PhotoManager shareManager].canUpload = NO;
                  [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
                 NSLog(@"点击了确定按钮");
@@ -116,7 +117,7 @@
         }];
         
         UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 //                 [PhotoManager shareManager].canUpload = YES;
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
                 NSLog(@"点击了确定按钮");
@@ -130,9 +131,7 @@
     }
     //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
-        [FMDBControl reloadTables];
-        [FMDBControl asyncLoadPhotoToDB];
-        //清除deviceID
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  //清除deviceID
 }
     FMConfigInstance.userToken = token;
     FMConfigInstance.userUUID = _user.uuid;
@@ -153,6 +152,7 @@
         //保存用户信息
         FMUserLoginInfo * info = [FMUserLoginInfo new];
         info.userName = _user.username;
+        MyNSLog(@"登录用户:%@",_user.username);
         info.uuid = _user.uuid;
         //        info.deviceId = [PhotoManager getUUID];
         info.jwt_token = token;
@@ -162,6 +162,7 @@
 //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
     });
     //组装UI
+
     MyAppDelegate.window.rootViewController = nil;
     [MyAppDelegate.window resignKeyWindow];
     [MyAppDelegate.window removeFromSuperview];
@@ -170,6 +171,8 @@
     [MyAppDelegate.sharesTabBar setSelectedIndex:0];
     MyAppDelegate.filesTabBar = nil;
     [MyAppDelegate resetDatasource];
+    MyAppDelegate.leftMenu = nil;
+    [MyAppDelegate initLeftMenu];
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
 //    [self siftPhotos];
 }

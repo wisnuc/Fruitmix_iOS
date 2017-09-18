@@ -264,7 +264,7 @@
         FMDBSet * dbSet = [FMDBSet shared];
         if (dbSet.isLoading) {
             //如果 数据库正在同步照片库 等两秒
-            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
+            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0/*延迟执行时间*/ * NSEC_PER_SEC));
             
             dispatch_after(delayTime, dispatch_get_main_queue(), ^{
    

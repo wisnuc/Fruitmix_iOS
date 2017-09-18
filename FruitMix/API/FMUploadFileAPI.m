@@ -73,7 +73,6 @@ NSInteger imageUploadCount = 0;
                 }
             }
         }
-
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         if (rep.statusCode == 404) {
@@ -505,6 +504,22 @@ NSInteger imageUploadCount = 0;
         [[PhotoManager shareManager] uploadComplete:NO andSha256:localPhotoHash withFilePath:filePath andAsset:asset andSuccessBlock:success Failure:failure];
         completeBlock(NO);
     }
+}
++ (void)getPhotoUUIDWithBlock:(void(^)(BOOL successful))completeBlock{
+    [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+    if (successful) {
+    [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
+        if (successful) {
+            [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                if (successful) {
+                    completeBlock(YES);
+                }
+            }];
+        }
+    }];
+    }
+}];
+
 }
 
 + (NSString *)getDeviceName
