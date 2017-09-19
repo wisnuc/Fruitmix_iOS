@@ -9,6 +9,8 @@
 #import "FMPhotoAsset.h"
 #import "CocoaSecurity.h"
 #import "FMGetThumbImage.h"
+#import "NSOperationStack.h"
+#import "FMGetImage.h"
 
 #define Scale
 
@@ -26,6 +28,8 @@
 
 // Properties
 @property (nonatomic, strong) UIImage *underlyingImage;
+
+@property (nonatomic) NSBlockOperation * operation;
 
 // Methods
 - (void)imageLoadingComplete;
@@ -129,28 +133,26 @@ caption = _caption;
         } else if(_localId){
                 // 图片原尺寸
             @weaky(self);
-            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            self.operation =  [NSBlockOperation blockOperationWithBlock:^{
                 PHAsset * asset = [[FMLocalPhotoStore shareStore]checkPhotoIsLocalWithLocalId:_localId];
                 if (asset) {
-                    [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
-                        if (filePath) {
-                            weak_self.underlyingImage = [YYImage imageWithContentsOfFile:filePath];
-                            [weak_self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
-                         }
+                    [[FMGetImage defaultGetImage] getOriginalImageWithAsset:asset andCompleteBlock:^(UIImage *image, NSString *tag) {
+                        weak_self.underlyingImage = image;
+                        [weak_self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
                     }];
-//                    CGFloat pW = __kWidth*[UIScreen mainScreen].scale;
-//                    CGFloat pH = asset.pixelHeight * (pW/asset.pixelWidth);
-//                    CGSize targetSize = CGSizeMake(pW, pH);
-//                    PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
-//                    imageRequestOptions.synchronous = YES;
-//                    [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeDefault options:imageRequestOptions resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
-//                        if (result) {
-//                            weak_self.underlyingImage = result;
+//                    [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
+//                        if (filePath) {
+//                            weak_self.underlyingImage = [YYImage imageWithContentsOfFile:filePath];
 //                            [weak_self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
 //                        }
 //                    }];
-                    }
-            });
+//                    [[FMGetImage defaultGetImage] getFullImageWithAsset:asset andCompleteBlock:^(UIImage *image, NSString *tag) {
+//                        weak_self.underlyingImage = image;
+//                        [weak_self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
+//                    }];
+                }
+            }];
+            [[FMUtil defaultOperationQueue] addOperationAtFrontOfQueue:self.operation];
         }else {
             self.underlyingImage = nil;
             [self imageLoadingComplete];
@@ -161,6 +163,9 @@ caption = _caption;
 // Release if we can get it again from path or url or localId
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
+    if(self.operation)
+      [self.operation cancel];
+    self.operation = NULL;
     if ((self.underlyingImage && (_photoPath || _photoURL||_localId))||self.thumbImage) {
         self.underlyingImage = nil;
         self.thumbImage = nil;

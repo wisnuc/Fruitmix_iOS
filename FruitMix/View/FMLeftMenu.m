@@ -195,9 +195,10 @@
 
 - (void)getAllPhotoCount{
     @weaky(self)
+    [FMDBControl  asyncLoadPhotoToDB];
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     [weak_self siftPhotosWithBlock:^(NSMutableArray *uploadArray) {
-        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
+//        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
             [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                 NSSet *localPhotoHashArrSet = [NSSet setWithArray:result];
                 NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];
@@ -210,12 +211,13 @@
                     NSMutableArray *uploadImageArr = [NSMutableArray arrayWithCapacity:0];
                     uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
                     NSNumber *alreadyCountNumber;
-                    NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]valueForKey:@"addCount"];
-                    if (addCountNumber==nil) {
+            
+//                    NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]objectForKey:@"addCount"];
+//                    if (addCountNumber==nil) {
                         alreadyCountNumber = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
-                    }else{
-                        alreadyCountNumber = addCountNumber;
-                    }
+//                    }else{
+//                        alreadyCountNumber = addCountNumber;
+//                    }
                     float progress = [alreadyCountNumber floatValue]/[_allCount floatValue];
                     NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:progress afterPoint:2]]];
                     NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
@@ -253,7 +255,7 @@
                     MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
             }];
         }];
-    }];
+//    }];
 });
 }
 
@@ -284,7 +286,6 @@
 }
 
 - (void)siftPhotosWithBlock:(void(^)(NSMutableArray *uploadArray))completeBlock{
-
     @weaky(self)
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     if (entryuuid ==0) {
@@ -305,8 +306,8 @@
                                         FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
                                         [photoArrHash addObject:nasPhoto.fmhash];
                                     }
-                                    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                        
+//                                    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                    
                                         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                                             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                                             for (FMLocalPhoto * p in result) {
@@ -334,7 +335,7 @@
                                             //            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
                                         }];
                                         
-                                    });
+//                                    });
                                 } failure:^(NSURLSessionDataTask *task, NSError *error) {
                                 }];
                             }
@@ -354,8 +355,8 @@
             FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
             [photoArrHash addObject:nasPhoto.fmhash];
         }
-        dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          
+//        dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
             [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                 NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                 for (FMLocalPhoto * p in result) {
@@ -379,7 +380,7 @@
                 }
                 MyNSLog(@"请求NAS 照片返回%@",responseObject);
             }];
-        });
+//        });
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         NSLog(@"%ld",(long)rep.statusCode);
@@ -510,7 +511,7 @@
     NSMutableArray *uploadImageArr = [NSMutableArray array];
     uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
     NSNumber *alreadyCountNumber;
-    NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]objectForKey: @"addCount"];
+    NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]objectForKey:@"addCount"];
     if (addCountNumber==nil) {
         alreadyCountNumber = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
     }else{

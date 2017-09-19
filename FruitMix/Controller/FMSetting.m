@@ -104,14 +104,12 @@
 - (instancetype)initPrivate {
     self  = [super init];
     [self setNotifacation];
-//    _switchOn = NO;
- 
     return self;
 }
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 3;
+    return 4;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -127,7 +125,6 @@
         switchBtn.on = _switchOn;
         [switchBtn addTarget:self  action:@selector(switchBtnHandleForSync:) forControlEvents:UIControlEventValueChanged];
         [cell.contentView addSubview:switchBtn];
-     
 //        if(switchBtn.isOn){
 //            UILabel * lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 50, __kWidth, 12)];
 //            lb.font = [UIFont systemFontOfSize:12];
@@ -190,17 +187,17 @@
         });        
         cell.accessoryView = cleanBtn;
    }
-//        else if(indexPath.row == 3){
-//        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
-//        titleLb.text = @"清除log";
-//        titleLb.font = [UIFont systemFontOfSize:17];
-//        [cell.contentView addSubview:titleLb];
-//        UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
-//        label.text = @"点击清除";
-//        label.font = [UIFont systemFontOfSize:14];
-//        [label setTextColor:[UIColor blackColor]];
-//        cell.accessoryView = label;
-//    }
+        else if(indexPath.row == 3){
+        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+        titleLb.text = @"清除log";
+        titleLb.font = [UIFont systemFontOfSize:17];
+        [cell.contentView addSubview:titleLb];
+        UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
+        label.text = @"点击清除";
+        label.font = [UIFont systemFontOfSize:14];
+        [label setTextColor:[UIColor blackColor]];
+        cell.accessoryView = label;
+    }
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
@@ -220,24 +217,24 @@
         actionSheet.visibleButtonCount = 3.6f;
         [actionSheet show];
     }
-//    else if (indexPath.row ==3){
-//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-//        NSString *documentDirectory = [paths objectAtIndex:0];
-//        NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
-//        NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
-//        NSFileManager *defaultManager = [NSFileManager defaultManager];
-//        BOOL bRet = [defaultManager fileExistsAtPath:logFilePath];
-//        if (bRet) {
-//            //
-//            NSError *err;
-//           BOOL isDelete= [defaultManager removeItemAtPath:logFilePath error:&err];
-//            if (isDelete) {
-//              [SXLoadingView showProgressHUDText:@"log 清除成功" duration:1.0];
-//            }else{
-//              [SXLoadingView showProgressHUDText:@"log 清除失败" duration:1.0];
-//            }
-//        }
-//    }
+    else if (indexPath.row ==3){
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentDirectory = [paths objectAtIndex:0];
+        NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
+        NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
+        NSFileManager *defaultManager = [NSFileManager defaultManager];
+        BOOL bRet = [defaultManager fileExistsAtPath:logFilePath];
+        if (bRet) {
+            //
+           NSError *err;
+           BOOL isDelete= [defaultManager removeItemAtPath:logFilePath error:&err];
+            if (isDelete) {
+              [SXLoadingView showProgressHUDText:@"log 清除成功" duration:1.0];
+            }else{
+              [SXLoadingView showProgressHUDText:@"log 清除失败" duration:1.0];
+            }
+        }
+    }
 }
 
 
@@ -311,27 +308,24 @@
 }
 
 - (void)swichActionForNot{
-
        _tag = 1;
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:KSWITHCHON];
     [[NSUserDefaults standardUserDefaults] synchronize];
-//    if ([PhotoManager shareManager].canUpload) {
+    if ([PhotoManager shareManager].canUpload) {
         [PhotoManager shareManager].canUpload = NO;
         
-//    }
+    }
     MyNSLog(@"备份开关关闭");
     
 }
 
 - (void)swichAction{
-
        _tag = 1;
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KSWITHCHON];
     [[NSUserDefaults standardUserDefaults] synchronize];
-//    if (![PhotoManager shareManager].canUpload) {
+    if (![PhotoManager shareManager].canUpload) {
         [PhotoManager shareManager].canUpload = YES;
-
-//    }
+    }
     MyNSLog(@"备份开关开启");
 }
 

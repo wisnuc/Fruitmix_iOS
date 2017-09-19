@@ -8,6 +8,7 @@
 
 #import "FMUtil.h"
 #import <YYDispatchQueuePool/YYDispatchQueuePool.h>
+#import "NSOperationStack.h"
 
 @implementation FMUtil
 
@@ -139,6 +140,17 @@
         pool = [[YYDispatchQueuePool alloc]initWithName:@"com.winsun.fruitmix.backgroundUpload" queueCount:3 qos:NSQualityOfServiceUtility];
     });
     return [pool queue];
+}
+
++(NSOperationQueue *)defaultOperationQueue{
+    static NSOperationQueue * queue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = [[NSOperationQueue alloc]init];
+        queue.maxConcurrentOperationCount = 1;
+        queue.qualityOfService = NSQualityOfServiceBackground;
+    });
+    return queue;
 }
 
 //low等级线程

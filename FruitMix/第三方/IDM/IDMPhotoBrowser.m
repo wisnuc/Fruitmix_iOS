@@ -1310,12 +1310,14 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 }
 
 - (BOOL)isDisplayingPageForIndex:(NSUInteger)index {
+//    self.view.userInteractionEnabled = NO;
     for (IDMZoomingScrollView *page in _visiblePages)
         if (PAGE_INDEX(page) == index) return YES;
     return NO;
 }
 
 - (IDMZoomingScrollView *)pageDisplayedAtIndex:(NSUInteger)index {
+//    self.view.userInteractionEnabled = YES;
     IDMZoomingScrollView *thePage = nil;
     for (IDMZoomingScrollView *page in _visiblePages) {
         if (PAGE_INDEX(page) == index) {
@@ -1468,7 +1470,16 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 //    [self setControlsHidden:YES animated:YES permanent:NO];
 }
 
+-(void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
+//    self.view.userInteractionEnabled = YES;
+}
+
+//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
+//    if(!decelerate)self.view.userInteractionEnabled = YES;
+//}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+//    self.view.userInteractionEnabled = NO;
     // Update toolbar when page changes
     if(! _arrowButtonsChangePhotosAnimated) [self updateToolbar];
 }

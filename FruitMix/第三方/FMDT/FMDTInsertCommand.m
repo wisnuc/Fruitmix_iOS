@@ -56,8 +56,11 @@
 }
 
 - (void)saveChangesInBackground:(void (^)())complete {
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSOperationQueue *operationQueue = [[NSOperationQueue alloc]init];
+     operationQueue.maxConcurrentOperationCount = 1;
+    [operationQueue addOperationWithBlock:^{
+       
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         FMDatabaseQueue *queue = [FMDatabaseQueue databaseQueueWithPath:self.schema.storage];
         [queue inTransaction:^(FMDatabase *db, BOOL *rollback) {
             @try {
@@ -82,7 +85,9 @@
                 complete();
             }
         }];
-    });
+        
+    }];
+//    });
     
 }
 

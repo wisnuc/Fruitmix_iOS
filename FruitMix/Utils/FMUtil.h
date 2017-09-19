@@ -25,4 +25,6 @@
 + (UIViewController *)getCurrentVC;
 
 + (UIViewController *)getTopViewController;
+
++ (NSOperationQueue *)defaultOperationQueue;
 @end

@@ -83,6 +83,7 @@
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
 //        NSLog(@"%@",responseObject);
         [SXLoadingView hideProgressHUD];
+        [FMDBControl asyncLoadPhotoToDB];
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -97,39 +98,13 @@
 //登录完成 做的事
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
-    [FMDBControl reloadTables];
-    [FMDBControl asyncLoadPhotoToDB];
+//    [FMDBControl reloadTables];
+[[NSUserDefaults standardUserDefaults]setObject:@1 forKey:@"addCount"];
     [_service.task cancel];
     NSString * def_token = DEF_Token;
 
     MyNSLog(@"登录");
-    if (def_token.length == 0 ) {
-        UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
-        // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
-        UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            NSLog(@"点击了取消按钮");
-            
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//                [PhotoManager shareManager].canUpload = NO;
-                 [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
-                NSLog(@"点击了确定按钮");
-            });
-        }];
-        
-        UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//                 [PhotoManager shareManager].canUpload = YES;
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
-                NSLog(@"点击了确定按钮");
-            });
-        }];
-        // 3.将“取消”和“确定”按钮加入到弹框控制器中
-        [alertVc addAction:cancle];
-        [alertVc addAction:confirm];
-        [self presentViewController:alertVc animated:YES completion:^{
-        }];
-    }
-    //判断是否为同一用户退出后登录
+       //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   //清除deviceID
 }
@@ -138,7 +113,7 @@
     //更新图库
     JYRequestConfig * config = [JYRequestConfig sharedConfig];
     config.baseURL = self.service.path;
-    
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
     if(IsNilString(USER_SHOULD_SYNC_PHOTO) || IsEquallString(USER_SHOULD_SYNC_PHOTO, _user.uuid)){
         //设置   可备份用户为
         [[NSUserDefaults standardUserDefaults] setObject:_user.uuid forKey:USER_SHOULD_SYNC_PHOTO_STR];
@@ -162,7 +137,32 @@
 //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
     });
     //组装UI
-
+    if (def_token.length == 0 ) {
+        UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
+        // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
+        UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+            NSLog(@"点击了取消按钮");
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                //                [PhotoManager shareManager].canUpload = NO;
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
+                NSLog(@"点击了确定按钮");
+            });
+        }];
+        
+        UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                //                 [PhotoManager shareManager].canUpload = YES;
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
+                NSLog(@"点击了确定按钮");
+            });
+        }];
+        // 3.将“取消”和“确定”按钮加入到弹框控制器中
+        [alertVc addAction:cancle];
+        [alertVc addAction:confirm];
+        [self presentViewController:alertVc animated:YES completion:^{
+        }];
+    }
     MyAppDelegate.window.rootViewController = nil;
     [MyAppDelegate.window resignKeyWindow];
     [MyAppDelegate.window removeFromSuperview];
@@ -172,6 +172,7 @@
     MyAppDelegate.filesTabBar = nil;
     [MyAppDelegate resetDatasource];
     MyAppDelegate.leftMenu = nil;
+
     [MyAppDelegate initLeftMenu];
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
 //    [self siftPhotos];

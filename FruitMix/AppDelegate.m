@@ -151,7 +151,7 @@
 //    NSLog(@"手机名称：%@",device.name);
     if (![[device name] isEqualToString:@"iPhone Simulator"] && ![device.name containsString:@"JackYang"]) {
 //         开始保存日志文件
-        [self redirectNSlogToDocumentFolder];
+//        [self redirectNSlogToDocumentFolder];
         [FMConfiguation shareConfiguation].shouldUpload = NO;
     }
 }
@@ -186,11 +186,14 @@
 
 //配置侧拉
 -(void)initLeftMenu{
-
     FMLeftMenu * leftMenu = [[[NSBundle mainBundle]loadNibNamed:@"FMLeftMenu" owner:nil options:nil]lastObject];
+    [leftMenu getAllPhoto];
+    [PhotoManager checkNetwork];
+
+    
     leftMenu.frame = CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width * 0.8, [[UIScreen mainScreen] bounds].size.height);
     _leftMenu = leftMenu;
-    [leftMenu getAllPhoto];
+   
     leftMenu.delegate = self;
     leftMenu.menus = [NSMutableArray arrayWithObjects:@"文件下载",@"设置",@"注销",nil];//@"个人信息", @"我的私有云", @"用户管理", @"设置", @"帮助",
     leftMenu.imageNames = [NSMutableArray arrayWithObjects:@"storage",@"set",@"cancel",nil];//@"personal",@"cloud",@"user",@"set",@"help",
@@ -206,18 +209,23 @@
     _Help = [[FMHelp alloc]init];
     _zhuxiao = [[FMLoginViewController alloc]init];
     _downAndUpLoadManager = [[FLLocalFIleVC alloc]init];
+  
     self.menu = [MenuView MenuViewWithDependencyView:self.window MenuView:leftMenu isShowCoverView:YES];
 //    @weakify(self);
     self.menu.showBlock = ^() {
+        
         UIViewController * topVC = [UIApplication topViewController];
+       
         if([topVC isKindOfClass:[RTContainerController class]])
             topVC = ((RTContainerController *)topVC).contentViewController;
         if ([topVC isKindOfClass:[FLBaseVC class]] || [topVC isKindOfClass:[FMBaseFirstVC class]]) {
 //            [weak_self.leftMenu.settingTabelView reloadData];
+           
             return YES;
         }
         return NO;
     };
+   
    }
 
 -(NSMutableArray *)getUsersInfo{
@@ -500,16 +508,19 @@
         [PhotoManager shareManager].canUpload = NO;//停止上传
         FMConfigInstance.userToken = @"";
         [self resetDatasource];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSWITHCHON];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"siftPhoto"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCount"];
+
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DRIVE_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCount"];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSWITHCHON];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"siftPhoto"];
-       
-//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
+        [[PhotoManager shareManager] cleanUploadTask];
+ 
+     //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
 
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];
         [SXLoadingView hideProgressHUD];
@@ -608,7 +619,7 @@
 -(void)asynAnyThings{
     //上传照片
     //    shouldUplod(^{
-    [PhotoManager checkNetwork];
+  
     //    });
     //监听奔溃
     //    [FMABManager shareManager];
