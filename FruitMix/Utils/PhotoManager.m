@@ -520,7 +520,7 @@ NSString * JY_UUID() {
     __block   BOOL network =  network ;  //
     __block   BOOL change =  change ;  //
     change = NO;
-    network = NO;
+    network = YES;
     NSInteger s;
     // 检测网络连接的单例,网络变化时的回调方法
     [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status)
@@ -546,7 +546,7 @@ NSString * JY_UUID() {
                  [[NSNotificationCenter defaultCenter] postNotificationName:FM_NET_STATUS_WIFI_NOTIFY object:nil];
                  NSLog(@"WiFi网络");
                  if (!network) {
-                     shouldUpload = YES;
+        
                      if (![PhotoManager shareManager].isUploading ) {
                          if(IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)){
                             [PhotoManager shareManager].canUpload = YES;
@@ -554,6 +554,7 @@ NSString * JY_UUID() {
                      }
 
                  }
+                 shouldUpload = YES;
                  network = YES;
                  change = YES;
                 break;
@@ -608,6 +609,7 @@ NSString * JY_UUID() {
         [_reachabilityTimer invalidate];
         _reachabilityTimer = nil;
         self.isUploading = NO;
+        [_queue cancelAllOperations];
     }
 }
 
@@ -754,6 +756,9 @@ static  NSInteger overCount = 0;
 BOOL shouldUpload = NO;
 -(void)startUploadPhotos{
 //    @autoreleasepool {
+    if (!_reachabilityTimer) {
+        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+    }
         __weak typeof(self) weakSelf = self;
             if (_uploadarray.count == 0) {
                 [self siftUploadArrCompleteBlock:^(NSMutableArray *uploadArr) {
@@ -762,7 +767,7 @@ BOOL shouldUpload = NO;
                     dispatch_queue_t queue = dispatch_queue_create("tk.bourne.Queue", DISPATCH_QUEUE_SERIAL);
                     //2.把任务添加到队列中执行
                     dispatch_barrier_async(queue, ^(){
-                    if (_uploadarray.count >0){
+                    if (_uploadarray.count>0){
                         [weakSelf uploadImages:_uploadarray success:^(NSArray *arr) {
 
                         } failure:^{
@@ -792,9 +797,7 @@ BOOL shouldUpload = NO;
                 }];
             });
         }
-            if (!_reachabilityTimer) {
-              _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(refresh) userInfo:nil repeats:YES];
-            }
+    
 }
 
 -(void)uploadImages:(NSArray *)imageArr success:(void (^)(NSArray *))success failure:(void (^)())failure{

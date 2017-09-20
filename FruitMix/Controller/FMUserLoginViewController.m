@@ -99,7 +99,7 @@
 -(void)loginToDoWithResponse:(id)response{
     NSString * token = response[@"token"];
 //    [FMDBControl reloadTables];
-[[NSUserDefaults standardUserDefaults]setObject:@1 forKey:@"addCount"];
+    [[NSUserDefaults standardUserDefaults]setObject:@0 forKey:@"addCount"];
     [_service.task cancel];
     NSString * def_token = DEF_Token;
 
