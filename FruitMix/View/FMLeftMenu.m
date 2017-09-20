@@ -195,7 +195,7 @@
 
 - (void)getAllPhotoCount{
     @weaky(self)
-    [FMDBControl  asyncLoadPhotoToDB];
+//    [FMDBControl  asyncLoadPhotoToDB];
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     [weak_self siftPhotosWithBlock:^(NSMutableArray *uploadArray) {
 //        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
@@ -210,11 +210,11 @@
                     }
                     NSMutableArray *uploadImageArr = [NSMutableArray arrayWithCapacity:0];
                     uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
-                    NSNumber *alreadyCountNumber;
+                    NSNumber *alreadyCountNumber = [NSNumber numberWithInt:0];
             
 //                    NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]objectForKey:@"addCount"];
 //                    if (addCountNumber==nil) {
-                        alreadyCountNumber = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+                    alreadyCountNumber = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
 //                    }else{
 //                        alreadyCountNumber = addCountNumber;
 //                    }

@@ -618,15 +618,7 @@
 }
 
 -(void)asynAnyThings{
-    BOOL switchOn = SWITHCHON_BOOL;
-    NSString *token = DEF_Token;
-    if (token.length>0) {
-        if (switchOn) {
-            [PhotoManager shareManager].canUpload = YES;
-        }else{
-            [PhotoManager shareManager].canUpload = NO;
-        }
-    }
+   
 
     //上传照片
     //    shouldUplod(^{
@@ -641,6 +633,14 @@
         //        [FMDBControl asynOwnerSet];//更新ownerSet
         [FMDBControl asynUsers];
     });
-    
+    BOOL switchOn = SWITHCHON_BOOL;
+    NSString *token = DEF_Token;
+    if (token.length>0) {
+        if (switchOn) {
+            [PhotoManager shareManager].canUpload = YES;
+        }else{
+            [PhotoManager shareManager].canUpload = NO;
+        }
+    }
 }
 @end

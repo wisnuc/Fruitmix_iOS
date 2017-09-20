@@ -76,8 +76,9 @@ NSString * JY_UUID() {
 -(instancetype)init{
     if(self = [super init]){
 //        _canUpload = YES;
-//            [FMDBControl asyncLoadPhotoToDB];
+       
         _uploadarray = [NSMutableArray arrayWithCapacity:0];
+//         [FMDBControl asyncLoadPhotoToDB];
 //        _afManager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[self defaultConfig]];
 //        _afManager.attemptsToRecreateUploadTasksForBackgroundSessions = YES;
 //        _afManager.responseSerializer = [AFHTTPResponseSerializer serializer];
@@ -709,7 +710,7 @@ NSString * JY_UUID() {
             [photoArrHash addObject:nasPhoto.fmhash];
         }
         MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
-        MyNSLog (@"NAS里的照片数量======>%u",photoArrHash.count);
+        MyNSLog (@"NAS里的照片数量======>%lu",(unsigned long)photoArrHash.count);
 //        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
             [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                 _allCount = [NSNumber numberWithUnsignedInteger:result.count];
@@ -751,7 +752,7 @@ NSString * JY_UUID() {
 }
 }
 
-static  NSInteger overCount = 0;
+//static  NSInteger overCount = 0;
 //标注是否可以上传（wifi）
 BOOL shouldUpload = NO;
 -(void)startUploadPhotos{

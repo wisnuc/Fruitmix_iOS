@@ -128,7 +128,6 @@
 		9CE379871F43F76900CC2F05 /* key@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CE379841F43F76900CC2F05 /* key@3x.png */; };
 		9CE379881F43F76900CC2F05 /* key.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CE379851F43F76900CC2F05 /* key.png */; };
 		9CFFC6E81F29C35E00FA135B /* FMGetUserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CFFC6E71F29C35E00FA135B /* FMGetUserInfo.m */; };
-		B17996EF88C95D857CA6D043 /* Pods_FruitMix.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F807713083ABE0F68BF0E4A /* Pods_FruitMix.framework */; };
 		C1009B3A1DFE8769006ADA84 /* FMUserEditVC.m in Sources */ = {isa = PBXBuildFile; fileRef = C1009B381DFE8769006ADA84 /* FMUserEditVC.m */; };
 		C1009B3B1DFE8769006ADA84 /* FMUserEditVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = C1009B391DFE8769006ADA84 /* FMUserEditVC.xib */; };
 		C1009B491DFE8BB6006ADA84 /* ic_account_circle.png in Resources */ = {isa = PBXBuildFile; fileRef = C1009B3D1DFE8BB6006ADA84 /* ic_account_circle.png */; };
@@ -681,6 +680,7 @@
 		C1FFC86A1D51931200AD4D15 /* RSNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8631D51931200AD4D15 /* RSNetworkManager.m */; };
 		C1FFC86B1D51931200AD4D15 /* RSUploadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC8671D51931200AD4D15 /* RSUploadManager.m */; };
 		C1FFC88C1D51C74200AD4D15 /* BackgroundHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FFC88B1D51C74200AD4D15 /* BackgroundHelper.m */; };
+		D7AF20CA2C80F1675E81413D /* libPods-FruitMix.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */; };
 		F607BA141E5FDBDF0040D64F /* ic_delete@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F607BA111E5FDBDF0040D64F /* ic_delete@2x.png */; };
 		F607BA151E5FDBDF0040D64F /* ic_delete@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = F607BA121E5FDBDF0040D64F /* ic_delete@3x.png */; };
 		F607BA161E5FDBDF0040D64F /* ic_delete.png in Resources */ = {isa = PBXBuildFile; fileRef = F607BA131E5FDBDF0040D64F /* ic_delete.png */; };
@@ -758,7 +758,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7F807713083ABE0F68BF0E4A /* Pods_FruitMix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FruitMix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FruitMix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C5EC04B1F441B120075B228 /* eye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eye.png; sourceTree = "<group>"; };
 		9C5EC04C1F441B120075B228 /* eye@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye@2x.png"; sourceTree = "<group>"; };
 		9C5EC04D1F441B120075B228 /* eye@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye@3x.png"; sourceTree = "<group>"; };
@@ -1863,7 +1863,7 @@
 				F65931EB1C9B9F4100AD10D1 /* libstdc++.tbd in Frameworks */,
 				F65931E91C9B9D3500AD10D1 /* libz.tbd in Frameworks */,
 				F65931E71C9B9D2900AD10D1 /* libicucore.tbd in Frameworks */,
-				B17996EF88C95D857CA6D043 /* Pods_FruitMix.framework in Frameworks */,
+				D7AF20CA2C80F1675E81413D /* libPods-FruitMix.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1901,7 +1901,7 @@
 				F65931EA1C9B9F4100AD10D1 /* libstdc++.tbd */,
 				F65931E81C9B9D3500AD10D1 /* libz.tbd */,
 				F65931E61C9B9D2900AD10D1 /* libicucore.tbd */,
-				7F807713083ABE0F68BF0E4A /* Pods_FruitMix.framework */,
+				4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4737,7 +4737,7 @@
 		F65931351C97DE1800AD10D1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = WinSun;
 				TargetAttributes = {
 					F659313C1C97DE1800AD10D1 = {
@@ -5264,9 +5264,13 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-FruitMix/Pods-FruitMix-resources.sh",
+				"${PODS_ROOT}/MJRefresh/MJRefresh/MJRefresh.bundle",
+				$PODS_CONFIGURATION_BUILD_DIR/MWPhotoBrowser/MWPhotoBrowser.bundle,
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5686,14 +5690,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -5734,14 +5744,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -5776,6 +5792,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8SC32MU7TG;
 				ENABLE_BITCODE = NO;
@@ -5815,6 +5832,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8SC32MU7TG;
 				ENABLE_BITCODE = NO;

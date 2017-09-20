@@ -83,7 +83,7 @@
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
 //        NSLog(@"%@",responseObject);
         [SXLoadingView hideProgressHUD];
-        [FMDBControl asyncLoadPhotoToDB];
+//        [FMDBControl asyncLoadPhotoToDB];
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -143,7 +143,7 @@
         UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             NSLog(@"点击了取消按钮");
             
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 //                [PhotoManager shareManager].canUpload = NO;
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
                 NSLog(@"点击了确定按钮");
@@ -151,7 +151,7 @@
         }];
         
         UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 //                 [PhotoManager shareManager].canUpload = YES;
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
                 NSLog(@"点击了确定按钮");

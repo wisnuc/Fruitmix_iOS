@@ -93,8 +93,8 @@
     
     //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
-        [FMDBControl reloadTables];
-        [FMDBControl asyncLoadPhotoToDB];
+//        [FMDBControl reloadTables];
+//        [FMDBControl asyncLoadPhotoToDB];
         //清除deviceID
         FMConfigInstance.deviceUUID = @"";//清除deviceUUID
     }

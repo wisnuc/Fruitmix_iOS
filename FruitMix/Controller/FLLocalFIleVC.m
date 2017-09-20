@@ -71,6 +71,9 @@
 
 -(void)rightBtnClick:(UIButton *)btn{
      @weaky(self);
+//    if(_downloadeds.count == 0){
+//        [SXLoadingView showProgressHUDText:@"没有文件可以进行选择" duration:2];
+//    }else{
     if (!self.cellStatus) {
         [[LCActionSheet sheetWithTitle:@"" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
             if (buttonIndex == 1) {
@@ -85,9 +88,9 @@
                 [weak_self deleteChooseFiles];
             }
         } otherButtonTitles:@"清除选择",@"删除", nil] show];
-    }
-}
-
+     }
+   }
+//}
 
 -(void)deleteChooseFiles{
     for (TYDownloadModel * model in self.needDownloads) {

@@ -109,7 +109,7 @@
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 4;
+    return 3;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -187,17 +187,17 @@
         });        
         cell.accessoryView = cleanBtn;
    }
-        else if(indexPath.row == 3){
-        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
-        titleLb.text = @"清除log";
-        titleLb.font = [UIFont systemFontOfSize:17];
-        [cell.contentView addSubview:titleLb];
-        UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
-        label.text = @"点击清除";
-        label.font = [UIFont systemFontOfSize:14];
-        [label setTextColor:[UIColor blackColor]];
-        cell.accessoryView = label;
-    }
+//        else if(indexPath.row == 3){
+//        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+//        titleLb.text = @"清除log";
+//        titleLb.font = [UIFont systemFontOfSize:17];
+//        [cell.contentView addSubview:titleLb];
+//        UILabel * label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 70, 40)];
+//        label.text = @"点击清除";
+//        label.font = [UIFont systemFontOfSize:14];
+//        [label setTextColor:[UIColor blackColor]];
+//        cell.accessoryView = label;
+//    }
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
@@ -217,24 +217,24 @@
         actionSheet.visibleButtonCount = 3.6f;
         [actionSheet show];
     }
-    else if (indexPath.row ==3){
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentDirectory = [paths objectAtIndex:0];
-        NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
-        NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
-        NSFileManager *defaultManager = [NSFileManager defaultManager];
-        BOOL bRet = [defaultManager fileExistsAtPath:logFilePath];
-        if (bRet) {
-            //
-           NSError *err;
-           BOOL isDelete= [defaultManager removeItemAtPath:logFilePath error:&err];
-            if (isDelete) {
-              [SXLoadingView showProgressHUDText:@"log 清除成功" duration:1.0];
-            }else{
-              [SXLoadingView showProgressHUDText:@"log 清除失败" duration:1.0];
-            }
-        }
-    }
+//    else if (indexPath.row ==3){
+//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//        NSString *documentDirectory = [paths objectAtIndex:0];
+//        NSString *fileName = [NSString stringWithFormat:@"winsun.log"];// 注意不是NSData!
+//        NSString *logFilePath = [documentDirectory stringByAppendingPathComponent:fileName];
+//        NSFileManager *defaultManager = [NSFileManager defaultManager];
+//        BOOL bRet = [defaultManager fileExistsAtPath:logFilePath];
+//        if (bRet) {
+//            //
+//           NSError *err;
+//           BOOL isDelete= [defaultManager removeItemAtPath:logFilePath error:&err];
+//            if (isDelete) {
+//              [SXLoadingView showProgressHUDText:@"log 清除成功" duration:1.0];
+//            }else{
+//              [SXLoadingView showProgressHUDText:@"log 清除失败" duration:1.0];
+//            }
+//        }
+//    }
 }
 
 
