@@ -70,10 +70,9 @@
 }
 
 - (void)loginButtonClick:(UIButton *)sender{
+    [FMDBControl asyncLoadPhotoToDB];
     [self.view endEditing:YES];
     sender.userInteractionEnabled = NO;
-    
-    
     [SXLoadingView showProgressHUD:@"正在登录"];
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
@@ -83,7 +82,7 @@
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
 //        NSLog(@"%@",responseObject);
         [SXLoadingView hideProgressHUD];
-//        [FMDBControl asyncLoadPhotoToDB];
+     
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

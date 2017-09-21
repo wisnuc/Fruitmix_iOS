@@ -208,6 +208,9 @@
 //        [self.settingTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     else if (indexPath.row == 2) {
+        NSUInteger  i = [SDImageCache sharedImageCache].getSize;
+       i = i + [[YYImageCache sharedCache].diskCache totalCost];
+        if(i>0){
         LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:@"确认清除缓存"
                                                                  delegate:self
                                                         cancelButtonTitle:@"取消"
@@ -217,6 +220,7 @@
         actionSheet.visibleButtonCount = 3.6f;
         [actionSheet show];
     }
+}
 //    else if (indexPath.row ==3){
 //        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 //        NSString *documentDirectory = [paths objectAtIndex:0];

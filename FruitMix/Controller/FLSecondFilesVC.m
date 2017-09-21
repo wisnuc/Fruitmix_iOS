@@ -151,7 +151,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 }
 
 - (void)loadNewData{
-    [self.dataSource.dataSource removeAllObjects];
+   [self.dataSource.dataSource removeAllObjects];
    [_dataSource getFilesWithUUID:_parentUUID];
     NSLog(@"%lu",(unsigned long)_dataSource.dataSource.count);
     _cellStatus = FLFliesCellStatusNormal;
@@ -509,7 +509,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
                 [[FLFIlesHelper helper] removeChooseFile:model];
             }else
                 [[FLFIlesHelper helper] addChooseFile:model];
-            
+            _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
             [self.tableview reloadData];
         }else{
             if (!_progressView)

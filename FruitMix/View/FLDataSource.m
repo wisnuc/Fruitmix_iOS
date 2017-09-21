@@ -34,7 +34,7 @@
 //                    if (successful) {
                 
                         [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
-//                            NSLog(@"💩💩💩💩💩%@",responseObject);
+                            MyNSLog(@"💩💩💩💩💩%@",responseObject);
                             NSDictionary * dic = responseObject;
                             NSArray * arr = [dic objectForKey:@"entries"];
                             for (NSDictionary *entriesDic in arr) {

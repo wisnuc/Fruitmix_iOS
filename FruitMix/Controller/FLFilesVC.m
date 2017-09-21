@@ -96,7 +96,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     }];
    self.fileTableView.mj_header.ignoredScrollViewContentInsetTop = 8;
     // 马上进入刷新状态
-    [self.fileTableView.mj_header beginRefreshing];
+//    [self.fileTableView.mj_header beginRefreshing];
   
 }
 
@@ -194,8 +194,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 -(void)initData
 {
-    [_dataSource getDataSource];
-    
+    _dataSource = [FLDataSource new];
+    _dataSource.delegate = self;
     _cellStatus = FLFliesCellStatusNormal;
     [self.fileTableView reloadData];
 }
@@ -363,6 +363,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
                 [[FLFIlesHelper helper] removeChooseFile:model];
             }else
                 [[FLFIlesHelper helper] addChooseFile:model];
+              _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
                 [self.fileTableView reloadData];
         }else{
             if (!_progressView)

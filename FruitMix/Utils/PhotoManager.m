@@ -652,7 +652,7 @@ NSString * JY_UUID() {
                                     MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
                                     MyNSLog (@"NAS里的照片数量======>%u",photoArrHash.count);
 //                                    [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
-                                        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                                        [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                                             _allCount = [NSNumber numberWithUnsignedInteger:result.count];
                                             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                                             for (FMLocalPhoto * p in result) {
@@ -712,7 +712,7 @@ NSString * JY_UUID() {
         MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
         MyNSLog (@"NAS里的照片数量======>%lu",(unsigned long)photoArrHash.count);
 //        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
-            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+            [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                 _allCount = [NSNumber numberWithUnsignedInteger:result.count];
                 NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                 for (FMLocalPhoto * p in result) {
