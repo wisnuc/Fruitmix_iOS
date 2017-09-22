@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -34,7 +34,7 @@
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0DU-HI-tYw" userLabel="timeLabel">
-                        <rect key="frame" x="76" y="40" width="259" height="17"/>
+                        <rect key="frame" x="76" y="40" width="229" height="17"/>
                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
@@ -61,19 +61,31 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mX6-gg-H8j">
+                        <rect key="frame" x="327" y="40" width="23" height="17"/>
+                        <constraints>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="23" id="o3Y-D8-cfm"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="7BD-P2-wb5" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="AoF-9T-ok6"/>
                     <constraint firstItem="tbT-cl-mAk" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="CgE-ae-a2b"/>
+                    <constraint firstAttribute="trailing" secondItem="mX6-gg-H8j" secondAttribute="trailing" constant="38" id="Esq-MN-aPr"/>
                     <constraint firstItem="0DU-HI-tYw" firstAttribute="top" secondItem="DyJ-oP-YOB" secondAttribute="bottom" constant="5" id="FL4-0f-T6Y"/>
                     <constraint firstAttribute="trailingMargin" secondItem="DyJ-oP-YOB" secondAttribute="trailing" constant="45" id="NWx-Iw-wCA"/>
+                    <constraint firstItem="mX6-gg-H8j" firstAttribute="centerY" secondItem="0DU-HI-tYw" secondAttribute="centerY" id="QaG-2e-Oqm"/>
                     <constraint firstItem="0DU-HI-tYw" firstAttribute="leading" secondItem="DyJ-oP-YOB" secondAttribute="leading" id="Zbx-yX-3Cd"/>
-                    <constraint firstAttribute="trailingMargin" secondItem="0DU-HI-tYw" secondAttribute="trailing" constant="45" id="a9G-Nk-QEk"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="0DU-HI-tYw" secondAttribute="trailing" constant="75" id="a9G-Nk-QEk"/>
                     <constraint firstItem="DyJ-oP-YOB" firstAttribute="leading" secondItem="8w9-wt-EEo" secondAttribute="trailing" constant="32" id="bib-0X-kPE"/>
                     <constraint firstItem="DyJ-oP-YOB" firstAttribute="top" secondItem="tbT-cl-mAk" secondAttribute="top" id="chS-4t-xP9"/>
                     <constraint firstAttribute="trailingMargin" secondItem="7BD-P2-wb5" secondAttribute="trailing" constant="5" id="d2Q-hP-RX3"/>
                     <constraint firstItem="0DU-HI-tYw" firstAttribute="bottom" secondItem="tbT-cl-mAk" secondAttribute="bottom" id="gJV-52-GSa"/>
                     <constraint firstItem="8w9-wt-EEo" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="gOI-jb-wI7"/>
+                    <constraint firstItem="mX6-gg-H8j" firstAttribute="bottom" secondItem="0DU-HI-tYw" secondAttribute="bottom" id="ikM-QR-2S4"/>
                     <constraint firstItem="tbT-cl-mAk" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="seM-se-7xY"/>
                     <constraint firstItem="8w9-wt-EEo" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="z6G-7P-orp"/>
                 </constraints>
@@ -84,6 +96,7 @@
                 <outlet property="f_ImageView" destination="8w9-wt-EEo" id="4bx-L4-hq7"/>
                 <outlet property="layerView" destination="tbT-cl-mAk" id="wEf-On-cp1"/>
                 <outlet property="nameLabel" destination="DyJ-oP-YOB" id="S9p-4c-eqh"/>
+                <outlet property="sizeLabel" destination="mX6-gg-H8j" id="ACZ-2T-Z3C"/>
                 <outlet property="timeLabel" destination="0DU-HI-tYw" id="xcG-5g-x0z"/>
             </connections>
             <point key="canvasLocation" x="-24" y="-16"/>

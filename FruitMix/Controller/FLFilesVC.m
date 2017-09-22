@@ -39,13 +39,14 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         helper = [FMFilesDownloadViewHelper new];
+    
     });
     return helper;
 }
 
 @end
 
-@interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate>
+@interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate,TYDownloadDelegate>
 {
     UIButton * _leftBtn;
     UILabel * _countLb;
@@ -84,6 +85,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlerStatusChangeNotify:) name:FLFilesStatusChangeNotify object:nil];
     [self.view addSubview:self.addButton];
     [self initMjRefresh];
+  [TYDownLoadDataManager manager].delegate = self;
 
 }
 - (void)initMjRefresh{
@@ -170,7 +172,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             if (buttonIndex == 1) {
                 [[FLFIlesHelper helper] removeAllChooseFile];
             }else if ( buttonIndex == 2){
-                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:DRIVE_UUID];
                 [self.rdv_tabBarController setSelectedIndex:2];
             }
         } otherButtonTitles:@"清除选择",@"下载所选项", nil] show];
@@ -295,7 +297,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 }
 
 -(void)initViews{
-    [self.fileTableView registerNib:[UINib nibWithNibName:@"FLFilesCell" bundle:nil] forCellReuseIdentifier:NSStringFromClass([FLFilesCell class])];
+//    [self.fileTableView registerNib:[UINib nibWithNibName:@"FLFilesCell" bundle:nil] forCellReuseIdentifier:NSStringFromClass([FLFilesCell class])];
     self.fileTableView.tableFooterView = [UIView new];
     self.fileTableView.noDataImageName = @"no_file";
     _fileTableView.contentInset = UIEdgeInsetsMake(FMDefaultOffset, 0, 0, 0);
@@ -308,7 +310,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             if ([FLFIlesHelper helper].chooseFiles.count == 0) {
                 [SXLoadingView showAlertHUD:@"请先选择文件" duration:1];
             }else{
-                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+               [self actionForNormalStatus];
+                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:DRIVE_UUID];
                 FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
                 [self.navigationController pushViewController:downloadVC animated:YES];
             }
@@ -337,9 +340,12 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    FLFilesCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FLFilesCell class])];
+    FLFilesCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    if (nil == cell) {
+        cell= (FLFilesCell *)[[[NSBundle  mainBundle]  loadNibNamed:@"FLFilesCell" owner:self options:nil]  lastObject];
+    }
     FLFilesModel * model = self.dataSource.dataSource[indexPath.row];
-    [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus viewController:self parentUUID:_parentUUID];
+    [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus viewController:self parentUUID:DRIVE_UUID];
     return cell;
 }
 
@@ -366,13 +372,19 @@ NSInteger filesNameSort(id file1, id file2, void *context)
               _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
                 [self.fileTableView reloadData];
         }else{
-            if (!_progressView)
-                _progressView = [JYProcessView processViewWithType:ProcessTypeLine];
+            if (_progressView) {
+                [_progressView dismiss];
+                _progressView = nil;
+            }
+            if (!_progressView){
+            _progressView = [JYProcessView processViewWithType:ProcessTypeLine];
             _progressView.descLb.text =@"正在下载文件";
             _progressView.subDescLb.text = [NSString stringWithFormat:@"1个项目 "];
             _progressView.cancleBlock = ^(){
                 [[FLFIlesHelper helper] cancleDownload];
             };
+            
+            
             [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DRIVE_UUID Progress:^(TYDownloadProgress *progress) {
                 if (progress.progress) {
                     [_progressView setValueForProcess:progress.progress];
@@ -382,15 +394,33 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 //                NSLog(@"%lu,%@,%@",(unsigned long)state,filePath,error);
                 if (state == TYDownloadStateCompleted) {
                     [_progressView dismiss];
+                   
                     _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
                     _documentController.delegate = self;
                     [self presentOptionsMenu];
                 }
             }];
+            }
         }
     }
 }
-
+-(void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error{
+   
+    if (state == TYDownloadStateCompleted) {
+        FLDownload * download = [FLDownload new];
+        download.name = downloadModel.jy_fileName;
+        NSLog(@"%@",download.name);
+        NSDateFormatter * formatter1 = [[NSDateFormatter alloc]init];
+        formatter1.dateFormat = @"yyyy-MM-dd hh:mm:ss";
+        [formatter1 setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+        NSString * dateString = [formatter1 stringFromDate:[NSDate date]];
+        download.downloadtime = dateString;
+        download.uuid = downloadModel.fileName;
+        download.userId = FMConfigInstance.userUUID;
+        [FMDBControl updateDownloadWithFile:download isAdd:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
+    }
+}
 #pragma mark -
 #pragma mark UIDocumentInteractionControllerDelegate
 

@@ -91,11 +91,18 @@
             [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:uuid];
         }
     }
-    [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%ld个文件已添加到下载",(unsigned long)[FLFIlesHelper helper].chooseFiles.count] forDuration:1];
+     NSString * string  = [NSString stringWithFormat:@"%ld个文件已添加到下载",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
+//    MyNSLog(@"%@",string);
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//        NSString * string  = [NSString stringWithFormat:@"%ld个文件已添加到下载",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [MyAppDelegate.notification displayNotificationWithMessage:string forDuration:1];
+    });
+    });
     [[FLFIlesHelper helper] removeAllChooseFile];
 }
 
-- (void)downloadAloneFilesWithModel:(FLFilesModel *)model parentUUID:(NSString *)uuid Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state
+- (void)downloadAloneFilesWithModel:(FLFilesModel *)model parentUUID:(NSString *)uuid Progress:(TYDownloadProgressBlock)progress State:(TYDownloadStateBlock)state 
 {
     NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
@@ -108,7 +115,29 @@
     TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
     _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
+    NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
+    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
+        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
+            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在下载",downloadModel.fileName]  duration:1];
+            return;
+        }
+    }
+    
+    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
+            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在等待下载",downloadModel.fileName]  duration:1];
+            return;
+        }
+    }
+    
+    for (FLDownload * downloadModelIn in downloadedArr) {
+        if ([downloadModelIn.name isEqualToString:downloadModel.fileName]) {
+            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@已下载完成",downloadModel.fileName] duration:1];
+            return;
+        }
+    }
+  
     [manager startWithDownloadModel:downloadModel progress:progress state:state];
      [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
 }
@@ -124,14 +153,17 @@
 
 -(void)configCells:(FLFilesCell * )cell withModel:(FLFilesModel *)model cellStatus:(FLFliesCellStatus)status viewController:(UIViewController *)viewController parentUUID:(NSString *)uuid{
     cell.nameLabel.text = model.name;
+    cell.sizeLabel.text = [NSString fileSizeWithFLModel:model];
+
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     if ([model.type isEqualToString:@"file"]) {
         cell.f_ImageView.image = [UIImage imageNamed:@"file_icon"];
         cell.timeLabel.text = [self getTimeWithTimeSecond:model.mtime/1000];
-    }else
+    }else{
         cell.f_ImageView.image = [UIImage imageNamed:@"folder_icon"];
         cell.timeLabel.text = [self getTimeWithTimeSecond:model.mtime/1000];
-    
+        cell.sizeLabel.hidden = YES;
+    }
     cell.downBtn.hidden = ((status == FLFliesCellStatusNormal)?![model.type isEqualToString:@"file"]:YES);
     
     
@@ -145,8 +177,10 @@
         }
     }
     
+   
     @weaky(self);
     if ([model.type isEqualToString:@"file"]) {
+   
         cell.clickBlock = ^(FLFilesCell * cell){
             weak_self.chooseModel = model;
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
@@ -155,8 +189,9 @@
                                                         otherButtonTitleArray:@[@"下载该文件"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
-                    [[FLDownloadManager shareManager] downloadFileWithFileModel:_chooseModel parentUUID:uuid];
-                    [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",_chooseModel.name] forDuration:1];
+                    [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:uuid];
+                    [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",model.name] forDuration:0.5];
+
                     if (viewController) {
                         FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
                         [viewController.navigationController pushViewController:downloadVC animated:YES];

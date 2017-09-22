@@ -84,6 +84,7 @@
 }
 
 -(void)dismiss{
+    [[UIApplication sharedApplication].keyWindow willRemoveSubview:_backWindow];
     [self.backWindow removeFromSuperview];
 }
 

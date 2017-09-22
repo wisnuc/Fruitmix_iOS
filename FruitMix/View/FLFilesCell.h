@@ -24,7 +24,8 @@ typedef void(^longPressBlock)(FLFilesCell * cell);
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
 @property (weak, nonatomic) IBOutlet UILabel *timeLabel;
 @property (weak, nonatomic) IBOutlet UIButton *downBtn;
-
+@property (weak, nonatomic) IBOutlet UILabel *sizeLabel;
+    
 @property (nonatomic) downBtnClockBlock clickBlock;
 @property (nonatomic) longPressBlock longpressBlock;
 @property (nonatomic) FLFliesCellStatus status;

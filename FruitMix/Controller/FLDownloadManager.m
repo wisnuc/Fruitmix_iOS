@@ -26,27 +26,47 @@
 }
 
 -(void)downloadFileWithFileModel:(FLFilesModel *)model parentUUID:(NSString *)uuid{
-    NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
+    
+    //    /drives/{driveUUID}/dirs/{dirUUID}/entries/{entryUUID}
     NSString * exestr = [filePath lastPathComponent];
     NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
     NSString *encodedString = [urlString URLEncodedString];
-       TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
-
+    
+    TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
+//    _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
-    TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
-    [manager startWithDownloadModel:downloadModel];
+    NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
+    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
+        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
+            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在下载",downloadModel.fileName]  duration:1];
+            return;
+        }
+    }
+    
+    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
+            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在等待下载",downloadModel.fileName]  duration:1];
+            return;
+        }
+    }
+    
+    for (FLDownload * downloadModelIn in downloadedArr) {
+        if ([downloadModelIn.name isEqualToString:downloadModel.fileName]) {
+            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@已下载完成",downloadModel.fileName] duration:1];
+            return;
+        }
+    }
+    [[TYDownLoadDataManager manager] startWithDownloadModel:downloadModel];
     [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
 }
 
 -(void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error{
-    
     if(state == TYDownloadStateCompleted || state == TYDownloadStateNone){
-        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
         if (state == TYDownloadStateCompleted) {
             FLDownload * download = [FLDownload new];
             download.name = downloadModel.jy_fileName;
-            NSLog(@"%@",download.name);
+           MyNSLog(@"😝%@",downloadModel.jy_fileName);
             NSDateFormatter * formatter1 = [[NSDateFormatter alloc]init];
             formatter1.dateFormat = @"yyyy-MM-dd hh:mm:ss";
             [formatter1 setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
@@ -55,12 +75,14 @@
             download.uuid = downloadModel.fileName;
             download.userId = FMConfigInstance.userUUID;
             [FMDBControl updateDownloadWithFile:download isAdd:YES];
+          [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
         }
+        
     }
 }
 - (void)cancleWithDownloadModel:(TYDownloadModel *)downloadModel{
-      TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
-      [manager cancleWithDownloadModel:downloadModel];
+    
+      [ [TYDownLoadDataManager manager] cancleWithDownloadModel:downloadModel];
 }
 
 -(void)downloadModel:(TYDownloadModel *)downloadModel didUpdateProgress:(TYDownloadProgress *)progress{

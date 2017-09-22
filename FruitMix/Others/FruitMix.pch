@@ -95,6 +95,7 @@ fprintf(stderr,"[--%s--]:[%s]:[line %d行] %s\n --------------—--------------�
 #import "UIButton+Universal.h"
 #import "NSString+URL.h"
 #import "UIButton+EnlargeEdge.h"
+#import "NSString+Extension.h"
 
 #import "SXLoadingView.h"
 #import "JYNetworkerHeader.h"

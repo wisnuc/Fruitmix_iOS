@@ -65,8 +65,11 @@
 
 // 获取本地下载模型的进度
 - (TYDownloadProgress *)progessWithDownloadModel:(TYDownloadModel *)downloadModel;
-
+- (void)downloadModel:(TYDownloadModel *)downloadModel progress:(TYDownloadProgressBlock)progress;
 // 是否已经下载
 - (BOOL)isDownloadCompletedWithDownloadModel:(TYDownloadModel *)downloadModel;
 
+- (void)downloadModel:(TYDownloadModel *)downloadModel updateProgress:(TYDownloadProgress *)progress;
+
+- (NSMutableDictionary *)fileSizePlistWithDownloadModel:(TYDownloadModel *)downloadModel;
 @end

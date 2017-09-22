@@ -200,6 +200,17 @@
     if (!downloadModel) {
         return;
     }
+//    if ([self.downloadingModels containsObject:downloadModel]) {
+//         [self cancleWithDownloadModel:downloadModel];
+//        [_downloadingModels removeObject:downloadModel];
+//        return;
+//    }
+//    if ([self.waitingDownloadModels containsObject:downloadModel]) {
+//      [self cancleWithDownloadModel:downloadModel];
+//         [_waitingDownloadModels removeObject:downloadModel];
+//      
+//        return;
+//    }
     
     if (downloadModel.state == TYDownloadStateReadying) {
         [self downloadModel:downloadModel didChangeState:TYDownloadStateReadying filePath:nil error:nil];
@@ -231,7 +242,7 @@
     }
     
     @synchronized (self) {
-        [self.downloadingModels removeObject:downloadModel];
+       
         // 还有未下载的
         if (self.waitingDownloadModels.count > 0) {
             [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
@@ -290,8 +301,7 @@
         NSString *range = [NSString stringWithFormat:@"bytes=%zd-", [self fileSizeWithDownloadModel:downloadModel]];
         [request setValue:range forHTTPHeaderField:@"Range"];
         [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-        
-        
+        [request setValue:@"" forHTTPHeaderField:@"Accept-Encoding"];
         // 创建流
         downloadModel.stream = [NSOutputStream outputStreamToFileAtPath:downloadModel.filePath append:YES];
         
@@ -334,6 +344,7 @@
     if (downloadModel.state != TYDownloadStateCompleted && downloadModel.state != TYDownloadStateFailed){
         [downloadModel.task cancel];
         downloadModel.task = nil;
+        [self deleteFileWithDownloadModel:downloadModel];
         [self.downloadingModels removeObject:downloadModel];
     }
 }
@@ -438,7 +449,10 @@
 
 - (void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error
 {
+  
     if (_delegate && [_delegate respondsToSelector:@selector(downloadModel:didChangeState:filePath:error:)]) {
+//         MyNSLog(@"🌶%@",downloadModel.jy_fileName);
+        
         [_delegate downloadModel:downloadModel didChangeState:state filePath:filePath error:error];
     }
     
@@ -456,6 +470,10 @@
     if (downloadModel.progressBlock) {
         downloadModel.progressBlock(progress);
     }
+}
+
+- (void)downloadModel:(TYDownloadModel *)downloadModel progress:(TYDownloadProgressBlock)progress {
+    downloadModel.progressBlock = progress;
 }
 
 //  创建缓存目录文件
@@ -504,25 +522,18 @@
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSHTTPURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-    
+    NSDictionary *dict = [response allHeaderFields];
+    MyNSLog(@"%@",dict);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
 //    NSLog(@"===========>>>>>😆😆😆😆%@",dataTask.taskDescription);
     if (!downloadModel) {
         return;
     }
     
-    // 创建目录
-    [self createDirectory:_downloadDirectory];
-    [self createDirectory:downloadModel.downloadDirectory];
-    
-    // 打开流
-    [downloadModel.stream open];
-
-    
     // 获得服务器这次请求 返回数据的总长度
     long long totalBytesWritten =  [self fileSizeWithDownloadModel:downloadModel];
-    long long totalBytesExpectedToWrite = totalBytesWritten + dataTask.countOfBytesExpectedToReceive;
-    
+    long long totalBytesExpectedToWrite = totalBytesWritten + response.expectedContentLength;
+    MyNSLog(@"%lld👌👌👌",totalBytesExpectedToWrite);
     downloadModel.progress.resumeBytesWritten = totalBytesWritten;
     downloadModel.progress.totalBytesWritten = totalBytesWritten;
     downloadModel.progress.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
@@ -533,6 +544,16 @@
         dic[downloadModel.downloadURL] = @(totalBytesExpectedToWrite);
         [dic writeToFile:[self fileSizePathWithDownloadModel:downloadModel] atomically:YES];
     }
+    // 创建目录
+    
+    [self createDirectory:_downloadDirectory];
+    [self createDirectory:downloadModel.downloadDirectory];
+    
+    // 打开流
+    [downloadModel.stream open];
+
+    
+    
     
     // 接收这个请求，允许接收服务器的数据
     completionHandler(NSURLSessionResponseAllow);
@@ -605,16 +626,19 @@
     }else if ([self isDownloadCompletedWithDownloadModel:downloadModel]) {
         // 下载完成
         dispatch_async(dispatch_get_main_queue(), ^(){
+            [self.downloadingModels removeObject:downloadModel];
             downloadModel.state = TYDownloadStateCompleted;
             [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
-            [self willResumeNextWithDowloadModel:downloadModel];
+           [self willResumeNextWithDowloadModel:downloadModel];
         });
     }else {
         // 下载完成
          dispatch_async(dispatch_get_main_queue(), ^(){
+          
              downloadModel.state = TYDownloadStateCompleted;
+          
              [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
-             [self willResumeNextWithDowloadModel:downloadModel];
+           [self willResumeNextWithDowloadModel:downloadModel];
          });
     }
 }

@@ -44,7 +44,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     return  [f1.name localizedCompare:f2.name];
 }
 
-@interface FLSecondFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate>
+@interface FLSecondFilesVC  ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate,TYDownloadDelegate>
 {
     UIButton * _leftBtn;
     UILabel * _countLb;
@@ -81,6 +81,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     [self createControlbtn];
     [self.navigationController.view addSubview:self.chooseHeadView];
     [self initMjRefresh];
+     [TYDownLoadDataManager manager].delegate = self;
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -482,7 +483,10 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    FLFilesCell * cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FLFilesCell class])];
+    FLFilesCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    if (nil == cell) {
+        cell= (FLFilesCell *)[[[NSBundle  mainBundle]  loadNibNamed:@"FLFilesCell" owner:self options:nil]  lastObject];
+    }
     FLFilesModel * model = self.dataSource.dataSource[indexPath.row];
     [[FLFIlesHelper helper] configCells:cell withModel:model cellStatus:self.cellStatus viewController:self parentUUID:_parentUUID];
     
@@ -537,6 +541,24 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     }
 }
 
+-(void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error{
+    
+    if (state == TYDownloadStateCompleted) {
+         MyNSLog(@"🙄%@",downloadModel.jy_fileName);
+        FLDownload * download = [FLDownload new];
+        download.name = downloadModel.jy_fileName;
+        NSLog(@"%@",download.name);
+        NSDateFormatter * formatter1 = [[NSDateFormatter alloc]init];
+        formatter1.dateFormat = @"yyyy-MM-dd hh:mm:ss";
+        [formatter1 setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+        NSString * dateString = [formatter1 stringFromDate:[NSDate date]];
+        download.downloadtime = dateString;
+        download.uuid = downloadModel.fileName;
+        download.userId = FMConfigInstance.userUUID;
+        [FMDBControl updateDownloadWithFile:download isAdd:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
+    }
+}
 #pragma mark - floatMenuDelegate
 
 -(void)didSelectMenuOptionAtIndex:(NSInteger)row{
@@ -545,9 +567,11 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
         if ([FLFIlesHelper helper].chooseFiles.count == 0) {
             [SXLoadingView showAlertHUD:@"请先选择文件" duration:1];
         }else{
-            [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
-            FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
-            [self.navigationController pushViewController:downloadVC animated:YES];
+//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1* NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [[FLFIlesHelper helper] downloadChooseFilesParentUUID:_parentUUID];
+                FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
+                [self.navigationController pushViewController:downloadVC animated:YES];
+//            });
         }
     }
 }

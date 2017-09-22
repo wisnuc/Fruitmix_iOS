@@ -7,6 +7,7 @@
 //
 
 #import "FMDTObject.h"
+#import "TYDownloadModel.h"
 
 @interface FLDownload : FMDTObject
 
@@ -16,8 +17,12 @@
 
 @property (nonatomic) NSString * uuid;
 
-@property (nonatomic) NSString * size;//文件大小
+@property (nonatomic) unsigned long long size;//文件大小
 
 @property (nonatomic) NSString * userId;//用户id
+    
+@property (nonatomic,strong) NSString * filePath;
+
+@property (nonatomic,strong) TYDownloadModel *model;
 
 @end

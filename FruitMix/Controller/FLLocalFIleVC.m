@@ -42,20 +42,23 @@
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     [self initData];
+    [self.tableview reloadData];
 
 }
 
 - (void)freshData:(NSNotification *)noti{
     dispatch_async(dispatch_get_main_queue(), ^{
           [self initData];
+          [self.tableview reloadData];
     });
 }
+
 -(void)initData{
     _downloadeds = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     _needDownloads = [NSMutableArray arrayWithCapacity:0];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].downloadingModels];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].waitingDownloadModels];
-    [self.tableview reloadData];
+ 
 //    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 2 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 //    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
@@ -67,6 +70,10 @@
     [rightBtn addTarget:self action:@selector(rightBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
     self.navigationItem.rightBarButtonItem = rightItem;
+}
+
+- (void)timerFire{
+    [_tableview reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 -(void)rightBtnClick:(UIButton *)btn{
@@ -97,6 +104,8 @@
         if ([self.chooseArr containsObject:model.fileName]) {
             [[TYDownLoadDataManager manager] cancleWithDownloadModel:model];
             [self.chooseArr removeObject:model.fileName];
+            [[TYDownLoadDataManager manager] deleteFileWithDownloadModel:model];
+            [self deleteFilesWithFileName:model.fileName];
         }
     }
     
@@ -111,6 +120,17 @@
     }
     [self changeStatus];
     
+}
+
+- (void)deleteFilesWithFileName:(NSString *)fileName{
+    NSFileManager *mgr = [NSFileManager defaultManager];
+    
+    // 文件属性
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",fileName]];
+    if ([mgr fileExistsAtPath:filePath]) {
+        [mgr removeItemAtPath:filePath error:nil];
+    }
 }
 
 -(NSMutableArray *)chooseArr{
@@ -140,10 +160,13 @@
 
 
 -(void)downloadFileChangeHandle:(NSNotification *)notify{
+    [self performSelector:@selector(delayMethod) withObject:nil/*可传任意类型参数*/ afterDelay:1.0];
+   
+}
+-(void)delayMethod{
     [self initData];
     [self.tableview reloadData];
 }
-
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 2;
 }
@@ -190,11 +213,14 @@
         if (model.state != TYDownloadStateRunning){
             cell.timeLabel.text = @"等待下载";
         }
-        [[TYDownLoadDataManager manager] startWithDownloadModel:model progress:^(TYDownloadProgress *progress) {
+        [[TYDownLoadDataManager  manager] downloadModel:model progress:^(TYDownloadProgress *progress) {
             cell.timeLabel.text = [self detailTextForDownloadProgress:progress];
-        } state:^(TYDownloadState state, NSString *filePath, NSError *error) {
-
+            if (progress.progress == 1.0000000) {
+                [self initData];
+                [_tableview reloadData];
+            }
         }];
+
         cell.nameLabel.text = model.jy_fileName;
         cell.clickBlock = ^(FLFilesCell * cell){
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
@@ -203,17 +229,16 @@
                                                         otherButtonTitleArray:@[@"取消下载"]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
-                    if (self.needDownloads.count <= 0) {
+                    if (self.needDownloads.count == 0) {
                         [actionSheet setHidden:YES];
                         return ;
                     }
-                    
+               
                     TYDownloadModel *downloadModel = [self.needDownloads objectAtIndex:indexPath.row];
                     if (![downloadModel.fileName isEqualToString:model.fileName]) {
                         [actionSheet setHidden:YES];
                         return ;
                     }
-                    
                     [[FLDownloadManager shareManager] cancleWithDownloadModel:model];
                    [self.needDownloads removeObjectAtIndex:[indexPath row]];
                     [_tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
@@ -232,6 +257,9 @@
         uuid = ((FLDownload *)model).uuid;
         cell.nameLabel.text = ((FLDownload *)model).name;
         cell.timeLabel.text = [NSString stringWithFormat:@"下载于:%@",((FLDownload *)model).downloadtime];
+//        [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
+        cell.sizeLabel.text = [NSString fileSizeWithFileName:((FLDownload *)model).name];
+        MyNSLog(@"%@",((FLDownload *)model).filePath);
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -337,5 +365,6 @@
     [[NSNotificationCenter defaultCenter]removeObserver:self name:FLDownloadFileChangeNotify object:nil];
 }
 #pragma mark - DownloadDelegate
+
 
 @end

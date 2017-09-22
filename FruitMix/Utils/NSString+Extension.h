@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "FLFilesModel.h"
 
 @interface NSString (Extension)
 
 - (CGSize)sizeWithFont:(UIFont *)font maxSize:(CGSize)maxSize;
-
++ (NSString *)fileSizeWithFileName:(NSString *)fileName;
++ (NSString *)fileSizeWithFLModel:(FLFilesModel *)model;
 @end

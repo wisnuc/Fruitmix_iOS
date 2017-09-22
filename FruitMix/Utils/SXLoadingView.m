@@ -56,6 +56,7 @@ static MBProgressHUD  *s_progressHUD = nil;
         MBProgressHUD *progressHUD = [[MBProgressHUD alloc] initWithView:_mainWindow()];
         progressHUD.mode = MBProgressHUDModeText;
         progressHUD.labelText = aString;
+        progressHUD.labelFont = [UIFont systemFontOfSize:13];
         [_mainWindow() addSubview:progressHUD];
         progressHUD.animationType = MBProgressHUDAnimationZoom;
         progressHUD.labelText = aString;
