@@ -518,6 +518,11 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
         }else{
             NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",model.name]];
+            
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath] &&[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize != model.size){
+                [SXLoadingView showProgressHUDText:@"该文件正在下载"duration:1];
+                return;
+            }
             if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
                 _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
                 _documentController.delegate = self;
