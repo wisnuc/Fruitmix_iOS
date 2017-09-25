@@ -568,7 +568,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 //    [_senderViewForAnimation.layer renderInContext:UIGraphicsGetCurrentContext()];
 //    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIImage * image = [self getImageFromView:_senderViewForAnimation];
-    
+                                                                       
     UIImage *imageFromView = image;
     if (!imageFromView && [scrollView.photo respondsToSelector:@selector(placeholderImage)]) {
         imageFromView = [scrollView.photo placeholderImage];

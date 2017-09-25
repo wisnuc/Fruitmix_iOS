@@ -51,7 +51,11 @@
                                 [self.delegate fl_Datasource:self finishLoading:NO];
                             }
                         }];
-                    }
+            }else{
+                if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                    [self.delegate fl_Datasource:self finishLoading:NO];
+                }
+            }
                 }];
 //            }
 //        }];

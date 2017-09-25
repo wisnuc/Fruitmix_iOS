@@ -58,15 +58,12 @@
         return;
     }
     if (self.userNameTF.text.length<=0)
-        [SXLoadingView  showProgressHUDText:@"用户名过短!" duration:1];
-    else if(self.userNameTF.text.length >=20)
-//        [MyAppDelegate.notification displayNotificationWithMessage:@"用户名过长!" forDuration:1];
+        [SXLoadingView  showProgressHUDText:@"请输入用户名!" duration:1];
+    else if(self.userNameTF.text.length >= 16)
      [SXLoadingView  showProgressHUDText:@"用户名过长!" duration:1];
-    else if(self.passwordTF.text.length >= 40)
-//         [MyAppDelegate.notification displayNotificationWithMessage:@"密码过长!" forDuration:1];
+    else if(self.passwordTF.text.length >= 30)
      [SXLoadingView  showProgressHUDText:@"密码过长!" duration:1];
     else if(!IsEquallString(self.passwordTF.text, self.doubleCheckTF.text))
-//        [MyAppDelegate.notification displayNotificationWithMessage:@"两次密码不一致！" forDuration:1];
      [SXLoadingView  showProgressHUDText:@"两次密码不一致！" duration:1];
     else{
         FMCreateUserAPI * api = [FMCreateUserAPI new];
@@ -91,15 +88,15 @@
     return YES;
 }
 -(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
-    if (textField == _userNameTF) {
-        if (string.length == 0) {
-            return YES;
-        }
-        else if (textField.text.length + string.length >20 ) {
-            [MyAppDelegate.notification displayNotificationWithMessage:@"相册名称不能大于20!" forDuration:1];
-            return NO;
-        }
-    }
+//    if (textField == _userNameTF) {
+//        if (string.length == 0) {
+//            return YES;
+//        }
+//        else if (textField.text.length + string.length >20 ) {
+//            [MyAppDelegate.notification displayNotificationWithMessage:@"用户名称不能大于!" forDuration:1];
+//            return NO;
+//        }
+//    }
     return YES;
 }
 

@@ -98,7 +98,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     }];
    self.fileTableView.mj_header.ignoredScrollViewContentInsetTop = 8;
     // 马上进入刷新状态
-//    [self.fileTableView.mj_header beginRefreshing];
+    [self.fileTableView.mj_header beginRefreshing];
   
 }
 
@@ -323,13 +323,14 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 #pragma mark - FLDataSourceDelegate
 
 -(void)fl_Datasource:(FLDataSource *)datasource finishLoading:(BOOL)finish{
-    
     if (datasource == self.dataSource && finish) {
         [_fileTableView.mj_header endRefreshing];
         [self.fileTableView displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES  andTableViewFrame:self.view.bounds
                              andTouchBlock:nil];
         [self sequenceDataSource];
         [self.fileTableView reloadData];
+    }else{
+         [_fileTableView.mj_header endRefreshing];
     }
 }
 
@@ -372,6 +373,18 @@ NSInteger filesNameSort(id file1, id file2, void *context)
               _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
                 [self.fileTableView reloadData];
         }else{
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",model.name]];
+            
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath] &&[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize != model.size){
+                [SXLoadingView showProgressHUDText:@"该文件正在下载"duration:1];
+                return;
+            }
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath] &&[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize == model.size) {
+                _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+                _documentController.delegate = self;
+                [self presentOptionsMenu];
+            }else{
             if (_progressView) {
                 [_progressView dismiss];
                 _progressView = nil;
@@ -394,7 +407,6 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 //                NSLog(@"%lu,%@,%@",(unsigned long)state,filePath,error);
                 if (state == TYDownloadStateCompleted) {
                     [_progressView dismiss];
-                   
                     _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
                     _documentController.delegate = self;
                     [self presentOptionsMenu];
@@ -402,6 +414,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             }];
             }
         }
+      }
     }
 }
 -(void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error{
@@ -431,6 +444,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 - (void)presentOptionsMenu
 {
+  
     BOOL canOpen = [self.documentController presentPreviewAnimated:YES];
     if (!canOpen) {
         [MyAppDelegate.notification displayNotificationWithMessage:@"文件预览失败" forDuration:1];
@@ -573,6 +587,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
      _addButton.hidden = NO;
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     self.cellStatus = FLFliesCellStatusCanChoose;
+    _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
     [self.fileTableView reloadData];
 //     }
 }
@@ -581,6 +596,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     if (self.cellStatus == FLFliesCellStatusNormal) {
         return;
     }
+
     [self.fileTableView.mj_header setHidden:NO];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, -64);
@@ -588,6 +604,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
      _addButton.hidden = YES;
     [self.rdv_tabBarController setTabBarHidden:NO animated:YES];
     self.cellStatus = FLFliesCellStatusNormal;
+    _countLb.text = @"选择文件";
+    _countLb.font = [UIFont fontWithName:FANGZHENG size:16];
     [self.fileTableView reloadData];
 }
 

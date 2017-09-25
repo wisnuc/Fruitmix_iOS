@@ -20,7 +20,7 @@
 
 @property (nonatomic) NSString * uuid;
 
-@property (nonatomic) long long size; //文件大小
+@property (nonatomic) unsigned long long size; //文件大小
 
 //@property (readonly,nonatomic) BOOL isFile;
 @property (nonatomic) NSString * parent;

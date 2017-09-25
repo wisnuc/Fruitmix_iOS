@@ -56,7 +56,10 @@ NSInteger imageUploadCount = 0;
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock{
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     NSString *urlString = [NSString stringWithFormat:@"%@drives",[JYRequestConfig sharedConfig].baseURL];
-     [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+    [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+    [manager.requestSerializer willChangeValueForKey:@"timeoutInterval"];
+    manager.requestSerializer.timeoutInterval = 20;
+    [manager.requestSerializer didChangeValueForKey:@"timeoutInterval"];
     [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -74,6 +77,7 @@ NSInteger imageUploadCount = 0;
             }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        completeBlock(NO);
        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         if (rep.statusCode == 404) {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
@@ -141,6 +145,9 @@ NSInteger imageUploadCount = 0;
 + (void)getDirEntrySuccess:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure{
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager.requestSerializer willChangeValueForKey:@"timeoutInterval"];
+    manager.requestSerializer.timeoutInterval = 20;
+    [manager.requestSerializer didChangeValueForKey:@"timeoutInterval"];
     NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
     [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
     [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {

@@ -124,7 +124,6 @@
 
 - (void)deleteFilesWithFileName:(NSString *)fileName{
     NSFileManager *mgr = [NSFileManager defaultManager];
-    
     // 文件属性
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",fileName]];
@@ -243,7 +242,6 @@
                    [self.needDownloads removeObjectAtIndex:[indexPath row]];
                     [_tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
                     [_tableview reloadData];
-                    
                 }
             };
             actionSheet.scrolling          = YES;
@@ -353,10 +351,10 @@
 //                                        [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long) progress.speed],
 //                                        [TYDownloadUtility calculateUnit:(unsigned long long)progress.speed]
 //                                        ,progress.remainingTime];
-    NSMutableString *detailLabelText = [NSMutableString stringWithFormat:@"总大小:%@ 已下载:%.2f %@ (%.2f%%)",fileSizeInUnits,
+    NSMutableString *detailLabelText = [NSMutableString stringWithFormat:@"已下载:%.2f/%@ ",
                                         [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long)progress.totalBytesWritten],
-                                        [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesWritten],progress.progress*100
-                                        ];
+                                        fileSizeInUnits];
+//     [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesWritten],progress.progress*100
     return detailLabelText;
 }
 

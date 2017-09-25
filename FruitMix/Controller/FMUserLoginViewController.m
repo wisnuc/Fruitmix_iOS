@@ -77,12 +77,9 @@
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
     NSString * Basic = [UUID base64EncodedString];
-//    NSLog(@"%@, %@", UUID, Basic);
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
     [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        NSLog(@"%@",responseObject);
         [SXLoadingView hideProgressHUD];
-     
         [self loginToDoWithResponse:responseObject];
         sender.userInteractionEnabled = YES;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -174,90 +171,8 @@
 
     [MyAppDelegate initLeftMenu];
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
-//    [self siftPhotos];
 }
 
-- (void)siftPhotos{
-    @weaky(self)
-    NSString *entryuuid = PHOTO_ENTRY_UUID;
-    if (entryuuid.length == 0) {
-        [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
-            if (successful) {
-                [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
-                    if (successful) {
-                        [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
-                            if (successful) {
-                                [FMUserLoginViewController siftPhotoFromNetwork];
-                            }
-                        }];
-                    }
-                }];
-            }
-        }];
-  
-    }else{
-        [FMUserLoginViewController siftPhotoFromNetwork];
-    }
-}
-
-+ (void)siftPhotoFromNetwork{
-    @weaky(self)
-//    NSCondition *condition = [[NSCondition alloc] init];
-//    [condition lock];
-    NSString *entryuuid = PHOTO_ENTRY_UUID;
-    [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-        //NSLog(@"%@",responseObject);
-        NSDictionary * dic = responseObject;
-        NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
-        
-        NSArray * arr = [dic objectForKey:@"entries"];
-        for (NSDictionary *dic in arr) {
-            FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-            [photoArrHash addObject:nasPhoto.fmhash];
-        }
-        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
-            for (FMLocalPhoto * p in result) {
-                if (p.degist.length >0) {
-                    [localPhotoHashArr addObject:p.degist];
-                }
-            }
-            NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
-            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
-            
-            NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",[localPhotoHashArrSet allObjects]];
-            NSArray * filter_no = [[photoArrHashSet allObjects] filteredArrayUsingPredicate:filterPredicate_same];
-            NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
-            [siftPhotoArrHash addObjectsFromArray:filter_no];
-//            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
-            [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
-            [[NSUserDefaults standardUserDefaults]  synchronize];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];
-//            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
-        }];
-        
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-        NSLog(@"%ld",(long)rep.statusCode);
-        if (rep.statusCode == 404) {
-            [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
-                if (successful) {
-                    [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
-                        if (successful) {
-                            [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
-                                if (successful) {
-                                    [weak_self siftPhotos];
-                                }
-                            }];
-                        }
-                    }];
-                }
-            }];
-        }
-    }];
-//     [condition wait];
-//    [condition unlock];
-}
 
 #pragma mark - 验证手机号
 +(BOOL)checkForMobilePhoneNo:(NSString *)mobilePhone{

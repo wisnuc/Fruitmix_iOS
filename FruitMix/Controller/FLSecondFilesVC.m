@@ -516,6 +516,17 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
             _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
             [self.tableview reloadData];
         }else{
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",model.name]];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+                _documentController.delegate = self;
+                [self presentOptionsMenu];
+            }else{
+            if (_progressView) {
+                [_progressView dismiss];
+                _progressView = nil;
+            }
             if (!_progressView)
                 _progressView = [JYProcessView processViewWithType:ProcessTypeLine];
             _progressView.descLb.text =@"正在下载文件";
@@ -538,6 +549,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
                 }
             }];
         }
+      }
     }
 }
 

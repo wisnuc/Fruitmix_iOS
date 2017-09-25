@@ -30,7 +30,7 @@
     balloonView.image = image;
     [[UIApplication sharedApplication].keyWindow addSubview:balloonView];
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [UIView animateWithDuration:1 animations:^{
             backView.alpha = 0;
             balloonView.alpha = 0;
