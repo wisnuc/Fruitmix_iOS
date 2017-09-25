@@ -7,8 +7,9 @@
 //
 
 #import "JYNetworker.h"
-#import "AFNetworking.h"
+//#import 
 #import "JYNetEngine.h"
+
 
 @implementation JYNetworker
 
@@ -23,6 +24,41 @@
     return request;
 }
 
++(NSMutableURLRequest *)workerCreateFormDataRequestWithMethod:(NSString *)method andHTTPHeaderField:(NSDictionary *)headerFields withUrlString:(NSString *)url andParameters:(NSDictionary *)parameters{
+    NSMutableURLRequest * request = [[AFJSONRequestSerializer serializer]requestWithMethod:method URLString:url parameters:parameters error:nil];
+    if (headerFields) {
+        NSArray * dicKeys = [headerFields allKeys];
+        for (NSString * key in dicKeys) {
+            [request setValue:headerFields[key] forHTTPHeaderField:key];
+        }
+    }
+    
+//     AFStreamingMultipartFormData *formData = [[AFStreamingMultipartFormData alloc] initWithURLRequest:mutableRequest stringEncoding:NSUTF8StringEncoding];
+//    if (parameters) {
+//        for (AFQueryStringPair *pair in AFQueryStringPairsFromDictionary(parameters)) {
+//            NSData *data = nil;
+//            if ([pair.value isKindOfClass:[NSData class]]) {
+//                data = pair.value;
+//            } else if ([pair.value isEqual:[NSNull null]]) {
+//                data = [NSData data];
+//            } else {
+//                data = [[pair.value description] dataUsingEncoding:self.stringEncoding];
+//            }
+//
+//            if (data) {
+//                [formData appendPartWithFormData:data name:[pair.field description]];
+//            }
+//        }
+//    }
+    
+//    if (block) {
+//        block(formData);
+//    }
+    
+//    return [formData requestByFinalizingMultipartFormData];
+    return reuest;
+}
+
 +(NSURLSessionDataTask *)workerDataTaskWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager completionHandler:(CompletionHandler)completionHandler{
 //    AFJSONResponseSerializer * response = [AFJSONResponseSerializer serializer];
 //    response.acceptableContentTypes = [NSSet setWithObjects:@"text/plain", nil];
@@ -31,9 +67,8 @@
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request completionHandler:completionHandler];
     return dataTask;
 }
-+(void)test{
-    
-}
+
+
 
 +(NSMutableURLRequest *)workerCreateRequestWithRequest:(id<JYRequestDelegate>)request{
     JYRequestMethod method = [request requestMethod];

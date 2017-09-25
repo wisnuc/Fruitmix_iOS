@@ -189,7 +189,6 @@ NSInteger imageUploadCount = 0;
         // 上传 多张图片
 //        for(NSInteger i = 0; i < photoArr.count; i++)
 //        {
-
             NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
             NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
         if (data.length>0) {

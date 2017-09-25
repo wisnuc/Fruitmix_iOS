@@ -46,7 +46,7 @@
     _failureCompleteBlcok = [failure copy];
     [self start];
 }
-- (void)startWithFormDattCompletionBlockWithSuccess:(JYRequestCompletionBlock)success
+- (void)startWithFromData:(nullable NSData *)bodyData CompletionBlockWithSuccess:(JYRequestCompletionBlock)success
                                     failure:(JYRequestCompletionBlock)failure{
     _successCompleteBlcok = [success copy];
     _failureCompleteBlcok = [failure copy];
@@ -55,11 +55,11 @@
 //- ()
 //uploadTaskWithRequest
 
-//- (void)setCompletionBlockWithSuccess:(JYRequestCompletionBlock)success
-//                              failure:(JYRequestCompletionBlock)failure{
-//    _successCompleteBlcok = [success copy];
-//    _failureCompleteBlcok = [failure copy];
-//}
+- (void)setCompletionBlockWithSuccess:(JYRequestCompletionBlock)success
+                              failure:(JYRequestCompletionBlock)failure{
+    _successCompleteBlcok = [success copy];
+    _failureCompleteBlcok = [failure copy];
+}
 
 - (void)clearCompletionBlock {
     // nil out to break the retain cycle.

@@ -63,6 +63,51 @@
     [self addRecord:fullRequest];
 }
 
+-(void)addFormDataRequest:(id<JYRequestDelegate>)request{
+     JYBaseRequest * fullRequest = request;
+    NSMutableURLRequest * urlRequest = [JYNetworker workerCreateRequestWithRequest:request];
+    if ([request respondsToSelector:@selector(responseSerialization)]) {
+        _manager.responseSerializer = [request responseSerialization];
+    }
+    
+    if ([request respondsToSelector:@selector(requestTimeoutInterval)]) {
+        urlRequest.timeoutInterval = [request requestTimeoutInterval];
+    }else
+        urlRequest.timeoutInterval = 15;
+    fullRequest.dataTask = [JYNetworker workerDataTaskWithRequest:urlRequest andManager:_manager completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+        [self handleRequestResult:fullRequest andResponse:response andResponseObject:responseObject andError:error];
+    }];
+    
+    
+    NSMutableURLRequest *request = [self.requestSerializer multipartFormRequestWithMethod:@"POST" URLString:[[NSURL URLWithString:URLString relativeToURL:self.baseURL] absoluteString] parameters:parameters constructingBodyWithBlock:block error:&serializationError];
+    if (serializationError) {
+        if (failure) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu"
+            dispatch_async(self.completionQueue ?: dispatch_get_main_queue(), ^{
+                failure(nil, serializationError);
+            });
+#pragma clang diagnostic pop
+        }
+        
+        return nil;
+    }
+    
+    __block NSURLSessionDataTask *task = [self uploadTaskWithStreamedRequest:request progress:uploadProgress completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
+        if (error) {
+            if (failure) {
+                failure(task, error);
+            }
+        } else {
+            if (success) {
+                success(task, responseObject);
+            }
+        }
+    }];
+    
+    [task resume];
+}
+
 -(void)cancleRequest:(id<JYRequestDelegate>)request{
     JYBaseRequest * fullRequest = request;
     [fullRequest.dataTask cancel];
@@ -77,7 +122,6 @@
     //删除所有请求
     [_requestsRecord removeAllObjects];
 }
-
 // 合成 全的网址
 -(NSString *)bulidRequestURL:(id<JYRequestDelegate>)request{
     NSString * detailURL = [request requestUrl];
