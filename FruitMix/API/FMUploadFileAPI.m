@@ -9,6 +9,8 @@
 #import "FMUploadFileAPI.h"
 #import "FLCreateFolderAPI.h"
 #import "FLGetFilesAPI.h"
+#import "FLGetDrivesAPI.h"
+#import "FLGetDirveEntryAPI.h"
 #import "FLFilesModel.h"
 #import "DriveModel.h"
 #import "DirectoriesModel.h"
@@ -54,36 +56,29 @@ NSInteger imageUploadCount = 0;
 }
 
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock{
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives",[JYRequestConfig sharedConfig].baseURL];
-    [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    [manager.requestSerializer willChangeValueForKey:@"timeoutInterval"];
-    manager.requestSerializer.timeoutInterval = 20;
-    [manager.requestSerializer didChangeValueForKey:@"timeoutInterval"];
-    [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray * responseArr = responseObject;
+    FLGetDrivesAPI * api = [[FLGetDrivesAPI alloc]init];
+    [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        NSArray * responseArr = request.responseJsonObject;
         NSLog(@"%@",responseObject);
         for (NSDictionary *dic in responseArr) {
             @autoreleasepool {
                 DriveModel *model = [DriveModel yy_modelWithJSON:dic];
                 NSLog(@"%@",model.uuid);
                 if ([model.tag isEqualToString:@"home"]) {
-                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:DRIVE_UUID_STR];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                completeBlock(YES);
+                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:DRIVE_UUID_STR];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    completeBlock(YES);
                 }
             }
         }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    } failure:^(__kindof JYBaseRequest *request) {
         completeBlock(NO);
-       NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)request.dataTask.response;
         if (rep.statusCode == 404) {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         }
     }];
-  }
-
+}
 //+ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock{
 //    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID];
@@ -169,16 +164,10 @@ NSInteger imageUploadCount = 0;
 + (void)getDirEntryWithUUId:(NSString *)uuid
                     success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                     failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure{
-    
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid];
-    [manager.requestSerializer setValue: [NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        success(task,responseObject);
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                failure(task,error);
-        
+    [[FLGetDirveEntryAPI apiWithUUID:uuid] startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        success(request.dataTask,request.responseJsonObject);
+    } failure:^(__kindof JYBaseRequest *request) {
+         failure(request.dataTask,request.error);
     }];
 }
 

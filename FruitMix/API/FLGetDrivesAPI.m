@@ -28,4 +28,8 @@
     return [AFJSONResponseSerializer serializer];
 }
 
+-(NSTimeInterval)requestTimeoutInterval{
+    return 20;
+}
+
 @end

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1FD575BF1F78A2330074824F /* NSString+Validate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575BE1F78A2330074824F /* NSString+Validate.m */; };
+		1FD575C21F791FBF0074824F /* FLGetDirveEntryAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */; };
 		9C5EC04E1F441B120075B228 /* eye.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04B1F441B120075B228 /* eye.png */; };
 		9C5EC04F1F441B120075B228 /* eye@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04C1F441B120075B228 /* eye@2x.png */; };
 		9C5EC0501F441B120075B228 /* eye@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04D1F441B120075B228 /* eye@3x.png */; };
@@ -761,6 +762,8 @@
 /* Begin PBXFileReference section */
 		1FD575BD1F78A2330074824F /* NSString+Validate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Validate.h"; sourceTree = "<group>"; };
 		1FD575BE1F78A2330074824F /* NSString+Validate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Validate.m"; sourceTree = "<group>"; };
+		1FD575C01F791FBF0074824F /* FLGetDirveEntryAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FLGetDirveEntryAPI.h; sourceTree = "<group>"; };
+		1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FLGetDirveEntryAPI.m; sourceTree = "<group>"; };
 		4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FruitMix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C5EC04B1F441B120075B228 /* eye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eye.png; sourceTree = "<group>"; };
 		9C5EC04C1F441B120075B228 /* eye@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye@2x.png"; sourceTree = "<group>"; };
@@ -3957,6 +3960,8 @@
 			children = (
 				C1F202241D86553D0051A955 /* FLGetDrivesAPI.h */,
 				C1F202251D86553D0051A955 /* FLGetDrivesAPI.m */,
+				1FD575C01F791FBF0074824F /* FLGetDirveEntryAPI.h */,
+				1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */,
 			);
 			name = drivesApi;
 			sourceTree = "<group>";
@@ -5496,6 +5501,7 @@
 				C1F44A801D13942900A8FD34 /* FMUserCell.m in Sources */,
 				9CE379481F419C0C00CC2F05 /* FMLoginViewController.m in Sources */,
 				F60B0BD51E5EE76700670E03 /* FMUsersLoginMangeCell.m in Sources */,
+				1FD575C21F791FBF0074824F /* FLGetDirveEntryAPI.m in Sources */,
 				C1A95A471CBD0120007A1DC9 /* FMShareTalkView.m in Sources */,
 				C1E8F32D1CAE1CC400E1F1FC /* UIView+JHChainableAnimations.m in Sources */,
 				C1FB83E61DBF029900D09541 /* APSocialServiceHelper.m in Sources */,
