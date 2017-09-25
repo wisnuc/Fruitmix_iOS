@@ -23,7 +23,7 @@
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-    return [NSString stringWithFormat:@"files/%@",self.parentId];
+    return  [NSString stringWithFormat:@"drives/%@/dirs/%@/entries",DRIVE_UUID,_parentId];
 }
 
 -(NSDictionary *)requestHeaderFieldValueDictionary{

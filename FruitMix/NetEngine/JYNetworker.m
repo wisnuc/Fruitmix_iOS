@@ -31,7 +31,9 @@
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request completionHandler:completionHandler];
     return dataTask;
 }
-
++(void)test{
+    
+}
 
 +(NSMutableURLRequest *)workerCreateRequestWithRequest:(id<JYRequestDelegate>)request{
     JYRequestMethod method = [request requestMethod];

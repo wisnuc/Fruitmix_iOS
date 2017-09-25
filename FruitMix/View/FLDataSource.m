@@ -25,32 +25,28 @@
     _dataSource = [NSMutableArray arrayWithCapacity:0];
     
     //        [self getFilesWithUUID:[FMConfiguation shareConfiguation].userHome];
-    NSString *dirUUID = DIR_UUID;
+    NSString *dirUUID = DRIVE_UUID;
     //        NSLog(@"%@",DRIVE_UUID);
     if (dirUUID.length==0) {
         [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
             if (successful) {
-//                [FMUploadFileAPI getDirectoriesForFilesCompleteBlock:^(BOOL successful) {
-//                    if (successful) {
-                
-                        [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
-                           
-                            NSDictionary * dic = responseObject;
-                            NSArray * arr = [dic objectForKey:@"entries"];
-                            for (NSDictionary *entriesDic in arr) {
-                                FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
-                                [self.dataSource addObject:model];
-                            }
-                            NSLog(@"%ld",(long)self.dataSource.count);
-                            if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
-                                [self.delegate fl_Datasource:self finishLoading:YES];
-                            }
-                        } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                            NSLog(@"%@",error);
-                            if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
-                                [self.delegate fl_Datasource:self finishLoading:NO];
-                            }
-                        }];
+                [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
+                    NSDictionary * dic = responseObject;
+                    NSArray * arr = [dic objectForKey:@"entries"];
+                    for (NSDictionary *entriesDic in arr) {
+                        FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
+                        [self.dataSource addObject:model];
+                    }
+                    NSLog(@"%ld",(long)self.dataSource.count);
+                    if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                        [self.delegate fl_Datasource:self finishLoading:YES];
+                    }
+                } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                    NSLog(@"%@",error);
+                    if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
+                        [self.delegate fl_Datasource:self finishLoading:NO];
+                    }
+                }];
             }else{
                 if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
                     [self.delegate fl_Datasource:self finishLoading:NO];
@@ -60,7 +56,7 @@
 //            }
 //        }];
     }else{
-        [FMUploadFileAPI  getDirEntrySuccess:^(NSURLSessionDataTask *task, id responseObject) {
+        [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
             NSLog(@"%@",responseObject);
             NSDictionary * dic = responseObject;
             NSArray * arr = [dic objectForKey:@"entries"];
@@ -76,6 +72,10 @@
             NSLog(@"%@",error);
             if (self.delegate && [self.delegate respondsToSelector:@selector(fl_Datasource:finishLoading:)]) {
                 [self.delegate fl_Datasource:self finishLoading:NO];
+            }
+            NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+            if (rep.statusCode == 404) {
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
             }
         }];
     }

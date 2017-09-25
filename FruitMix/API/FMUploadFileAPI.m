@@ -305,14 +305,13 @@ NSInteger imageUploadCount = 0;
 
 
 + (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
-    
+    [FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID andFolderName:@"上传的照片"];
     NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
 
     NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         NSDictionary *dic= @{@"op": @"mkdir"};
         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
         [formData appendPartWithFormData:data name:@"上传的照片"];
-
     } error:nil];
     
     [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
@@ -362,7 +361,6 @@ NSInteger imageUploadCount = 0;
                     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
                     [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
                     [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                        
                         NSDictionary *dic= @{@"op": @"mkdir"};
                         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
                         [formData appendPartWithFormData:data name:photoDirName];
@@ -370,7 +368,6 @@ NSInteger imageUploadCount = 0;
                         
                     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
 //                        NSLog(@"--> %@", responseObject);
-                        
                         NSDictionary * dic = responseObject;
                         NSArray * arr = [dic objectForKey:@"entries"];
                         for (NSDictionary *entriesDic in arr) {
@@ -402,7 +399,6 @@ NSInteger imageUploadCount = 0;
                 
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
 //                NSLog(@"--> %@", responseObject);
-                
                 NSDictionary * dic = responseObject;
                 NSArray * arr = [dic objectForKey:@"entries"];
                 for (NSDictionary *entriesDic in arr) {
@@ -413,17 +409,14 @@ NSInteger imageUploadCount = 0;
                         completeBlock(YES);
                     }
                 }
-                
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                 NSLog(@"%@", error);
                 //        failure(task,error);
             }];
-
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
           NSLog(@"%@", error);
     }];
-    
     
 
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
