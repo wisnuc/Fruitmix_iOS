@@ -60,9 +60,9 @@
     if (self.userNameTF.text.length<=0)
         [SXLoadingView  showProgressHUDText:@"请输入用户名!" duration:1];
     else if(self.userNameTF.text.length >= 16)
-     [SXLoadingView  showProgressHUDText:@"用户名过长!" duration:1];
+     [SXLoadingView  showProgressHUDText:@"用户名不能超过16个字符!" duration:1];
     else if(self.passwordTF.text.length >= 30)
-     [SXLoadingView  showProgressHUDText:@"密码过长!" duration:1];
+     [SXLoadingView  showProgressHUDText:@"密码不能超过30个字符!" duration:1];
     else if(!IsEquallString(self.passwordTF.text, self.doubleCheckTF.text))
      [SXLoadingView  showProgressHUDText:@"两次密码不一致！" duration:1];
     else{

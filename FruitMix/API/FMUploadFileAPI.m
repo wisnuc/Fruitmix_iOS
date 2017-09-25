@@ -61,7 +61,6 @@ NSInteger imageUploadCount = 0;
     manager.requestSerializer.timeoutInterval = 20;
     [manager.requestSerializer didChangeValueForKey:@"timeoutInterval"];
     [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray * responseArr = responseObject;
         NSLog(@"%@",responseObject);
