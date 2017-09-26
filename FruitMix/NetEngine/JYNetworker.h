@@ -37,6 +37,7 @@ typedef void(^JYRequestFormDataBlock)(id <AFMultipartFormData> formData);
  */
 +(NSURLSessionDataTask *)workerDataTaskWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager completionHandler:(CompletionHandler)completionHandler;
 
++(NSURLSessionDataTask *)workerDataTaskFormDataWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager uploadProgressBlock:(JYUploadProgressBlock)progressBlock completionHandler:(CompletionHandler)completionHandler;
 
 +(NSMutableURLRequest *)workerCreateRequestWithRequest:(id<JYRequestDelegate>)request;
 

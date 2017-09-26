@@ -38,7 +38,7 @@
    
 }
 
-+(NSURLSessionDataTask *)workerDataTaskWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager completionHandler:(CompletionHandler)completionHandler uploadProgress:(nullable void (^)(NSProgress * _Nonnull))uploadProgress{
++(NSURLSessionDataTask *)workerDataTaskWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager completionHandler:(CompletionHandler)completionHandler{
 //    AFJSONResponseSerializer * response = [AFJSONResponseSerializer serializer];
 //    response.acceptableContentTypes = [NSSet setWithObjects:@"text/plain", nil];
 //    manager.responseSerializer = response;
@@ -47,8 +47,8 @@
     return dataTask;
 }
 
-+(NSURLSessionDataTask *)workerDataTaskFormDataWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager completionHandler:(CompletionHandler)completionHandler{
-    NSURLSessionDataTask *dataTask = [manager uploadTaskWithStreamedRequest:request progress:<#^(NSProgress * _Nonnull uploadProgress)uploadProgressBlock#> completionHandler:completionHandler];
++(NSURLSessionDataTask *)workerDataTaskFormDataWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager uploadProgressBlock:(JYUploadProgressBlock)progressBlock completionHandler:(CompletionHandler)completionHandler{
+    NSURLSessionDataTask *dataTask = [manager uploadTaskWithStreamedRequest:request progress:progressBlock completionHandler:completionHandler];
     return dataTask;
 }
 

@@ -26,8 +26,8 @@
     [[JYNetEngine sharedInstance] cancleRequest:self];
 }
 
-- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block {
-      [[JYNetEngine sharedInstance] addFormDataRequest:self formDataBlock:block];
+- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block uploadProgress:(JYUploadProgressBlock)progressBlock{
+      [[JYNetEngine sharedInstance] addFormDataRequest:self formDataBlock:block uploadProgressBlock:progressBlock];
 }
 /**
  *  检测当前request 是否在运行
@@ -50,12 +50,13 @@
     _failureCompleteBlcok = [failure copy];
     [self start];
 }
-- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block uploadProgressBlock:(JYUploadProgressBlock)uploadProgress CompletionBlockWithSuccess:(JYRequestCompletionBlock)success
-                                    failure:(JYRequestCompletionBlock)failure{
- 
+- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block
+           uploadProgressBlock:(JYUploadProgressBlock)uploadProgress
+           CompletionBlockWithSuccess:(JYRequestCompletionBlock)success
+           failure:(JYRequestCompletionBlock)failure{
     _successCompleteBlcok = [success copy];
     _failureCompleteBlcok = [failure copy];
-    [self startWithFromDataBlock:block ];
+    [self startWithFromDataBlock:block uploadProgress:uploadProgress];
 }
 //- ()
 //uploadTaskWithRequest

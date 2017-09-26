@@ -17,7 +17,7 @@
 -(void)addRequest:(id<JYRequestDelegate>)request;
 -(void)cancleRequest:(id<JYRequestDelegate>)request;
 -(void)cancleAllRequest;
--(void)addFormDataRequest:(id<JYRequestDelegate>)request formDataBlock:(JYRequestFormDataBlock)formDataBlock;
+-(void)addFormDataRequest:(id<JYRequestDelegate>)request formDataBlock:(JYRequestFormDataBlock)formDataBlock uploadProgressBlock:(JYUploadProgressBlock)uploadProgress;
 
 // 合成 全的网址 
 -(NSString *)bulidRequestURL:(id<JYRequestDelegate>)request;

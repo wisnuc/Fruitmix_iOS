@@ -74,16 +74,11 @@
         urlRequest.timeoutInterval = [request requestTimeoutInterval];
     }else
         urlRequest.timeoutInterval = 15;
-    fullRequest.dataTask = [JYNetworker workerDataTaskWithRequest:urlRequest andManager:_manager completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-        [self handleRequestResult:fullRequest andResponse:response andResponseObject:responseObject andError:error];
+    fullRequest.dataTask = [JYNetworker workerDataTaskFormDataWithRequest:urlRequest andManager:_manager uploadProgressBlock:uploadProgress completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+         [self handleRequestResult:fullRequest andResponse:response andResponseObject:responseObject andError:error];
     }];
     
-    
-//    __block NSURLSessionDataTask *task = [self uploadTaskWithStreamedRequest:request progress:uploadProgress completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
-//
-//    }];
-    
-    [task resume];
+   [fullRequest.dataTask resume];
    [self addRecord:fullRequest];
 }
 

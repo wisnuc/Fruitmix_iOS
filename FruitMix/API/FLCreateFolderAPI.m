@@ -10,10 +10,9 @@
 
 @implementation FLCreateFolderAPI
 
-+(instancetype)apiWithParentUUID:(NSString *)folderUUID andFolderName:(NSString *)folderName{
++(instancetype)apiWithParentUUID:(NSString *)folderUUID{
     FLCreateFolderAPI * api = [FLCreateFolderAPI new];
     api.parentId = folderUUID;
-    api.folderName = folderName;
     return api;
 }
 

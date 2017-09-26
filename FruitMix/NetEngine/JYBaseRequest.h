@@ -106,6 +106,11 @@ typedef void(^JYUploadProgressBlock)(NSProgress *progress);
 - (BOOL)isRuning;
 
 /// block回调
+- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block
+           uploadProgressBlock:(JYUploadProgressBlock)uploadProgress
+    CompletionBlockWithSuccess:(JYRequestCompletionBlock)success
+                       failure:(JYRequestCompletionBlock)failure;
+
 - (void)startWithCompletionBlockWithSuccess:(JYRequestCompletionBlock)success
                                     failure:(JYRequestCompletionBlock)failure;
 

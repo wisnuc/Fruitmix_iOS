@@ -16,6 +16,7 @@
 #import "DirectoriesModel.h"
 #import "EntriesModel.h"
 #import "PhotoManager.h"
+#import "FLUploadFilesAPI.h"
 #import <sys/utsname.h>
 
 @implementation FMUploadFileAPI
@@ -176,45 +177,75 @@ NSInteger imageUploadCount = 0;
                            success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure{
     MyNSLog(@"==========================开始上传==============================");
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
     NSString * hashString = [FileHash sha256HashOfFileAtPath:filePath];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,PHOTO_ENTRY_UUID];
-   NSInteger sizeNumber = (NSInteger)[FMUploadFileAPI fileSizeAtPath:filePath];
-    [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+    NSInteger sizeNumber = (NSInteger)[FMUploadFileAPI fileSizeAtPath:filePath];
     NSString * exestr = [filePath lastPathComponent];
-    MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
-    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-        // 上传 多张图片
-//        for(NSInteger i = 0; i < photoArr.count; i++)
-//        {
-            NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
-            NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
+//    MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
+    [[FLUploadFilesAPI apiWithPhotoUUID:PHOTO_ENTRY_UUID]startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
+        NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
+        NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
         if (data.length>0) {
-           [formData appendPartWithFileData:data name:exestr fileName:str mimeType:@"image/jpeg"];  
+            [formData appendPartWithFileData:data name:exestr fileName:str mimeType:@"image/jpeg"];
         }else{
             otherFailure(@"null");
         }
-    } progress:^(NSProgress * _Nonnull uploadProgress) {
+    } uploadProgressBlock:^(NSProgress *progress) {
         
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         MyNSLog(@"上传请求成功,POST返回成功");
-        success(task,responseObject);
-        
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
-        NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+        success(request.dataTask,request.responseJsonObject);
+    } failure:^(__kindof JYBaseRequest *request) {
+        NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
         if(errorData.length >0){
             NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
             NSLog(@"error--%@",serializedData);
             MyNSLog (@"上传照片error======>%@",serializedData);
         }
-          MyNSLog (@"上传照片error======>%@",error);
-//       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-        failure(task,error);
+//        MyNSLog (@"上传照片error======>%@",request.error);
     }];
+    
+    
+    
+    
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+//    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+//    NSString * hashString = [FileHash sha256HashOfFileAtPath:filePath];
+//    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,PHOTO_ENTRY_UUID];
+//   NSInteger sizeNumber = (NSInteger)[FMUploadFileAPI fileSizeAtPath:filePath];
+//    [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//    NSString * exestr = [filePath lastPathComponent];
+//    MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
+//    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+//        // 上传 多张图片
+////        for(NSInteger i = 0; i < photoArr.count; i++)
+////        {
+//            NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
+//            NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
+//        if (data.length>0) {
+//           [formData appendPartWithFileData:data name:exestr fileName:str mimeType:@"image/jpeg"];
+//        }else{
+//            otherFailure(@"null");
+//        }
+//    } progress:^(NSProgress * _Nonnull uploadProgress) {
+//
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        MyNSLog(@"上传请求成功,POST返回成功");
+//        success(task,responseObject);
+//
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+////        NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
+//        NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+//        if(errorData.length >0){
+//            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+//            NSLog(@"error--%@",serializedData);
+//            MyNSLog (@"上传照片error======>%@",serializedData);
+//        }
+//          MyNSLog (@"上传照片error======>%@",error);
+////       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+//
+//        failure(task,error);
+//    }];
     
     
 //    for (int i=0; i<imageUploadCount; i++) {
@@ -304,7 +335,7 @@ NSInteger imageUploadCount = 0;
 
 
 + (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
-    [FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID andFolderName:@"上传的照片"];
+//    [FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID andFolderName:@"上传的照片"];
     NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
 
     NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
