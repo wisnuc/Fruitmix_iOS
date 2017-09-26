@@ -12,7 +12,5 @@
 
 @property (nonatomic) NSString * parentId;
 
-@property (nonatomic) NSString * folderName;
-
-+(instancetype)apiWithParentUUID:(NSString *)folderUUID andFolderName:(NSString *)folderName;
++(instancetype)apiWithParentUUID:(NSString *)folderUUID;
 @end

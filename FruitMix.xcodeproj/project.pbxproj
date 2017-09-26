@@ -10,6 +10,7 @@
 		1FD575BF1F78A2330074824F /* NSString+Validate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575BE1F78A2330074824F /* NSString+Validate.m */; };
 		1FD575C21F791FBF0074824F /* FLGetDirveEntryAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */; };
 		1FD575C81F79FF650074824F /* FLUploadFilesAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C71F79FF650074824F /* FLUploadFilesAPI.m */; };
+		1FD575CC1F7A206C0074824F /* LoginAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575CB1F7A206C0074824F /* LoginAPI.m */; };
 		9C5EC04E1F441B120075B228 /* eye.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04B1F441B120075B228 /* eye.png */; };
 		9C5EC04F1F441B120075B228 /* eye@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04C1F441B120075B228 /* eye@2x.png */; };
 		9C5EC0501F441B120075B228 /* eye@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04D1F441B120075B228 /* eye@3x.png */; };
@@ -767,6 +768,8 @@
 		1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FLGetDirveEntryAPI.m; sourceTree = "<group>"; };
 		1FD575C61F79FF650074824F /* FLUploadFilesAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FLUploadFilesAPI.h; sourceTree = "<group>"; };
 		1FD575C71F79FF650074824F /* FLUploadFilesAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FLUploadFilesAPI.m; sourceTree = "<group>"; };
+		1FD575CA1F7A206C0074824F /* LoginAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginAPI.h; sourceTree = "<group>"; };
+		1FD575CB1F7A206C0074824F /* LoginAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginAPI.m; sourceTree = "<group>"; };
 		4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FruitMix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C5EC04B1F441B120075B228 /* eye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eye.png; sourceTree = "<group>"; };
 		9C5EC04C1F441B120075B228 /* eye@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye@2x.png"; sourceTree = "<group>"; };
@@ -1913,6 +1916,15 @@
 				4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1FD575C91F7A20400074824F /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				1FD575CA1F7A206C0074824F /* LoginAPI.h */,
+				1FD575CB1F7A206C0074824F /* LoginAPI.m */,
+			);
+			name = Login;
 			sourceTree = "<group>";
 		};
 		33577D5A1571DD956D07E6C5 /* Pods */ = {
@@ -3335,6 +3347,7 @@
 		C19A3CE21D9BCF3900D81503 /* others */ = {
 			isa = PBXGroup;
 			children = (
+				1FD575C91F7A20400074824F /* Login */,
 				C1B512F01DA8D3A000F0E480 /* 创建User */,
 				C17615DE1D0D634A00FDFE1B /* 获取设备UUID */,
 				C17615E01D0D638400FDFE1B /* 获取User */,
@@ -5389,6 +5402,7 @@
 				C1880E941D1FAFC4001CB99D /* FMNeedQuickUploadPhoto.m in Sources */,
 				F6F259131E2DC0690074F521 /* JYAlertView.m in Sources */,
 				C15470CE1D5B0D1B00D0DFEF /* VCFloatingActionButton.m in Sources */,
+				1FD575CC1F7A206C0074824F /* LoginAPI.m in Sources */,
 				C190907D1D9E4CF400FF9886 /* FMNotifyView.m in Sources */,
 				C1991E4F1DE43F8500F63EBE /* TYDownloadUtility.m in Sources */,
 				9CFFC6E81F29C35E00FA135B /* FMGetUserInfo.m in Sources */,

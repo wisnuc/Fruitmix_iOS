@@ -11,6 +11,7 @@
 #import "UIButton+EnlargeEdge.h"
 #import "FMGetUserInfo.h"
 #import "FMUploadFileAPI.h"
+#import "LoginAPI.h"
 #define  MainColor  UICOLOR_RGB(0x03a9f4)
 
 @interface FMUserLoginViewController ()<UITextFieldDelegate>
@@ -74,21 +75,34 @@
     [self.view endEditing:YES];
     sender.userInteractionEnabled = NO;
     [SXLoadingView showProgressHUD:@"正在登录"];
-    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
-    NSString * Basic = [UUID base64EncodedString];
-    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
-    [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSString * basic = [UUID base64EncodedString];
+    [[LoginAPI apiWithServicePath:_service.path AuthorizationBasic:basic]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         [SXLoadingView hideProgressHUD];
-        [self loginToDoWithResponse:responseObject];
+        [self loginToDoWithResponse:request.responseJsonObject];
         sender.userInteractionEnabled = YES;
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    } failure:^(__kindof JYBaseRequest *request) {
         [SXLoadingView hideProgressHUD];
-        NSHTTPURLResponse * res = (NSHTTPURLResponse *)task.response;
+        NSHTTPURLResponse * res = (NSHTTPURLResponse *)request.dataTask.response;
         [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",(long)res.statusCode] duration:1];
         sender.userInteractionEnabled = YES;
         NSLog(@"%@",error);
     }];
+    
+//    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+//
+//    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@",Basic] forHTTPHeaderField:@"Authorization"];
+//    [manager GET:[NSString stringWithFormat:@"%@token",_service.path] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        [SXLoadingView hideProgressHUD];
+//        [self loginToDoWithResponse:responseObject];
+//        sender.userInteractionEnabled = YES;
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        [SXLoadingView hideProgressHUD];
+//        NSHTTPURLResponse * res = (NSHTTPURLResponse *)task.response;
+//        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",(long)res.statusCode] duration:1];
+//        sender.userInteractionEnabled = YES;
+//        NSLog(@"%@",error);
+//    }];
 }
 
 //登录完成 做的事

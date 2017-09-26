@@ -31,9 +31,9 @@
 }
 
 /// 请求的参数列表
-- (id)requestArgument{
-    return [NSDictionary dictionaryWithObject:_folderName forKey:@"name"];
-}
+//- (id)requestArgument{
+//    return [NSDictionary dictionaryWithObject:_folderName forKey:@"name"];
+//}
 
 - (id)responseSerialization{
     return [AFJSONResponseSerializer serializer];

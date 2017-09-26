@@ -22,38 +22,38 @@
 @implementation FMUploadFileAPI
 NSInteger imageUploadCount = 0;
 +(void)uploadAddressFileWithFilePath:(NSString *)filePath  andCompleteBlock:(void(^)(BOOL success))completeBlock{
-    [[FLGetFilesAPI apiWithFileUUID:[FMConfiguation shareConfiguation].userHome]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSArray * arr = request.responseJsonObject;
-        BOOL hasAddressDir = NO;
-        NSString * uuid;
-        for (NSDictionary * dic in arr) {
-            FLFilesModel * model = [FLFilesModel yy_modelWithJSON:dic];
-            if(IsEquallString(model.name, @"addressbook")){
-                hasAddressDir = YES;
-                uuid = model.uuid;
-                break;
-            }
-        }
-        
-        if(hasAddressDir){
-            //上传Address文件
-            [self _uploadAddressFile:filePath andFolderUUID:uuid andCompleteBlock:completeBlock];
-        }else{
-            //创建addressbook 文件夹
-            [[FLCreateFolderAPI apiWithParentUUID:[FMConfiguation shareConfiguation].userHome andFolderName:@"addressbook"]
-             startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-                NSDictionary * dic = request.responseJsonObject;
-                NSString * uuid = dic[UUIDKey];
-                NSLog(@"创建 addressbook 文件夹 成功");
-                [FMUploadFileAPI _uploadAddressFile:filePath andFolderUUID:uuid andCompleteBlock:completeBlock];
-            } failure:^(__kindof JYBaseRequest *request) {
-                NSLog(@"创建 addressbook 文件夹 失败");
-                completeBlock(NO);
-            }];
-        }
-    } failure:^(__kindof JYBaseRequest *request) {
-        completeBlock(NO);
-    }];
+//    [[FLGetFilesAPI apiWithFileUUID:[FMConfiguation shareConfiguation].userHome]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//        NSArray * arr = request.responseJsonObject;
+//        BOOL hasAddressDir = NO;
+//        NSString * uuid;
+//        for (NSDictionary * dic in arr) {
+//            FLFilesModel * model = [FLFilesModel yy_modelWithJSON:dic];
+//            if(IsEquallString(model.name, @"addressbook")){
+//                hasAddressDir = YES;
+//                uuid = model.uuid;
+//                break;
+//            }
+//        }
+//
+//        if(hasAddressDir){
+//            //上传Address文件
+//            [self _uploadAddressFile:filePath andFolderUUID:uuid andCompleteBlock:completeBlock];
+//        }else{
+//            //创建addressbook 文件夹
+//            [[FLCreateFolderAPI apiWithParentUUID:[FMConfiguation shareConfiguation].userHome andFolderName:@"addressbook"]
+//             startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//                NSDictionary * dic = request.responseJsonObject;
+//                NSString * uuid = dic[UUIDKey];
+//                NSLog(@"创建 addressbook 文件夹 成功");
+//                [FMUploadFileAPI _uploadAddressFile:filePath andFolderUUID:uuid andCompleteBlock:completeBlock];
+//            } failure:^(__kindof JYBaseRequest *request) {
+//                NSLog(@"创建 addressbook 文件夹 失败");
+//                completeBlock(NO);
+//            }];
+//        }
+//    } failure:^(__kindof JYBaseRequest *request) {
+//        completeBlock(NO);
+//    }];
 }
 
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock{
@@ -204,9 +204,6 @@ NSInteger imageUploadCount = 0;
 //        MyNSLog (@"上传照片error======>%@",request.error);
     }];
     
-    
-    
-    
 //    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
 //    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
 //    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
@@ -336,43 +333,64 @@ NSInteger imageUploadCount = 0;
 
 + (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
 //    [FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID andFolderName:@"上传的照片"];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
-
-    NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    [[FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
         NSDictionary *dic= @{@"op": @"mkdir"};
         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
         [formData appendPartWithFormData:data name:@"上传的照片"];
-    } error:nil];
+    } uploadProgressBlock:^(NSProgress *progress) {
+        
+    } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        NSDictionary * dic = request.responseJsonObject;
+      NSArray * arr = [dic objectForKey:@"entries"];
+      for (NSDictionary *entriesDic in arr) {
+      EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+          if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
+          [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
+          [[NSUserDefaults standardUserDefaults] synchronize];
+          completeBlock(YES);
+          }
+      }
+    } failure:^(__kindof JYBaseRequest *request) {
+    }];
     
-    [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-                NSURLSessionUploadTask *uploadTask;
-    uploadTask = [manager
-                  uploadTaskWithStreamedRequest:request
-                  progress:^(NSProgress * _Nonnull uploadProgress) {
-                  }
-              completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                  if (error) {
-                      NSLog(@"Error: %@", error);
-                  } else {
-                      NSLog(@"%@ %@", response, responseObject);
-                      NSDictionary * dic = responseObject;
-                      NSArray * arr = [dic objectForKey:@"entries"];
-                      for (NSDictionary *entriesDic in arr) {
-                      EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-                          if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
-                          [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
-                          [[NSUserDefaults standardUserDefaults] synchronize];
-                          completeBlock(YES);
-                }
-              }
-            }
-        }];
-    [uploadTask resume];
+//    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
+//
+//    NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+//        NSDictionary *dic= @{@"op": @"mkdir"};
+//        NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+//        [formData appendPartWithFormData:data name:@"上传的照片"];
+//    } error:nil];
+//
+//    [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+//                NSURLSessionUploadTask *uploadTask;
+//    uploadTask = [manager
+//                  uploadTaskWithStreamedRequest:request
+//                  progress:^(NSProgress * _Nonnull uploadProgress) {
+//                  }
+//              completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+//                  if (error) {
+//                      NSLog(@"Error: %@", error);
+//                  } else {
+//                      NSLog(@"%@ %@", response, responseObject);
+//                      NSDictionary * dic = responseObject;
+//                      NSArray * arr = [dic objectForKey:@"entries"];
+//                      for (NSDictionary *entriesDic in arr) {
+//                      EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+//                          if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
+//                          [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
+//                          [[NSUserDefaults standardUserDefaults] synchronize];
+//                          completeBlock(YES);
+//                }
+//              }
+//            }
+//        }];
+//    [uploadTask resume];
 }
 
 
 + (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
+    @weaky(self)
     NSString *photoDirName = [NSString stringWithFormat:@"来自%@",[FMUploadFileAPI getDeviceName]];
     [FMUploadFileAPI getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
         NSDictionary * dic = responseObject;
@@ -385,63 +403,18 @@ NSInteger imageUploadCount = 0;
                     [[NSUserDefaults standardUserDefaults] synchronize];
                     completeBlock(YES);
                 }else{
-                    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
-                    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-                    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-                    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
-                    [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-                    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                        NSDictionary *dic= @{@"op": @"mkdir"};
-                        NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
-                        [formData appendPartWithFormData:data name:photoDirName];
-                    } progress:^(NSProgress * _Nonnull uploadProgress) {
-                        
-                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//                        NSLog(@"--> %@", responseObject);
-                        NSDictionary * dic = responseObject;
-                        NSArray * arr = [dic objectForKey:@"entries"];
-                        for (NSDictionary *entriesDic in arr) {
-                            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-                            if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
-                                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
-                                [[NSUserDefaults standardUserDefaults] synchronize];
-                                completeBlock(YES);
-                            }
+                    [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                        if (successful) {
+                            completeBlock(YES);
                         }
-                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                        NSLog(@"%@", error);
-                        //        failure(task,error);
                     }];
                 }
             }
         }else{
-            NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
-            AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-            manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-            manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
-            [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-            [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                
-                NSDictionary *dic= @{@"op": @"mkdir"};
-                NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
-                [formData appendPartWithFormData:data name:photoDirName];
-            } progress:^(NSProgress * _Nonnull uploadProgress) {
-                
-            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//                NSLog(@"--> %@", responseObject);
-                NSDictionary * dic = responseObject;
-                NSArray * arr = [dic objectForKey:@"entries"];
-                for (NSDictionary *entriesDic in arr) {
-                    EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
-                    if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
-                        [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
-                        [[NSUserDefaults standardUserDefaults] synchronize];
-                        completeBlock(YES);
-                    }
+            [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                if (successful) {
+                    completeBlock(YES);
                 }
-            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                NSLog(@"%@", error);
-                //        failure(task,error);
             }];
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
@@ -483,6 +456,55 @@ NSInteger imageUploadCount = 0;
 //                      }
 //                  }];
 //    [uploadTask resume];
+}
+
++ (void)_creatPhotoDirEntryWithPhotoDirName:(NSString *)photoDirName CompleteBlock:(void(^)(BOOL successful))completeBlock{
+    [[FLCreateFolderAPI apiWithParentUUID:ENTRY_UUID] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
+        NSDictionary *dic= @{@"op": @"mkdir"};
+        NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+        [formData appendPartWithFormData:data name:photoDirName];
+    } uploadProgressBlock:^(NSProgress *progress) {
+        
+    } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        NSDictionary * dic =request.responseJsonObject;
+        NSArray * arr = [dic objectForKey:@"entries"];
+        for (NSDictionary *entriesDic in arr) {
+            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+            if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                completeBlock(YES);
+            }
+        }
+    } failure:^(__kindof JYBaseRequest *request) {
+    }];
+//    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+//    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+//    [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+//        NSDictionary *dic= @{@"op": @"mkdir"};
+//        NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+//        [formData appendPartWithFormData:data name:photoDirName];
+//    } progress:^(NSProgress * _Nonnull uploadProgress) {
+//
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        //                        NSLog(@"--> %@", responseObject);
+//        NSDictionary * dic = responseObject;
+//        NSArray * arr = [dic objectForKey:@"entries"];
+//        for (NSDictionary *entriesDic in arr) {
+//            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+//            if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+//                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+//                [[NSUserDefaults standardUserDefaults] synchronize];
+//                completeBlock(YES);
+//            }
+//        }
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        NSLog(@"%@", error);
+//        //        failure(task,error);
+//    }];
 }
 
 +(void)_uploadAddressFile:(NSString *)filePath andFolderUUID:(NSString *)folderUUID  andCompleteBlock:(void(^)(BOOL success))completeBlock{
