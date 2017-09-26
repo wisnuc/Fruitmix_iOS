@@ -63,9 +63,9 @@
     [self addRecord:fullRequest];
 }
 
--(void)addFormDataRequest:(id<JYRequestDelegate>)request{
+-(void)addFormDataRequest:(id<JYRequestDelegate>)request formDataBlock:(JYRequestFormDataBlock)formDataBlock uploadProgressBlock:(JYUploadProgressBlock)uploadProgress{
      JYBaseRequest * fullRequest = request;
-    NSMutableURLRequest * urlRequest = [JYNetworker workerCreateRequestWithRequest:request];
+    NSMutableURLRequest * urlRequest = [JYNetworker workerCreateFormDataRequestWithRequest:request formDataBlock:formDataBlock];
     if ([request respondsToSelector:@selector(responseSerialization)]) {
         _manager.responseSerializer = [request responseSerialization];
     }
@@ -79,33 +79,12 @@
     }];
     
     
-    NSMutableURLRequest *request = [self.requestSerializer multipartFormRequestWithMethod:@"POST" URLString:[[NSURL URLWithString:URLString relativeToURL:self.baseURL] absoluteString] parameters:parameters constructingBodyWithBlock:block error:&serializationError];
-    if (serializationError) {
-        if (failure) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wgnu"
-            dispatch_async(self.completionQueue ?: dispatch_get_main_queue(), ^{
-                failure(nil, serializationError);
-            });
-#pragma clang diagnostic pop
-        }
-        
-        return nil;
-    }
-    
-    __block NSURLSessionDataTask *task = [self uploadTaskWithStreamedRequest:request progress:uploadProgress completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
-        if (error) {
-            if (failure) {
-                failure(task, error);
-            }
-        } else {
-            if (success) {
-                success(task, responseObject);
-            }
-        }
-    }];
+//    __block NSURLSessionDataTask *task = [self uploadTaskWithStreamedRequest:request progress:uploadProgress completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
+//
+//    }];
     
     [task resume];
+   [self addRecord:fullRequest];
 }
 
 -(void)cancleRequest:(id<JYRequestDelegate>)request{

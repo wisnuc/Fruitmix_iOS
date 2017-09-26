@@ -62,7 +62,8 @@ typedef NS_ENUM(NSInteger , JYRequestMethod) {
 @end
 
 typedef void(^JYRequestCompletionBlock)(__kindof JYBaseRequest *request);
-
+typedef void(^JYRequestFormDataBlock)(id <AFMultipartFormData> formData);
+typedef void(^JYUploadProgressBlock)(NSProgress *progress);
 
 @interface JYBaseRequest : NSObject<JYRequestDelegate>
 //NSURLSessionDataTask 对象用来 管理request 的运行
@@ -85,6 +86,10 @@ typedef void(^JYRequestCompletionBlock)(__kindof JYBaseRequest *request);
 @property (nonatomic) JYRequestCompletionBlock successCompleteBlcok;
 
 @property (nonatomic) JYRequestCompletionBlock failureCompleteBlcok;
+
+@property (nonatomic) JYRequestFormDataBlock formDataBlock;
+
+@property (nonatomic) JYUploadProgressBlock uploadProgress;
 
 @property (nonatomic) NSError * error;
 

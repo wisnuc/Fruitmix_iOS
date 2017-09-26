@@ -25,6 +25,10 @@
 - (void)stop{
     [[JYNetEngine sharedInstance] cancleRequest:self];
 }
+
+- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block {
+      [[JYNetEngine sharedInstance] addFormDataRequest:self formDataBlock:block];
+}
 /**
  *  检测当前request 是否在运行
  *
@@ -46,11 +50,12 @@
     _failureCompleteBlcok = [failure copy];
     [self start];
 }
-- (void)startWithFromData:(nullable NSData *)bodyData CompletionBlockWithSuccess:(JYRequestCompletionBlock)success
+- (void)startWithFromDataBlock:(JYRequestFormDataBlock)block uploadProgressBlock:(JYUploadProgressBlock)uploadProgress CompletionBlockWithSuccess:(JYRequestCompletionBlock)success
                                     failure:(JYRequestCompletionBlock)failure{
+ 
     _successCompleteBlcok = [success copy];
     _failureCompleteBlcok = [failure copy];
-    [self start];
+    [self startWithFromDataBlock:block ];
 }
 //- ()
 //uploadTaskWithRequest

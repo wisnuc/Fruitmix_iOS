@@ -11,6 +11,7 @@
 #import "JYBaseRequest.h"
 
 typedef void(^CompletionHandler)(NSURLResponse *response, id responseObject, NSError *error);
+typedef void(^JYRequestFormDataBlock)(id <AFMultipartFormData> formData);
 
 @interface JYNetworker : NSObject
 /**
@@ -39,4 +40,5 @@ typedef void(^CompletionHandler)(NSURLResponse *response, id responseObject, NSE
 
 +(NSMutableURLRequest *)workerCreateRequestWithRequest:(id<JYRequestDelegate>)request;
 
++(NSMutableURLRequest *)workerCreateFormDataRequestWithRequest:(id<JYRequestDelegate>)request formDataBlock:(JYRequestFormDataBlock)formDataBlock;
 @end
