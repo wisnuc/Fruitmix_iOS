@@ -27,10 +27,16 @@
 
 -(void)downloadFileWithFileModel:(FLFilesModel *)model parentUUID:(NSString *)uuid{
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
-    
-    //    /drives/{driveUUID}/dirs/{dirUUID}/entries/{entryUUID}
     NSString * exestr = [filePath lastPathComponent];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+    NSString *urlString;
+//    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithCapacity:0];
+    if (KISCLOUD) {
+    NSString *sourceUrlString = [NSString stringWithFormat:@"/drives/%@/dirs/%@/entries/%@",DRIVE_UUID,uuid,model.uuid];
+    NSString *urlStringBase64 = [sourceUrlString base64EncodedString];
+    urlString= [NSString stringWithFormat:@"%@stations/%@/pipe?resource=%@&method=GET&name=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,urlStringBase64,exestr];
+    }else{
+    urlString= [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+    }
     NSString *encodedString = [urlString URLEncodedString];
     
     TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];

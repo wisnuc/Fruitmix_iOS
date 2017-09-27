@@ -258,11 +258,23 @@
     _manager.imageDownloader.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
     _manager.imageDownloader.maxConcurrentDownloads = 2;
     _manager.imageDownloader.headersFilter = ^NSDictionary *(NSURL *url, NSDictionary *headers) {
-        NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:headers];
-        [dic setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];
+         NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:headers];
+        if (KISCLOUD) {
+          [dic setValue:[NSString stringWithFormat:@"%@",DEF_Token] forKey:@"Authorization"];
+        }else{
+          [dic setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];
+        }
         return dic;
     };
-    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=thumbnail&width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
+    NSString *sourceUrl = [NSString stringWithFormat:@"media/%@",hash];
+    NSString *sourceUrlBase64 = [sourceUrl base64EncodedString];
+    NSURL * url;
+     if (KISCLOUD) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@stations/%@/pipe?alt=thumbnail&width=%ld&height=%ld&modifier=caret&autoOrient=true&method=GET&resource=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,(long)W,(long)H,sourceUrlBase64]];
+     }else{
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=thumbnail&width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
+     }
+//    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=thumbnail&width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
 //    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@/thumbnail?width=%ld&height=%ld&modifier=caret&autoOrient=true",[JYRequestConfig sharedConfig].baseURL,hash,(long)W,(long)H]];
     
     id <SDWebImageOperation> op = [_manager downloadImageWithURL:url options:SDWebImageRetryFailed|SDWebImageCacheMemoryOnly progress:^(NSInteger receivedSize, NSInteger expectedSize) {

@@ -26,7 +26,10 @@
 
 +(NSMutableURLRequest *)workerCreateFormDataRequestWithMethod:(NSString *)method andHTTPHeaderField:(NSDictionary *)headerFields withUrlString:(NSString *)url andParameters:(NSDictionary *)parameters andFormDataBlock:(JYRequestFormDataBlock)formDataBlock{
 //
-     NSMutableURLRequest * request = [[AFJSONRequestSerializer serializer]multipartFormRequestWithMethod:method URLString:url parameters:parameters constructingBodyWithBlock:formDataBlock error:nil];
+    NSMutableURLRequest * request = [[AFJSONRequestSerializer serializer]multipartFormRequestWithMethod:method URLString:url parameters:parameters constructingBodyWithBlock:formDataBlock error:nil];
+//    NSString *jsonStr =  parameters ;
+//    NSData *postData = [jsonStr dataUsingEncoding:NSUTF8StringEncoding];
+//    [request setHTTPBody:postData];
     if (headerFields) {
         NSArray * dicKeys = [headerFields allKeys];
         for (NSString * key in dicKeys) {
@@ -48,6 +51,11 @@
 }
 
 +(NSURLSessionDataTask *)workerDataTaskFormDataWithRequest:(NSURLRequest *)request andManager:(AFURLSessionManager *)manager uploadProgressBlock:(JYUploadProgressBlock)progressBlock completionHandler:(CompletionHandler)completionHandler{
+     manager.securityPolicy.allowInvalidCertificates = YES;
+    AFJSONResponseSerializer * response = [AFJSONResponseSerializer serializer];
+    response.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", @"text/html", nil];
+    manager.responseSerializer = response;
+    
     NSURLSessionDataTask *dataTask = [manager uploadTaskWithStreamedRequest:request progress:progressBlock completionHandler:completionHandler];
     return dataTask;
 }

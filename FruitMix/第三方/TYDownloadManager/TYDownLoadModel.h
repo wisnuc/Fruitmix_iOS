@@ -60,7 +60,7 @@ typedef void (^TYDownloadStateBlock)(TYDownloadState state,NSString *filePath, N
 // 下载状态更新block
 @property (nonatomic, copy) TYDownloadStateBlock stateBlock;
 
-
+@property (nonatomic) NSDictionary *parameters;
 - (instancetype)initWithURLString:(NSString *)URLString;
 /**
  *  初始化方法
@@ -70,6 +70,7 @@ typedef void (^TYDownloadStateBlock)(TYDownloadState state,NSString *filePath, N
  */
 - (instancetype)initWithURLString:(NSString *)URLString filePath:(NSString *)filePath;
 
+- (instancetype)initWithURLString:(NSString *)URLString filePath:(NSString *)filePath parameters:(NSDictionary *)param;
 @end
 
 /**

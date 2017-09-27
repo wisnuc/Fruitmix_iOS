@@ -300,8 +300,19 @@
         // 设置请求头
         NSString *range = [NSString stringWithFormat:@"bytes=%zd-", [self fileSizeWithDownloadModel:downloadModel]];
         [request setValue:range forHTTPHeaderField:@"Range"];
-        [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+        if (KISCLOUD) {
+          [request setValue:[NSString stringWithFormat:@"%@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+//            if (downloadModel.parameters !=nil) {
+//                NSString *valueStr = [NSString stringWithFormat:@"source=%@&mothod=%@",[downloadModel.parameters[@"source"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],downloadModel.parameters[@"method"]];
+//                NSData *postData = [valueStr dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+//                [request setHTTPBody:postData];
+//            }
+        }else{
+          [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
+        }
+        
         [request setValue:@"" forHTTPHeaderField:@"Accept-Encoding"];
+        
         // 创建流
         downloadModel.stream = [NSOutputStream outputStreamToFileAtPath:downloadModel.filePath append:YES];
         
@@ -634,9 +645,8 @@
     }else {
         // 下载完成
          dispatch_async(dispatch_get_main_queue(), ^(){
-          
              downloadModel.state = TYDownloadStateCompleted;
-          
+            [self.downloadingModels removeObject:downloadModel];
              [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
            [self willResumeNextWithDowloadModel:downloadModel];
          });

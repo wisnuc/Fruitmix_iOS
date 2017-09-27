@@ -472,13 +472,11 @@ NSInteger imageUploadCount = 0;
 }
 
 + (void)_creatPhotoDirEntryWithPhotoDirName:(NSString *)photoDirName CompleteBlock:(void(^)(BOOL successful))completeBlock{
-    
     [[FLCreateFolderAPI apiWithParentUUID:ENTRY_UUID] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
         NSDictionary *dic= @{@"op": @"mkdir"};
         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
         [formData appendPartWithFormData:data name:photoDirName];
     } uploadProgressBlock:^(NSProgress *progress) {
-        
     } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSArray * arr =request.responseJsonObject;
         for (NSDictionary *entriesDic in arr) {
@@ -496,9 +494,7 @@ NSInteger imageUploadCount = 0;
         if(errorData.length >0){
             NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
             NSLog(@"error--%@",serializedData);
-
         }
-        
     }];
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
 //    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];

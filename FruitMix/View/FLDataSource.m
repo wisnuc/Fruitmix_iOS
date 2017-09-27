@@ -32,11 +32,13 @@
             if (successful) {
                 [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
                     NSArray * arr ;
-                    if ([responseObject isKindOfClass:[NSArray class]]) {
-                        arr = responseObject;
-                    }else if ([responseObject isKindOfClass:[NSDictionary class]]){
-                        NSDictionary * userDic = responseObject;
-                        arr = userDic[@"data"];
+                    if (!KISCLOUD) {
+                        NSDictionary * dic = responseObject;
+                        arr = dic[@"entries"];
+                    }else {
+                        NSDictionary * dic = responseObject;
+                        NSDictionary * entriesDic = dic[@"data"];
+                        arr = entriesDic[@"entries"];
                     }
     
                     for (NSDictionary *entriesDic in arr) {
@@ -64,8 +66,15 @@
     }else{
         [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
             NSLog(@"%@",responseObject);
-            NSDictionary * dic = responseObject;
-            NSArray * arr = [dic objectForKey:@"entries"];
+            NSArray * arr ;
+            if (!KISCLOUD) {
+                NSDictionary * dic = responseObject;
+                arr = dic[@"entries"];
+            }else{
+                NSDictionary * dic = responseObject;
+                NSDictionary * entriesDic = dic[@"data"];
+                arr = entriesDic[@"entries"];
+            }
             for (NSDictionary *entriesDic in arr) {
                 FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
                 [self.dataSource addObject:model];
@@ -98,9 +107,15 @@
 
 -(void)getFilesWithUUID:(NSString *)uuid{
     [FMUploadFileAPI  getDirEntryWithUUId:(NSString *)uuid success:^(NSURLSessionDataTask *task, id responseObject) {
-        NSLog(@"%@",responseObject);
-        NSDictionary * dic = responseObject;
-        NSArray * arr = [dic objectForKey:@"entries"];
+        NSArray * arr ;
+        if (!KISCLOUD) {
+           NSDictionary * dic = responseObject;
+           arr = dic[@"entries"];
+        }else{
+            NSDictionary * dic = responseObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
         for (NSDictionary *entriesDic in arr) {
             FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
             [self.dataSource addObject:model];

@@ -81,6 +81,19 @@
     return self;
 }
 
+- (instancetype)initWithURLString:(NSString *)URLString filePath:(NSString *)filePath parameters:(NSDictionary *)param
+{
+    if (self = [self init]) {
+        _downloadURL = URLString;
+        //        NSLog(@"%@",_downloadURL);
+        _fileName = filePath.lastPathComponent;
+        _downloadDirectory = filePath.stringByDeletingLastPathComponent;
+        _filePath = filePath;
+        _parameters = param;
+    }
+    return self;
+}
+
 -(NSString *)fileName
 {
     if (!_fileName) {

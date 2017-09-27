@@ -142,15 +142,25 @@ NSString * const LocalThumbImageCache = @"LocalThumbImageCache";
                 andCompletBlock:(getImageComplete)block{
     if(IsNilString(hash))
         return;
-    _manager.imageDownloader.headersFilter = ^NSDictionary *(NSURL *url, NSDictionary *headers) {
+        _manager.imageDownloader.headersFilter = ^NSDictionary *(NSURL *url, NSDictionary *headers) {
         NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:headers];
-        [dic setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];
+        if (KISCLOUD) {
+            [dic setValue:[NSString stringWithFormat:@"%@",DEF_Token] forKey:@"Authorization"];
+        }else{
+            [dic setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];
+        }
         return dic;
     };
-    
+    NSString *sourceUrl = [NSString stringWithFormat:@"media/%@",hash];
+    NSString *sourceUrlBase64 = [sourceUrl base64EncodedString];
     NSString * lowHash = [hash lowercaseString];
+    NSURL * url ;
+    if (KISCLOUD) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@stations/%@/pipe?alt=data&method=GET&resource=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,sourceUrlBase64]];
+    }else{
+        url  = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=data",[JYRequestConfig sharedConfig].baseURL,lowHash]];
+    }
     
-    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:@"%@media/%@?alt=data",[JYRequestConfig sharedConfig].baseURL,lowHash]];
     [_manager downloadImageWithURL:url options:SDWebImageRetryFailed|SDWebImageHandleCookies progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         if (progress) {
             progress(receivedSize,expectedSize);
