@@ -21,6 +21,7 @@ pod 'CocoaLumberjack'
 pod 'BEMCheckBox'
 pod 'ReactiveObjC'
 pod 'MJRefresh'
+pod 'WechatOpenSDK'
 end
 
 post_install do |installer|

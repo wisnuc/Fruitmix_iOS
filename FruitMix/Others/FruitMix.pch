@@ -37,8 +37,7 @@
 #ifdef DEBUG
 #define DLog(fmt, ...) NSLog((@"[文件名:%s]\n" "[函数名:%s]\n" "[行号:%d] \n" fmt), __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
 #define DeBugLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
-#define NSLog(...) 
-//NSLog(__VA_ARGS__)
+#define NSLog(...) NSLog(__VA_ARGS__)
 #define MyNSLog(FORMAT, ...) {\
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];\
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];\
@@ -69,6 +68,7 @@ fprintf(stderr,"[--%s--]:[%s]:[line %d行] %s\n --------------—--------------�
 #import "CWStatusBarNotification.h"
 #import "ReactiveObjC.h"
 #import "MJRefresh.h"
+#import <WXApi.h>
 
 
 #import "Base64.h"
@@ -129,7 +129,7 @@ fprintf(stderr,"[--%s--]:[%s]:[line %d行] %s\n --------------—--------------�
 #import "UserModel.h"
 #import "RequestIP.h"
 #import "UserInfo.h"
-
+#import "FMBaseModel.h"
 
 //Model
 #import "FMPhoto.h"

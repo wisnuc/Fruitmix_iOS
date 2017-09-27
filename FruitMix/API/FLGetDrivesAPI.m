@@ -16,7 +16,24 @@
 }
 /// 请求的URL
 - (NSString *)requestUrl{
-    return @"drives";
+    if (KISCLOUD) {
+        return [NSString stringWithFormat:@"stations/%@/json",KSTATIONID];
+    }else{
+       return @"drives";
+    }
+}
+
+-(id)requestArgument{
+    if (KISCLOUD) {
+        NSString *requestUrl = @"/drives";
+        NSString *resource =[requestUrl base64EncodedString] ;
+        NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
+        [dic setObject:@"GET" forKey:@"method"];
+        [dic setObject:resource forKey:@"resource"];
+        return dic;
+    }else{
+        return nil;
+    }
 }
 
 -(NSDictionary *)requestHeaderFieldValueDictionary{

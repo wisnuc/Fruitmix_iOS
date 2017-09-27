@@ -173,7 +173,7 @@
 }
 
 -(void)refreshPhoto{
-    [_photoDataSource initPhotosIsRefrash];
+    [_photoDataSource initPhotos];
     [SXLoadingView hideProgressHUD];
 }
 

@@ -59,8 +59,14 @@ NSInteger imageUploadCount = 0;
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock{
     FLGetDrivesAPI * api = [[FLGetDrivesAPI alloc]init];
     [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSArray * responseArr = request.responseJsonObject;
-        NSLog(@"%@",responseObject);
+        NSArray * responseArr ;
+        if ([request.responseJsonObject isKindOfClass:[NSArray class]]) {
+            responseArr = request.responseJsonObject;;
+        }else if ([request.responseJsonObject isKindOfClass:[NSDictionary class]]){
+            NSDictionary * userDic = request.responseJsonObject;;
+            responseArr = userDic[@"data"];
+        }
+        NSLog(@"%@",request.responseJsonObject);
         for (NSDictionary *dic in responseArr) {
             @autoreleasepool {
                 DriveModel *model = [DriveModel yy_modelWithJSON:dic];
@@ -78,6 +84,7 @@ NSInteger imageUploadCount = 0;
         if (rep.statusCode == 404) {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         }
+//        MyNSLog(@"%@",request.error);
     }];
 }
 //+ (void)getDirectoriesForFilesCompleteBlock:(void(^)(BOOL successful))completeBlock{
@@ -351,6 +358,12 @@ NSInteger imageUploadCount = 0;
           }
       }
     } failure:^(__kindof JYBaseRequest *request) {
+        NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+        if(errorData.length >0){
+            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+            NSLog(@"error--%@",serializedData);
+        }
+         NSLog(@"%@",request.error);
     }];
     
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
@@ -459,6 +472,7 @@ NSInteger imageUploadCount = 0;
 }
 
 + (void)_creatPhotoDirEntryWithPhotoDirName:(NSString *)photoDirName CompleteBlock:(void(^)(BOOL successful))completeBlock{
+    
     [[FLCreateFolderAPI apiWithParentUUID:ENTRY_UUID] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
         NSDictionary *dic= @{@"op": @"mkdir"};
         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
@@ -466,10 +480,10 @@ NSInteger imageUploadCount = 0;
     } uploadProgressBlock:^(NSProgress *progress) {
         
     } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSDictionary * dic =request.responseJsonObject;
-        NSArray * arr = [dic objectForKey:@"entries"];
+        NSArray * arr =request.responseJsonObject;
         for (NSDictionary *entriesDic in arr) {
-            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+            NSDictionary *dic = entriesDic[@"data"];
+            EntriesModel *model = [EntriesModel yy_modelWithDictionary:dic];
             if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
                 [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
                 [[NSUserDefaults standardUserDefaults] synchronize];
@@ -477,6 +491,14 @@ NSInteger imageUploadCount = 0;
             }
         }
     } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.error);
+         NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+        if(errorData.length >0){
+            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+            NSLog(@"error--%@",serializedData);
+
+        }
+        
     }];
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
 //    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];

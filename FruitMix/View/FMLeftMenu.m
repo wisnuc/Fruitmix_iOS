@@ -395,11 +395,15 @@
 //      MyNSLog(@"本地所有照片left++++++++>%@",_allCount);
 //     [[FMPhotoDataSource shareInstance]getNetPhotos];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
-    self.bonjourLabel.text = _userInfo.bonjour_name;
     
   
+    if (KISCLOUD) {
+     self.nameLabel.text = _userInfo.userName;
+    }else{
+    self.bonjourLabel.text = _userInfo.bonjour_name;
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
     self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
+    }
     
 //===================================优雅的分割线/备份详情==========================================
     UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
@@ -805,7 +809,7 @@
 }
 
 - (void)getUserInfo{
-    
+    MyNSLog(@"%@",DEF_UUID);
   _userInfo = [FMDBControl findUserLoginInfo:DEF_UUID];
 //    NSMutableArray * arr = [FMGetUserInfo getUsersInfo];
 //    for (FMUserLoginInfo * info in arr) {

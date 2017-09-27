@@ -28,7 +28,7 @@
 + (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (NSString *)JSONString:(NSString *)aString;
 + (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
-+ (void)uploadsSiftWithDataSouce:(NSArray *)dataSouce Asset:(PHAsset *)asset LocalPhotoHash:(NSString*)localPhotoHash filePath:(NSString *)filePath SuccessBlock:(void (^)(NSString *url))success Failure:(void (^)())failure CopmleteBlock:(void(^)(BOOL upload))completeBlock;
+//+ (void)uploadsSiftWithDataSouce:(NSArray *)dataSouce Asset:(PHAsset *)asset LocalPhotoHash:(NSString*)localPhotoHash filePath:(NSString *)filePath SuccessBlock:(void (^)(NSString *url))success Failure:(void (^)())failure CopmleteBlock:(void(^)(BOOL upload))completeBlock;
 + (NSString *)getDeviceName;
 
 + (void)getPhotoUUIDWithBlock:(void(^)(BOOL successful))completeBlock;

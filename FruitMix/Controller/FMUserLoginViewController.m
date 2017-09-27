@@ -86,7 +86,7 @@
         NSHTTPURLResponse * res = (NSHTTPURLResponse *)request.dataTask.response;
         [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",(long)res.statusCode] duration:1];
         sender.userInteractionEnabled = YES;
-        NSLog(@"%@",error);
+        NSLog(@"%@",request.error);
     }];
     
 //    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
@@ -116,7 +116,7 @@
     MyNSLog(@"登录");
        //判断是否为同一用户退出后登录
     if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  //清除deviceID
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      //清除deviceID
 }
     FMConfigInstance.userToken = token;
     FMConfigInstance.userUUID = _user.uuid;

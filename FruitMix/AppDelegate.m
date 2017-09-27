@@ -36,12 +36,15 @@
 
 #import <CocoaLumberjack/CocoaLumberjack.h>
 #import "JYExceptionHandler.h"
+
 #import "FMUploadFileAPI.h"
+#import "WeChetLoginAPI.h"
+
 
 // Log levels: off, error, warn, info, verbose
 //static const DDLogLevel ddLogLevel = DDLogLevelVerbose;
 
-@interface AppDelegate ()<UIAlertViewDelegate,FMLeftMenuDelegate>
+@interface AppDelegate ()<UIAlertViewDelegate,FMLeftMenuDelegate,WXApiDelegate>
 
 @end
 
@@ -66,6 +69,8 @@
     [self configNotify];
     //配置 行为统计 /检测网络权限
     [self configUmeng];
+    
+    [self configWeChat];
         return YES;
 }
 
@@ -100,6 +105,46 @@
     self.backgroundSessionCompletionHandler = completionHandler;
 }
 
+-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
+    return [WXApi handleOpenURL:url delegate:self];
+}
+
+-(BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url{
+//    FMLoginViewController * loginVC = [[FMLoginViewController alloc] init];
+    BOOL res = [WXApi handleOpenURL:url delegate:self];
+    return res;
+}
+
+-(void) onReq:(BaseReq*)req{
+    
+    //onReq是微信终端向第三方程序发起请求，要求第三方程序响应。第三方程序响应完后必须调用sendRsp返回。在调用sendRsp返回时，会切回到微信终端程序界面。
+}
+-(void) onResp:(BaseResp*)resp{
+    switch (resp.errCode) {
+        case 0://用户同意
+        {
+            SendAuthResp *aresp = (SendAuthResp *)resp;
+                [_zhuxiao weChatCallBackRespCode:aresp.code];
+        }
+            break;
+        case -4://用户拒绝授权
+            //do ...
+            break;
+        case -2://用户取消
+            //do ...
+            break;
+        default:
+            break;
+    }
+    
+    //    如果第三方程序向微信发送了sendReq的请求，那么onResp会被回调。sendReq请求调用后，会切到微信终端程序界面。
+}
+
+
+-(BOOL) sendReq:(BaseReq*)req{
+    
+    return YES;
+}
 
 /***********************************************************/
 /********************* Some Config *************************/
@@ -124,6 +169,7 @@
         FMLoginViewController * vc = [[FMLoginViewController alloc]init];
         vc.title = @"搜索附近设备";
         NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
+        _zhuxiao = vc;
         self.window.rootViewController = nav;
         [self.window makeKeyAndVisible];
         
@@ -162,6 +208,10 @@
 -(void)checkExceptions{
     if (EXCEPTION_HANDLER) {
     }
+}
+
+- (void)configWeChat{
+    [WXApi registerApp:KWxAppID];
 }
 
 -(void)resetDatasource{
@@ -317,6 +367,23 @@
     }
     tabbar.selectedIndex = 0;
 }
+
+
+//    NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
+//    NSString * basic = [UUID base64EncodedString];
+//    [[LoginAPI apiWithServicePath:_service.path AuthorizationBasic:basic]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//        [SXLoadingView hideProgressHUD];
+//        [self loginToDoWithResponse:request.responseJsonObject];
+//        sender.userInteractionEnabled = YES;
+//    } failure:^(__kindof JYBaseRequest *request) {
+//        [SXLoadingView hideProgressHUD];
+//        NSHTTPURLResponse * res = (NSHTTPURLResponse *)request.dataTask.response;
+//        [SXLoadingView showAlertHUD:[NSString stringWithFormat:@"登录失败:%ld",(long)res.statusCode] duration:1];
+//        sender.userInteractionEnabled = YES;
+//        NSLog(@"%@",error);
+//    }];
+
+
 
 
 //-(RDVTabBarController *)filesTabBar{
@@ -508,6 +575,7 @@
         [SXLoadingView showProgressHUD:@"正在注销"];
         [PhotoManager shareManager].canUpload = NO;//停止上传
         FMConfigInstance.userToken = @"";
+        FMConfigInstance.isCloud = NO;
         [self resetDatasource];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
@@ -519,6 +587,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DRIVE_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSTATIONID_STR];
         [[PhotoManager shareManager] cleanUploadTask];
  
      //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
@@ -554,6 +623,7 @@
         [self.window removeFromSuperview];
         [self reloadLeftMenuIsAdmin:NO];
         FMLoginViewController * vc = [[FMLoginViewController alloc]init];
+        _zhuxiao = vc;
 //        vc.title = @"搜索附近设备";
         NavViewController *nav = [[NavViewController alloc] initWithRootViewController:vc];
         self.window.rootViewController = nav;

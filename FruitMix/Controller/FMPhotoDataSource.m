@@ -160,24 +160,24 @@
 
 
 -(void)analysisPhotos:(id)response{
-    NSArray * userArr = response;
+    NSArray * userArr ;
+    if ([response isKindOfClass:[NSArray class]]) {
+      userArr = response;
+    }else if ([response isKindOfClass:[NSDictionary class]]){
+      NSDictionary * userDic = response;
+      userArr = userDic[@"data"];
+    }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         @autoreleasepool {
             NSMutableArray * photoArr = [NSMutableArray arrayWithCapacity:0];
             for (NSDictionary *dic in userArr) {
                 @autoreleasepool {
-//                    NSLog(@"😁%@",dic);
-//                    if (contentArr.count>0) {
-//                        NSString *photoHash = contentArr[0];
                     FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-//                        if(!IsNilString(photoHash) && ![_localphotoDigest containsObject:photoHash])
                     [photoArr addObject:nasPhoto];
                 }
             }
             if (photoArr.count) {
                 self.netphotoArr = photoArr;
-//               [_imageArr addObjectsFromArray:photoArr];
-                
                 for (IDMPhoto * photo  in photoArr) {
                     __block BOOL isExist = NO;
                     [_imageArr enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -195,6 +195,7 @@
         }
         
     });
+        
     //Cache 到数据库
 //    [FMDBControl asynNASPhoto:[photoArr copy] andCompleteBlock:^{
 //        NSLog(@"cache nasPhoto 数据完成");

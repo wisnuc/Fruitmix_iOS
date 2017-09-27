@@ -31,8 +31,11 @@
 #define USER_HOME_STR @"user_home"
 #define SHOULD_UPLOAD_STR @"SHOULD_UPLOAD_STR"
 #define SHOULD_WLNN_UPLOAD_STR @"SHOULD_WLNN_UPLOAD_STR"
-#define KSWITHCHON     @"switchOn"
-
+#define KSWITHCHON       @"switchOn"
+#define KAVATARURL_STR   @"avatarUrl"
+#define KNickName_STR     @"nickName"
+#define KISCLOUD_STR     @"isCloud"
+#define KSTATIONID_STR   @"stationID"
 
 #define USER_SHOULD_SYNC_PHOTO_STR @"USER_SHOULD_SYNC_PHOTO_STR"
 #define NO_USER @"NO_USER_STR"
@@ -41,6 +44,9 @@
 #define IS_FIRST_IN_PHOTO_BROWSER_STR @"IS_FIRST_IN_PHOTO_BROWSER"
 #define IS_FIRST_IN_ALBUM_STR @"IS_FIRST_IN_ALBUM"
 
+//WeChat
+#define KWxAppID      @"wx99b54eb728323fe8"
+#define WX_BASE_URL   @"http://www.siyouqun.org/c/v1/"
 
 //UserDefaults Values
 #define DEF_Token [[NSUserDefaults standardUserDefaults]objectForKey:UserToken_STR]
@@ -58,9 +64,12 @@
 #define EXCEPTION_HANDLER [[NSUserDefaults standardUserDefaults]boolForKey:EXCEPTION_HANDLER_STR]//上次是否为奔溃。
 
 #define SHOULD_UPLOAD [[NSUserDefaults standardUserDefaults]boolForKey:SHOULD_UPLOAD_STR]
-
-
 #define SHOULD_WLNN_UPLOAD [[NSUserDefaults standardUserDefaults]boolForKey:SHOULD_WLNN_UPLOAD_STR]
+
+#define KAVATARURL [[NSUserDefaults standardUserDefaults]objectForKey:KAVATARURL_STR]
+#define KNickName [[NSUserDefaults standardUserDefaults]objectForKey:KNickName_STR]
+#define KISCLOUD    [[NSUserDefaults standardUserDefaults]boolForKey:KISCLOUD_STR]
+#define KSTATIONID    [[NSUserDefaults standardUserDefaults]objectForKey:KSTATIONID_STR]
 
 //抢先原则 记录 当前 可备份 用户 UUID
 #define USER_SHOULD_SYNC_PHOTO [[NSUserDefaults standardUserDefaults]objectForKey:USER_SHOULD_SYNC_PHOTO_STR]

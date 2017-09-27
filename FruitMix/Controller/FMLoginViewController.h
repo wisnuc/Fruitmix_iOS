@@ -9,5 +9,5 @@
 #import "FABaseVC.h"
 
 @interface FMLoginViewController : FABaseVC
-
+-(void)weChatCallBackRespCode:(NSString *)code;
 @end

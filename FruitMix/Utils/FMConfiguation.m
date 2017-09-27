@@ -50,6 +50,17 @@
     return _userToken;
 }
 
+- (void)setIsCloud:(BOOL)isCloud{
+    _isCloud = isCloud;
+    [[NSUserDefaults standardUserDefaults] setBool:isCloud forKey:KISCLOUD_STR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+-(void)setNickName:(NSString *)nickName{
+    _nickName = nickName;
+    [[NSUserDefaults standardUserDefaults] setObject:nickName forKey:KNickName_STR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
 -(void)setDeviceUUID:(NSString *)deviceUUID{
     _deviceUUID = deviceUUID;

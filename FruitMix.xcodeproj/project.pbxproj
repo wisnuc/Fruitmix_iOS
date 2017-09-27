@@ -11,6 +11,11 @@
 		1FD575C21F791FBF0074824F /* FLGetDirveEntryAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */; };
 		1FD575C81F79FF650074824F /* FLUploadFilesAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C71F79FF650074824F /* FLUploadFilesAPI.m */; };
 		1FD575CC1F7A206C0074824F /* LoginAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575CB1F7A206C0074824F /* LoginAPI.m */; };
+		1FD575D21F7A4ABF0074824F /* WeChetLoginAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575D11F7A4ABF0074824F /* WeChetLoginAPI.m */; };
+		1FD575D71F7A78B10074824F /* GetStationAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575D61F7A78B10074824F /* GetStationAPI.m */; };
+		1FD575DE1F7B4CFB0074824F /* FMBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575DD1F7B4CFB0074824F /* FMBaseModel.m */; };
+		1FD575E11F7B4D700074824F /* CloudLoginModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575E01F7B4D700074824F /* CloudLoginModel.m */; };
+		1FD575E41F7B50190074824F /* FMCloudUserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575E31F7B50190074824F /* FMCloudUserModel.m */; };
 		9C5EC04E1F441B120075B228 /* eye.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04B1F441B120075B228 /* eye.png */; };
 		9C5EC04F1F441B120075B228 /* eye@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04C1F441B120075B228 /* eye@2x.png */; };
 		9C5EC0501F441B120075B228 /* eye@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04D1F441B120075B228 /* eye@3x.png */; };
@@ -770,6 +775,16 @@
 		1FD575C71F79FF650074824F /* FLUploadFilesAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FLUploadFilesAPI.m; sourceTree = "<group>"; };
 		1FD575CA1F7A206C0074824F /* LoginAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginAPI.h; sourceTree = "<group>"; };
 		1FD575CB1F7A206C0074824F /* LoginAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginAPI.m; sourceTree = "<group>"; };
+		1FD575D01F7A4ABF0074824F /* WeChetLoginAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeChetLoginAPI.h; sourceTree = "<group>"; };
+		1FD575D11F7A4ABF0074824F /* WeChetLoginAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeChetLoginAPI.m; sourceTree = "<group>"; };
+		1FD575D51F7A78B10074824F /* GetStationAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetStationAPI.h; sourceTree = "<group>"; };
+		1FD575D61F7A78B10074824F /* GetStationAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GetStationAPI.m; sourceTree = "<group>"; };
+		1FD575DC1F7B4CFB0074824F /* FMBaseModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMBaseModel.h; sourceTree = "<group>"; };
+		1FD575DD1F7B4CFB0074824F /* FMBaseModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMBaseModel.m; sourceTree = "<group>"; };
+		1FD575DF1F7B4D700074824F /* CloudLoginModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CloudLoginModel.h; sourceTree = "<group>"; };
+		1FD575E01F7B4D700074824F /* CloudLoginModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloudLoginModel.m; sourceTree = "<group>"; };
+		1FD575E21F7B50190074824F /* FMCloudUserModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMCloudUserModel.h; sourceTree = "<group>"; };
+		1FD575E31F7B50190074824F /* FMCloudUserModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMCloudUserModel.m; sourceTree = "<group>"; };
 		4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FruitMix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C5EC04B1F441B120075B228 /* eye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eye.png; sourceTree = "<group>"; };
 		9C5EC04C1F441B120075B228 /* eye@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye@2x.png"; sourceTree = "<group>"; };
@@ -1923,8 +1938,28 @@
 			children = (
 				1FD575CA1F7A206C0074824F /* LoginAPI.h */,
 				1FD575CB1F7A206C0074824F /* LoginAPI.m */,
+				1FD575D01F7A4ABF0074824F /* WeChetLoginAPI.h */,
+				1FD575D11F7A4ABF0074824F /* WeChetLoginAPI.m */,
 			);
 			name = Login;
+			sourceTree = "<group>";
+		};
+		1FD575D41F7A789C0074824F /* Station */ = {
+			isa = PBXGroup;
+			children = (
+				1FD575D51F7A78B10074824F /* GetStationAPI.h */,
+				1FD575D61F7A78B10074824F /* GetStationAPI.m */,
+			);
+			name = Station;
+			sourceTree = "<group>";
+		};
+		1FD575DB1F7B4CDB0074824F /* BaseModel */ = {
+			isa = PBXGroup;
+			children = (
+				1FD575DC1F7B4CFB0074824F /* FMBaseModel.h */,
+				1FD575DD1F7B4CFB0074824F /* FMBaseModel.m */,
+			);
+			name = BaseModel;
 			sourceTree = "<group>";
 		};
 		33577D5A1571DD956D07E6C5 /* Pods */ = {
@@ -1941,6 +1976,8 @@
 			children = (
 				9C5EC0581F4536C60075B228 /* LoginModel.h */,
 				9C5EC0591F4536C60075B228 /* LoginModel.m */,
+				1FD575DF1F7B4D700074824F /* CloudLoginModel.h */,
+				1FD575E01F7B4D700074824F /* CloudLoginModel.m */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -3347,6 +3384,7 @@
 		C19A3CE21D9BCF3900D81503 /* others */ = {
 			isa = PBXGroup;
 			children = (
+				1FD575D41F7A789C0074824F /* Station */,
 				1FD575C91F7A20400074824F /* Login */,
 				C1B512F01DA8D3A000F0E480 /* 创建User */,
 				C17615DE1D0D634A00FDFE1B /* 获取设备UUID */,
@@ -3533,6 +3571,8 @@
 				F65931961C9819AC00AD10D1 /* RequestIP.m */,
 				C17615A51D06E63700FDFE1B /* FMSerachService.h */,
 				C17615A61D06E63700FDFE1B /* FMSerachService.m */,
+				1FD575E21F7B50190074824F /* FMCloudUserModel.h */,
+				1FD575E31F7B50190074824F /* FMCloudUserModel.m */,
 			);
 			name = other;
 			sourceTree = "<group>";
@@ -4541,6 +4581,7 @@
 		F65931761C97DF4900AD10D1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				1FD575DB1F7B4CDB0074824F /* BaseModel */,
 				9C5EC0571F4535CF0075B228 /* Login */,
 				C1A959EF1CBC92B3007A1DC9 /* Share */,
 				C1A9594D1CBB4DF0007A1DC9 /* Photos */,
@@ -5435,6 +5476,7 @@
 				C1A95A391CBCCA4E007A1DC9 /* UIView+SlideMenuController.m in Sources */,
 				C1F44A461D12A88000A8FD34 /* RATreeNodeItem+Private.m in Sources */,
 				C15213181CB3800300EF61CF /* FMPhotoCollectionView.m in Sources */,
+				1FD575E11F7B4D700074824F /* CloudLoginModel.m in Sources */,
 				9C840B011F46DC8300B2F765 /* DirectoriesModel.m in Sources */,
 				C191366B1CCDC4C1008BAB93 /* FMCache.m in Sources */,
 				C1E89B611CD0B9CC00E8E493 /* FMNASPhoto.m in Sources */,
@@ -5470,11 +5512,13 @@
 				C1A95A381CBCCA4E007A1DC9 /* UIColor+SlideMenuControllerOC.m in Sources */,
 				C1FB83E71DBF029900D09541 /* APAddressBookAccessRoutine.m in Sources */,
 				C1B55EAD1DF6BC50006781A2 /* FABaseVC.m in Sources */,
+				1FD575D71F7A78B10074824F /* GetStationAPI.m in Sources */,
 				C17970041CD33232002B7EAA /* FMCommentHeaderView.m in Sources */,
 				C11A273B1D2E64250033764F /* FMAsyncUsersAPI.m in Sources */,
 				C1A95A361CBCCA4E007A1DC9 /* UIImage+SlideMenuController.m in Sources */,
 				C1F202341D86B9E90051A955 /* FLSecondFilesVC.m in Sources */,
 				C1E8F3401CAE666A00E1F1FC /* JYNetworker.m in Sources */,
+				1FD575DE1F7B4CFB0074824F /* FMBaseModel.m in Sources */,
 				C1FB83F61DBF029A00D09541 /* APRelatedPerson.m in Sources */,
 				C1A95A1E1CBCC19F007A1DC9 /* ImageHeaderView.m in Sources */,
 				C1B512FC1DAA2B9E00F0E480 /* FLShareDataSource.m in Sources */,
@@ -5485,6 +5529,7 @@
 				C1F44A491D12A88000A8FD34 /* RATreeView+Private.m in Sources */,
 				9C840B071F4EDCC100B2F765 /* NSString+URL.m in Sources */,
 				C11A27321D2DFCF70033764F /* FMHandLoginVC.m in Sources */,
+				1FD575D21F7A4ABF0074824F /* WeChetLoginAPI.m in Sources */,
 				C1FB83F21DBF029A00D09541 /* APJob.m in Sources */,
 				C178B6021D34D6D900445FE4 /* FMStatusLayout.m in Sources */,
 				C1F44A451D12A88000A8FD34 /* RATreeNodeController.m in Sources */,
@@ -5590,6 +5635,7 @@
 				C1A95A351CBCCA4E007A1DC9 /* UIViewController+SlideMenuControllerOC.m in Sources */,
 				C1A959DD1CBB8376007A1DC9 /* RDVTabBarController.m in Sources */,
 				C19090791D9E3BC000FF9886 /* CWStatusBarNotification.m in Sources */,
+				1FD575E41F7B50190074824F /* FMCloudUserModel.m in Sources */,
 				C1F44AAA1D152F6500A8FD34 /* FMUserSettingCell.m in Sources */,
 				C15213261CB6357E00EF61CF /* UIScrollView+IndicatorExt.m in Sources */,
 				C1BB70E21CDB6CE900AEBADA /* FMGetShareAPI.m in Sources */,

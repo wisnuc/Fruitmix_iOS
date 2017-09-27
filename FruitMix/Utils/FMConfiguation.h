@@ -23,6 +23,8 @@ block();\
 @property (nonatomic) NSString * userToken;
 @property (nonatomic) NSString * deviceUUID;
 @property (nonatomic) NSString * userUUID;
+@property (nonatomic) NSString * nickName;
+@property (nonatomic) BOOL isCloud;
 
 @property (nonatomic) NSMutableDictionary * usersDic;//存储所有用户的map
 

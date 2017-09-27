@@ -31,8 +31,14 @@
         [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
             if (successful) {
                 [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
-                    NSDictionary * dic = responseObject;
-                    NSArray * arr = [dic objectForKey:@"entries"];
+                    NSArray * arr ;
+                    if ([responseObject isKindOfClass:[NSArray class]]) {
+                        arr = responseObject;
+                    }else if ([responseObject isKindOfClass:[NSDictionary class]]){
+                        NSDictionary * userDic = responseObject;
+                        arr = userDic[@"data"];
+                    }
+    
                     for (NSDictionary *entriesDic in arr) {
                         FLFilesModel * model = [FLFilesModel yy_modelWithJSON:entriesDic];
                         [self.dataSource addObject:model];

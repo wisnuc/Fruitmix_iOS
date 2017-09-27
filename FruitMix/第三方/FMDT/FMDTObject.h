@@ -19,7 +19,8 @@ NSString * FMDT_UUID();
  *  实体对像
  */
 @interface FMDTObject : NSObject
-
+@property(nonatomic)NSString *code;
+@property(nonatomic)NSString *message;
 /**
  *  设置主键字段
  *

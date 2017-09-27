@@ -21,6 +21,7 @@
 //加密策略
 @property (nonatomic) AFSecurityPolicy * securityPolocy;
 
+@property (nonatomic) NSDictionary *requestHeaderFieldValueDictionary;
 
 
 @end

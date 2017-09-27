@@ -320,6 +320,12 @@
     
     FMDTDeleteCommand * cmd7 = FMDT_DELETE(dbSet.users);
     [cmd7 saveChanges];
+    
+    FMDTDeleteCommand * cmd8 = FMDT_DELETE(dbSet.userLoginInfo);
+    [cmd8 saveChanges];
+    
+    FMDTDeleteCommand * cmd9 = FMDT_DELETE(dbSet.userInfo);
+    [cmd9 saveChanges];
 }
 
 

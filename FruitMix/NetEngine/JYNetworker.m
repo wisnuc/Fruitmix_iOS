@@ -81,6 +81,9 @@
     
     id param = [request requestArgument];
     NSDictionary * httpHeader = [request requestHeaderFieldValueDictionary];
+    if (httpHeader != nil && KISCLOUD) {
+        httpHeader = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"%@",DEF_Token] forKey:@"Authorization"];
+    }
     NSString * url =  [[JYNetEngine sharedInstance] bulidRequestURL:request];
     return [self workerCreateFormDataRequestWithMethod:fullMethod andHTTPHeaderField:httpHeader withUrlString:url andParameters:param andFormDataBlock:formDataBlock];
 }
@@ -114,6 +117,9 @@
     
     id param = [request requestArgument];
     NSDictionary * httpHeader = [request requestHeaderFieldValueDictionary];
+    if (httpHeader != nil && KISCLOUD) {
+      httpHeader = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"%@",DEF_Token] forKey:@"Authorization"];
+    }
     NSString * url =  [[JYNetEngine sharedInstance] bulidRequestURL:request];
     return [self workerCreateRequestWithMethod:fullMethod andHTTPHeaderField:httpHeader withUrlString:url andParameters:param];
 }
