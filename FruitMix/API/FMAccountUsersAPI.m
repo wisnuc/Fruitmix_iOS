@@ -14,13 +14,27 @@
 - (JYRequestMethod)requestMethod{
     return JYRequestMethodGet;
 }
-
-/// 请求的URL
 - (NSString *)requestUrl{
-    return  [NSString stringWithFormat:@"users/%@",DEF_UUID];
-//    return  @"account";
+    if (KISCLOUD) {
+        return [NSString stringWithFormat:@"stations/%@/json",KSTATIONID];
+    }else{
+        return [NSString stringWithFormat:@"users/%@",DEF_UUID];
+    }
 }
+/// 请求的URL
 
+-(id)requestArgument{
+    if (KISCLOUD) {
+        NSString *requestUrl = [NSString stringWithFormat:@"/users/%@",DEF_UUID];;
+        NSString *resource =[requestUrl base64EncodedString] ;
+        NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
+        [dic setObject:@"GET" forKey:@"method"];
+        [dic setObject:resource forKey:@"resource"];
+        return dic;
+    }else{
+        return nil;
+    }
+}
 
 -(NSDictionary *)requestHeaderFieldValueDictionary{
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"JWT %@",DEF_Token] forKey:@"Authorization"];

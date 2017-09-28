@@ -123,7 +123,7 @@
     [self initData];
     [self registNotify];
     [self initMjRefresh];
-    [self asynAnyThings];
+//    [self asynAnyThings];
 
 }
 
@@ -1085,13 +1085,13 @@ static BOOL waitingForReload = NO;
 //    [_shareView dismiss];
 }
 
--(void)asynAnyThings{
-    
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [FMDBControl asynUsers];
-    });
-    
-}
+//-(void)asynAnyThings{
+//
+//    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//        [FMDBControl asynUsers];
+//    });
+//
+//}
 
 //- (FMPhotoDataSource *)photoDataSource{
 //    if (!_photoDataSource) {

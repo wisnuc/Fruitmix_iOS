@@ -114,9 +114,16 @@ NSInteger imageUploadCount = 0;
 
 + (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock{
     [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
-        NSDictionary * dic = responseObject;
-        NSArray * arr = [dic objectForKey:@"entries"];
-        NSLog(@"🍄%@",arr);
+        NSLog(@"🍄%@",responseObject);
+        NSArray * arr ;
+        if (!KISCLOUD) {
+            NSDictionary * dic = responseObject;
+            arr = dic[@"entries"];
+        }else {
+            NSDictionary * dic = responseObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
         if (arr.count>0) {
             for (NSDictionary *entriesDic in arr) {
                 EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
@@ -125,19 +132,35 @@ NSInteger imageUploadCount = 0;
                     [[NSUserDefaults standardUserDefaults] synchronize];
                     completeBlock(YES);
                 }else{
+                    if (KISCLOUD) {
+                        [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                            if (successful) {
+                                completeBlock(YES);
+                            }
+                        }];
+                    }else{
                     [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                         if (successful) {
                             completeBlock(YES);
                         }
                     }];
+                    }
                 }
             }
         }else{
-            [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
-                if (successful) {
-                    completeBlock(YES);
-                }
-            }];
+            if (KISCLOUD) {
+                [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                    if (successful) {
+                        completeBlock(YES);
+                    }
+                }];
+            }else{
+                [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                    if (successful) {
+                        completeBlock(YES);
+                    }
+                }];
+            }
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSLog(@"%@",error);
@@ -187,21 +210,35 @@ NSInteger imageUploadCount = 0;
     NSString * hashString = [FileHash sha256HashOfFileAtPath:filePath];
     NSInteger sizeNumber = (NSInteger)[FMUploadFileAPI fileSizeAtPath:filePath];
     NSString * exestr = [filePath lastPathComponent];
-//    MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
-    [[FLUploadFilesAPI apiWithPhotoUUID:PHOTO_ENTRY_UUID]startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
-        NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
+        MyNSLog (@"上传照片POST请求:\n上传照片照片名======>%@\n Hash======>%@\n",exestr,hashString);
+    [[FLUploadFilesAPI apiWithPhotoUUID:PHOTO_ENTRY_UUID PhotoName:exestr Hash:hashString Size:sizeNumber]startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
         NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filePath]];
-        if (data.length>0) {
-            [formData appendPartWithFileData:data name:exestr fileName:str mimeType:@"image/jpeg"];
+        if (KISCLOUD) {
+            if (data.length>0) {
+                [formData appendPartWithFileData:data name:exestr fileName:exestr mimeType:@"image/jpeg"];
+            }else{
+                otherFailure(@"null");
+            }
         }else{
-            otherFailure(@"null");
+            NSDictionary *dic = @{@"size":@(sizeNumber),@"sha256":hashString};
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+            NSString *jsonString =  [[NSString alloc] initWithData:jsonData  encoding:NSUTF8StringEncoding];
+//            NSString *str = [NSString stringWithFormat:@"{\"size\":%ld,\"sha256\":\"%@\"}",(long)sizeNumber ,hashString];
+            if (data.length>0) {
+                [formData appendPartWithFileData:data name:exestr fileName:jsonString mimeType:@"image/jpeg"];
+                
+            }else{
+                otherFailure(@"null");
+            }
         }
+       
     } uploadProgressBlock:^(NSProgress *progress) {
         
     } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         MyNSLog(@"上传请求成功,POST返回成功");
         success(request.dataTask,request.responseJsonObject);
     } failure:^(__kindof JYBaseRequest *request) {
+         failure(request.dataTask,request.error);
         NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
         if(errorData.length >0){
             NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
@@ -339,18 +376,18 @@ NSInteger imageUploadCount = 0;
 
 
 + (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
-//    [FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID andFolderName:@"上传的照片"];
-    [[FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
+    [[FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID finderName:nil] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
         NSDictionary *dic= @{@"op": @"mkdir"};
         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
         [formData appendPartWithFormData:data name:@"上传的照片"];
     } uploadProgressBlock:^(NSProgress *progress) {
         
     } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSDictionary * dic = request.responseJsonObject;
-      NSArray * arr = [dic objectForKey:@"entries"];
+        NSLog(@"%@",request.responseJsonObject);
+      NSArray * arr = request.responseJsonObject;
       for (NSDictionary *entriesDic in arr) {
-      EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+       NSDictionary *dic = entriesDic[@"data"];
+      EntriesModel *model = [EntriesModel yy_modelWithDictionary:dic];
           if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
           [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
           [[NSUserDefaults standardUserDefaults] synchronize];
@@ -365,7 +402,66 @@ NSInteger imageUploadCount = 0;
         }
          NSLog(@"%@",request.error);
     }];
+}
     
++ (void)creatCloudPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
+    [[FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID finderName:@"上传的照片"] startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.responseJsonObject);
+        NSArray * arr ;
+        if (!KISCLOUD) {
+            NSDictionary * dic =  request.responseJsonObject;
+            arr = dic[@"entries"];
+        }else {
+            NSDictionary * dic =  request.responseJsonObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
+        for (NSDictionary *entriesDic in arr) {
+            EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+            if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
+                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                completeBlock(YES);
+            }
+        }
+    } failure:^(__kindof JYBaseRequest *request) {
+        NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+        if(errorData.length >0){
+            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+            NSLog(@"error--%@",serializedData);
+        }
+        NSLog(@"%@",request.error);
+    }];
+         
+         
+         
+//
+//         startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
+//            NSDictionary *dic= @{@"op": @"mkdir"};
+//            NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+//            [formData appendPartWithFormData:data name:@"上传的照片"];
+//        } uploadProgressBlock:^(NSProgress *progress) {
+//
+//        } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//            NSDictionary * dic = request.responseJsonObject;
+//            NSArray * arr = [dic objectForKey:@"entries"];
+//            for (NSDictionary *entriesDic in arr) {
+//                EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+//                if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
+//                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
+//                    [[NSUserDefaults standardUserDefaults] synchronize];
+//                    completeBlock(YES);
+//                }
+//            }
+//        } failure:^(__kindof JYBaseRequest *request) {
+//            NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+//            if(errorData.length >0){
+//                NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+//                NSLog(@"error--%@",serializedData);
+//            }
+//            NSLog(@"%@",request.error);
+//        }];
+}
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,DRIVE_UUID];
 //
 //    NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
@@ -399,15 +495,22 @@ NSInteger imageUploadCount = 0;
 //            }
 //        }];
 //    [uploadTask resume];
-}
+
 
 
 + (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
     @weaky(self)
     NSString *photoDirName = [NSString stringWithFormat:@"来自%@",[FMUploadFileAPI getDeviceName]];
     [FMUploadFileAPI getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
-        NSDictionary * dic = responseObject;
-        NSArray * arr = [dic objectForKey:@"entries"];
+        NSArray * arr ;
+        if (!KISCLOUD) {
+            NSDictionary * dic = responseObject;
+            arr = dic[@"entries"];
+        }else {
+            NSDictionary * dic =  responseObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
         if (arr.count >0) {
             for (NSDictionary *entriesDic in arr) {
                 EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
@@ -416,19 +519,36 @@ NSInteger imageUploadCount = 0;
                     [[NSUserDefaults standardUserDefaults] synchronize];
                     completeBlock(YES);
                 }else{
-                    [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
-                        if (successful) {
-                            completeBlock(YES);
-                        }
-                    }];
+                    if (KISCLOUD) {
+                        [weak_self _creatCloudPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                            if (successful) {
+                                completeBlock(YES);
+                            }
+                        }];
+                    }else{
+                        [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                            if (successful) {
+                                completeBlock(YES);
+                            }
+                        }];
+                    }
+
                 }
             }
         }else{
-            [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
-                if (successful) {
-                    completeBlock(YES);
-                }
-            }];
+            if (KISCLOUD) {
+                [weak_self _creatCloudPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                    if (successful) {
+                        completeBlock(YES);
+                    }
+                }];
+            }else{
+                [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                    if (successful) {
+                        completeBlock(YES);
+                    }
+                }];
+            }
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
           NSLog(@"%@", error);
@@ -472,7 +592,7 @@ NSInteger imageUploadCount = 0;
 }
 
 + (void)_creatPhotoDirEntryWithPhotoDirName:(NSString *)photoDirName CompleteBlock:(void(^)(BOOL successful))completeBlock{
-    [[FLCreateFolderAPI apiWithParentUUID:ENTRY_UUID] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
+    [[FLCreateFolderAPI apiWithParentUUID:ENTRY_UUID finderName:nil] startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
         NSDictionary *dic= @{@"op": @"mkdir"};
         NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
         [formData appendPartWithFormData:data name:photoDirName];
@@ -496,6 +616,62 @@ NSInteger imageUploadCount = 0;
             NSLog(@"error--%@",serializedData);
         }
     }];
+}
+
++ (void)_creatCloudPhotoDirEntryWithPhotoDirName:(NSString *)photoDirName CompleteBlock:(void(^)(BOOL successful))completeBlock{
+    [[FLCreateFolderAPI apiWithParentUUID:ENTRY_UUID finderName:photoDirName] startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+        NSArray * arr ;
+        if (!KISCLOUD) {
+            NSDictionary * dic = request.responseJsonObject;
+            arr = dic[@"entries"];
+        }else {
+            NSDictionary * dic =  request.responseJsonObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
+        for (NSDictionary *entriesDic in arr) {
+            NSDictionary *dic = entriesDic[@"data"];
+            EntriesModel *model = [EntriesModel yy_modelWithDictionary:dic];
+            if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+                [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                completeBlock(YES);
+            }
+        }
+    } failure:^(__kindof JYBaseRequest *request) {
+        NSLog(@"%@",request.error);
+        NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+        if(errorData.length >0){
+            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+            NSLog(@"error--%@",serializedData);
+        }
+    }];
+    
+//    :^(id<AFMultipartFormData> formData) {
+//            NSDictionary *dic= @{@"op": @"mkdir"};
+//            NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];
+//            [formData appendPartWithFormData:data name:photoDirName];
+//        } uploadProgressBlock:^(NSProgress *progress) {
+//        } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//            NSArray * arr =request.responseJsonObject;
+//            for (NSDictionary *entriesDic in arr) {
+//                NSDictionary *dic = entriesDic[@"data"];
+//                EntriesModel *model = [EntriesModel yy_modelWithDictionary:dic];
+//                if ([model.name isEqualToString:photoDirName] && [model.type isEqualToString:@"directory"]) {
+//                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:PHOTO_ENTRY_UUID_STR];
+//                    [[NSUserDefaults standardUserDefaults] synchronize];
+//                    completeBlock(YES);
+//                }
+//            }
+//        } failure:^(__kindof JYBaseRequest *request) {
+//            NSLog(@"%@",request.error);
+//            NSData *errorData = request.error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+//            if(errorData.length >0){
+//                NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+//                NSLog(@"error--%@",serializedData);
+//            }
+//}];
+}
 //    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,ENTRY_UUID];
 //    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
 //    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
@@ -523,7 +699,7 @@ NSInteger imageUploadCount = 0;
 //        NSLog(@"%@", error);
 //        //        failure(task,error);
 //    }];
-}
+
 
 +(void)_uploadAddressFile:(NSString *)filePath andFolderUUID:(NSString *)folderUUID  andCompleteBlock:(void(^)(BOOL success))completeBlock{
     NSString * str = [FileHash sha256HashOfFileAtPath:filePath];

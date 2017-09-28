@@ -515,6 +515,7 @@
 #pragma mark - Users
 /************************* User Control ****************/
 +(void)asynUsers{
+    if (!KISCLOUD) {
     FMGetUsersAPI * api = [FMGetUsersAPI new];
     [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.responseJsonObject);
@@ -522,14 +523,13 @@
         NSMutableArray * usersArr = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in request.responseJsonObject) {
             FMUsers * user = [FMUsers yy_modelWithJSON:dic];
-            
             [usersArr addObject:user];
             //create userDic for FMConfigInstance
             [usersDic setObject:user.username forKey:user.uuid];
         }
-        
+
         FMConfigInstance.usersDic = usersDic;
-        
+
         FMDTDeleteCommand * cmd7 = FMDT_DELETE([FMDBSet shared].users);
         [cmd7 saveChangesInBackground:^{
             FMDTInsertCommand * icmd = FMDT_INSERT([FMDBSet shared].users);
@@ -538,12 +538,12 @@
                 NSLog(@"用户同步成功");
             }];
         }];
-        
+
     } failure:^(__kindof JYBaseRequest *request) {
         NSLog(@"同步用户失败");
-    
-        
     }];
+        
+    }
     
     [self asyncUserHome];
 }
@@ -554,8 +554,13 @@
     FMAccountUsersAPI * usersApi = [FMAccountUsersAPI new];
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
 //        NSLog(@"😈😈😈😈%@",request.responseJsonObject);
-        NSDictionary * dic = request.responseJsonObject;
-        
+        NSDictionary * dic ;
+        if (KISCLOUD) {
+        NSDictionary *dataDic = request.responseJsonObject;
+        dic = dataDic[@"data"];
+        }else{
+          dic  = request.responseJsonObject;
+        }
 //        NSLog(@"%lu",(unsigned long)userArr);
 //        if (userArr.count>0) {
 //            for (NSDictionary * dic in userArr) {

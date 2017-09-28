@@ -42,6 +42,7 @@
     TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
 //    _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
+    downloadModel.size = model.size;
     NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
         if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {

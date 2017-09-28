@@ -240,8 +240,9 @@
     FMLeftMenu * leftMenu = [[[NSBundle mainBundle]loadNibNamed:@"FMLeftMenu" owner:nil options:nil]lastObject];
     [leftMenu getAllPhoto];
     [PhotoManager checkNetwork];
-
-    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [FMDBControl asynUsers];
+    });
     leftMenu.frame = CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width * 0.8, [[UIScreen mainScreen] bounds].size.height);
     _leftMenu = leftMenu;
    
@@ -588,6 +589,8 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:DIR_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:ENTRY_UUID_STR];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:KSTATIONID_STR];
+        NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+        [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
         [[PhotoManager shareManager] cleanUploadTask];
  
      //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
@@ -697,12 +700,7 @@
     //监听奔溃
     //    [FMABManager shareManager];
     [JYExceptionHandler installExceptionHandler];
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        //初始化 DeviceUUID
-//        [PhotoManager getUUID];
-        //        [FMDBControl asynOwnerSet];//更新ownerSet
-        [FMDBControl asynUsers];
-    });
+  
     BOOL switchOn = SWITHCHON_BOOL;
     NSString *token = DEF_Token;
     if (token.length>0) {

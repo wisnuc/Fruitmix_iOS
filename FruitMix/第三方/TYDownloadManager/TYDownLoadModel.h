@@ -41,6 +41,8 @@ typedef void (^TYDownloadStateBlock)(TYDownloadState state,NSString *filePath, N
 @property (nonatomic, strong, readonly) NSString *fileName;
 // 缓存文件目录 默认nil 则为manger缓存目录
 @property (nonatomic, strong, readonly) NSString *downloadDirectory;
+//文件大小
+@property (nonatomic, assign) unsigned long long size;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>  task info
 // 下载状态

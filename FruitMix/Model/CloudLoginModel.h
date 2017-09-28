@@ -10,4 +10,7 @@
 
 @interface CloudLoginModel : FMBaseModel
 @property(nonatomic)NSDictionary *data;
+@property(nonatomic)NSString *id;
+@property(nonatomic)NSNumber* isOnline;
+@property(nonatomic)NSString* name;
 @end

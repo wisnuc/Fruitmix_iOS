@@ -9,5 +9,6 @@
 #import "JYBaseRequest.h"
 
 @interface FMGetUsersAPI : JYBaseRequest<JYRequestDelegate>
-
++ (instancetype)apiWithStationId:(NSString *)stationId;
+@property (nonatomic,strong)NSString *stationId;
 @end

@@ -11,6 +11,8 @@
 @interface FLCreateFolderAPI : JYBaseRequest
 
 @property (nonatomic) NSString * parentId;
+@property (nonatomic) NSString * finderName;
 
-+(instancetype)apiWithParentUUID:(NSString *)folderUUID;
++(instancetype)apiWithParentUUID:(NSString *)folderUUID finderName:(NSString *)finderName;
+
 @end

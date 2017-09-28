@@ -547,7 +547,6 @@ NSString * JY_UUID() {
                  [[NSNotificationCenter defaultCenter] postNotificationName:FM_NET_STATUS_WIFI_NOTIFY object:nil];
                  NSLog(@"WiFi网络");
                  if (!network) {
-        
                      if (![PhotoManager shareManager].isUploading ) {
                          if(IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)){
                             [PhotoManager shareManager].canUpload = YES;
@@ -574,7 +573,6 @@ NSString * JY_UUID() {
                  break;
          }
      }];
-    
 }
 
 - (void)uploadActionForChange{
@@ -641,10 +639,17 @@ NSString * JY_UUID() {
                             if (successful) {
                                 [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
                                     MyNSLog (@"请求的URL======>%@\n获取NAS照片的responseObject======>:%@",task.currentRequest.URL,responseObject);
-                                    NSDictionary * dic = responseObject;
+                                    NSArray * arr ;
+                                    if (!KISCLOUD) {
+                                        NSDictionary * dic = responseObject;
+                                        arr = dic[@"entries"];
+                                    }else {
+                                        NSDictionary * dic = responseObject;
+                                        NSDictionary * entriesDic = dic[@"data"];
+                                        arr = entriesDic[@"entries"];
+                                    }
                                     NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
-                                    
-                                    NSArray * arr = [dic objectForKey:@"entries"];
+                         
                                     for (NSDictionary *dic in arr) {
                                         FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
                                         [photoArrHash addObject:nasPhoto.fmhash];
@@ -652,7 +657,7 @@ NSString * JY_UUID() {
                                     MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
                                     MyNSLog (@"NAS里的照片数量======>%u",photoArrHash.count);
 //                                    [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
-                                        [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                                        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                                             _allCount = [NSNumber numberWithUnsignedInteger:result.count];
                                             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                                             for (FMLocalPhoto * p in result) {
@@ -674,18 +679,18 @@ NSString * JY_UUID() {
                                                     [uploadArray addObject:hashString];
                                                 }
                                             }
-                                            NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",[photoArrHashSet allObjects]];
-                                            NSArray * filter1 = [[localPhotoHashArrSet allObjects] filteredArrayUsingPredicate:filterPredicate1];
+//                                            NSPredicate * filterPredicate1 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",[photoArrHashSet allObjects]];
+//                                            NSArray * filter1 = [[localPhotoHashArrSet allObjects] filteredArrayUsingPredicate:filterPredicate1];
                                             //                        //找到在arr1中不在数组arr2中的数据
                                             //                        NSPredicate * filterPredicate2 = [NSPredicate predicateWithFormat:@"NOT (SELF IN %@)",localPhotoHashArr];
                                             //                        NSArray * filter2 = [photoArrHash filteredArrayUsingPredicate:filterPredicate2];
                                             //拼接数组
-                                            NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
-                                            [array addObjectsFromArray:filter1];
-                                            NSSet *arrSet = [NSSet setWithArray:array];
-                                            //            NSMutableArray *uploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
+//                                            NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
+//                                            [array addObjectsFromArray:filter1];
+                                            NSSet *arrSet = [NSSet setWithArray:uploadArray];
+                                            NSMutableArray *toUploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
                                             MyNSLog(@"比对结果Array=======>%@",uploadArray);
-                                            block (uploadArray);
+                                            block (toUploadArray);
                                         }];
 //                                    }];
                                     
@@ -701,10 +706,18 @@ NSString * JY_UUID() {
     }else{
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
         MyNSLog (@"请求的URL======>%@\n获取NAS照片的responseObject======>:%@",task.currentRequest.URL,responseObject);
-        NSDictionary * dic = responseObject;
+        NSArray * arr ;
+        if (!KISCLOUD) {
+            NSDictionary * dic = responseObject;
+            arr = dic[@"entries"];
+        }else {
+            NSDictionary * dic = responseObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
         NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
         
-        NSArray * arr = [dic objectForKey:@"entries"];
+//        NSArray * arr = [dic objectForKey:@"entries"];
         for (NSDictionary *dic in arr) {
             FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
             [photoArrHash addObject:nasPhoto.fmhash];
@@ -712,7 +725,7 @@ NSString * JY_UUID() {
         MyNSLog (@"NAS里的照片的所有Hash======>%@",photoArrHash);
         MyNSLog (@"NAS里的照片数量======>%lu",(unsigned long)photoArrHash.count);
 //        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
-            [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                 _allCount = [NSNumber numberWithUnsignedInteger:result.count];
                 NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                 for (FMLocalPhoto * p in result) {
@@ -741,10 +754,10 @@ NSString * JY_UUID() {
                 //拼接数组
                 NSMutableArray *array = [NSMutableArray arrayWithArray:filter1];
                 [array addObjectsFromArray:filter1];
-                NSSet *arrSet = [NSSet setWithArray:array];
-                //            NSMutableArray *uploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
+                NSSet *arrSet = [NSSet setWithArray:uploadArray];
+                NSMutableArray *toUploadArray = [NSMutableArray arrayWithArray:[arrSet allObjects]];
                 MyNSLog(@"比对结果Array=======>%@",uploadArray);
-                block (uploadArray);
+                block (toUploadArray);
 //        }];
     }];
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
@@ -1013,8 +1026,15 @@ BOOL shouldUpload = NO;
                                       if (successful) {
                                             NSString *entryuuid = PHOTO_ENTRY_UUID;
                                           [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-                                              NSDictionary * dic = responseObject;
-                                              NSArray * arr = [dic objectForKey:@"entries"];
+                                              NSArray * arr ;
+                                              if (!KISCLOUD) {
+                                                  NSDictionary * dic = responseObject;
+                                                  arr = dic[@"entries"];
+                                              }else {
+                                                  NSDictionary * dic = responseObject;
+                                                  NSDictionary * entriesDic = dic[@"data"];
+                                                  arr = entriesDic[@"entries"];
+                                              }
                                               if (arr.count >0) {
 //                                                  [FMUploadFileAPI uploadsSiftWithDataSouce:arr  Asset:asset LocalPhotoHash:hashStr  filePath:filePath SuccessBlock:success Failure:failure CopmleteBlock:^(BOOL upload) {
 //                                                      if (upload) {

@@ -106,15 +106,21 @@
 {
     NSLog(@"%@",[JYRequestConfig sharedConfig].baseURL);
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
-    
+    NSString * exestr = [filePath lastPathComponent];
+    NSString *urlString;
 //    /drives/{driveUUID}/dirs/{dirUUID}/entries/{entryUUID}
-     NSString * exestr = [filePath lastPathComponent];
-    NSString *urlString = [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+    if (KISCLOUD) {
+        NSString *sourceUrlString = [NSString stringWithFormat:@"/drives/%@/dirs/%@/entries/%@",DRIVE_UUID,uuid,model.uuid];
+        NSString *urlStringBase64 = [sourceUrlString base64EncodedString];
+        urlString= [NSString stringWithFormat:@"%@stations/%@/pipe?resource=%@&method=GET&name=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,urlStringBase64,exestr];
+    }else{
+        urlString= [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+    }
     NSString *encodedString = [urlString URLEncodedString];
-
     TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
     _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
+    downloadModel.size = model.size;
     NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
     for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
@@ -180,13 +186,13 @@
    
     @weaky(self);
     if ([model.type isEqualToString:@"file"]) {
-   
+        NSString *downloadString = @"下载该文件";
         cell.clickBlock = ^(FLFilesCell * cell){
             weak_self.chooseModel = model;
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
                                                                      delegate:nil
                                                             cancelButtonTitle:@"取消"
-                                                        otherButtonTitleArray:@[@"下载该文件"]];
+                                                        otherButtonTitleArray:@[downloadString]];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
                     [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:uuid];

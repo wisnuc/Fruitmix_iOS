@@ -175,13 +175,11 @@
         NSLog(@"dwonloadURL can't nil");
         return nil;
     }
-    
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:URLString];
     
     if (!downloadModel || ![downloadModel.filePath isEqualToString:destinationPath]) {
         downloadModel = [[TYDownloadModel alloc]initWithURLString:URLString filePath:destinationPath];
     }
-    
     [self startWithDownloadModel:downloadModel progress:progress state:state];
     
     return downloadModel;
@@ -256,7 +254,6 @@
     if (_isBatchDownload) {
         return YES;
     }
-    
     @synchronized (self) {
         if (self.downloadingModels.count >= _maxDownloadCount ) {
             if ([self.waitingDownloadModels indexOfObject:downloadModel] == NSNotFound) {
@@ -302,11 +299,6 @@
         [request setValue:range forHTTPHeaderField:@"Range"];
         if (KISCLOUD) {
           [request setValue:[NSString stringWithFormat:@"%@",DEF_Token] forHTTPHeaderField:@"Authorization"];
-//            if (downloadModel.parameters !=nil) {
-//                NSString *valueStr = [NSString stringWithFormat:@"source=%@&mothod=%@",[downloadModel.parameters[@"source"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],downloadModel.parameters[@"method"]];
-//                NSData *postData = [valueStr dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-//                [request setHTTPBody:postData];
-//            }
         }else{
           [request setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
         }
@@ -451,8 +443,8 @@
     TYDownloadProgress *progress = [[TYDownloadProgress alloc]init];
     progress.totalBytesExpectedToWrite = [self fileSizeInCachePlistWithDownloadModel:downloadModel];
     progress.totalBytesWritten = MIN([self fileSizeWithDownloadModel:downloadModel], progress.totalBytesExpectedToWrite);
+
     progress.progress = progress.totalBytesExpectedToWrite > 0 ? 1.0*progress.totalBytesWritten/progress.totalBytesExpectedToWrite : 0;
-    
     return progress;
 }
 
@@ -586,8 +578,11 @@
     // 下载进度
     downloadModel.progress.bytesWritten = data.length;
     downloadModel.progress.totalBytesWritten += downloadModel.progress.bytesWritten;
+    if (KISCLOUD) {
+    downloadModel.progress.progress = MIN(1.0, 1.0*downloadModel.progress.totalBytesWritten/downloadModel.size);
+    }else{
     downloadModel.progress.progress  = MIN(1.0, 1.0*downloadModel.progress.totalBytesWritten/downloadModel.progress.totalBytesExpectedToWrite);
-    
+    }
     // 时间
     NSTimeInterval downloadTime = -1 * [downloadModel.downloadDate timeIntervalSinceNow];
     downloadModel.progress.speed = (downloadModel.progress.totalBytesWritten - downloadModel.progress.resumeBytesWritten) / downloadTime;

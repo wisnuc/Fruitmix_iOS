@@ -10,9 +10,12 @@
 
 @implementation FLCreateFolderAPI
 
-+(instancetype)apiWithParentUUID:(NSString *)folderUUID{
++(instancetype)apiWithParentUUID:(NSString *)folderUUID finderName:(NSString *)finderName{
     FLCreateFolderAPI * api = [FLCreateFolderAPI new];
     api.parentId = folderUUID;
+    if (finderName!=nil ||finderName.length !=0) {
+        api.finderName = finderName;
+    }
     return api;
 }
 
@@ -37,6 +40,8 @@
         NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithCapacity:0];
         [dic setObject:@"POST" forKey:@"method"];
         [dic setObject:resource forKey:@"resource"];
+        [dic setObject:@"mkdir" forKey:@"op"];
+        [dic setObject:_finderName forKey:@"toName"];
         return dic;
     }else{
         return nil;

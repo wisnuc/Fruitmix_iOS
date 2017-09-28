@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F3B697F1F7CD4EB009A7FFA /* ChooseAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3B697E1F7CD4EB009A7FFA /* ChooseAlertView.m */; };
+		1F3B69811F7CD504009A7FFA /* ChooseAlertView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3B69801F7CD504009A7FFA /* ChooseAlertView.xib */; };
+		1F3B69851F7D0444009A7FFA /* FMCloudUserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3B69831F7D0444009A7FFA /* FMCloudUserTableViewCell.m */; };
+		1F3B69861F7D0444009A7FFA /* FMCloudUserTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3B69841F7D0444009A7FFA /* FMCloudUserTableViewCell.xib */; };
 		1FD575BF1F78A2330074824F /* NSString+Validate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575BE1F78A2330074824F /* NSString+Validate.m */; };
 		1FD575C21F791FBF0074824F /* FLGetDirveEntryAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */; };
 		1FD575C81F79FF650074824F /* FLUploadFilesAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C71F79FF650074824F /* FLUploadFilesAPI.m */; };
@@ -767,6 +771,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1F3B697D1F7CD4EB009A7FFA /* ChooseAlertView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChooseAlertView.h; sourceTree = "<group>"; };
+		1F3B697E1F7CD4EB009A7FFA /* ChooseAlertView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooseAlertView.m; sourceTree = "<group>"; };
+		1F3B69801F7CD504009A7FFA /* ChooseAlertView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChooseAlertView.xib; sourceTree = "<group>"; };
+		1F3B69821F7D0444009A7FFA /* FMCloudUserTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMCloudUserTableViewCell.h; sourceTree = "<group>"; };
+		1F3B69831F7D0444009A7FFA /* FMCloudUserTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMCloudUserTableViewCell.m; sourceTree = "<group>"; };
+		1F3B69841F7D0444009A7FFA /* FMCloudUserTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FMCloudUserTableViewCell.xib; sourceTree = "<group>"; };
 		1FD575BD1F78A2330074824F /* NSString+Validate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Validate.h"; sourceTree = "<group>"; };
 		1FD575BE1F78A2330074824F /* NSString+Validate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Validate.m"; sourceTree = "<group>"; };
 		1FD575C01F791FBF0074824F /* FLGetDirveEntryAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FLGetDirveEntryAPI.h; sourceTree = "<group>"; };
@@ -4099,6 +4109,12 @@
 				9CE379651F42E0F400CC2F05 /* LoginTableViewCell.xib */,
 				9CE379801F43F4B200CC2F05 /* FMLoginTextField.h */,
 				9CE379811F43F4B200CC2F05 /* FMLoginTextField.m */,
+				1F3B697D1F7CD4EB009A7FFA /* ChooseAlertView.h */,
+				1F3B697E1F7CD4EB009A7FFA /* ChooseAlertView.m */,
+				1F3B69801F7CD504009A7FFA /* ChooseAlertView.xib */,
+				1F3B69821F7D0444009A7FFA /* FMCloudUserTableViewCell.h */,
+				1F3B69831F7D0444009A7FFA /* FMCloudUserTableViewCell.m */,
+				1F3B69841F7D0444009A7FFA /* FMCloudUserTableViewCell.xib */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -4933,6 +4949,7 @@
 				C1A9593E1CB7C47F007A1DC9 /* up@3x.png in Resources */,
 				9CE3796B1F42E58700CC2F05 /* WeChat.png in Resources */,
 				9CCACE961F2F08FF00E84801 /* fab_share@3x.png in Resources */,
+				1F3B69861F7D0444009A7FFA /* FMCloudUserTableViewCell.xib in Resources */,
 				C19DDE581CE050C700E958D1 /* recommend@3x.png in Resources */,
 				C1A959C91CBB7F96007A1DC9 /* share_red_select.png in Resources */,
 				C19DDE4B1CE0509F00E958D1 /* user@2x.png in Resources */,
@@ -5128,6 +5145,7 @@
 				C1009B5B1DFEA738006ADA84 /* FMChangePwdVC.xib in Resources */,
 				F607BA141E5FDBDF0040D64F /* ic_delete@2x.png in Resources */,
 				9CE379671F42E0F400CC2F05 /* LoginTableViewCell.xib in Resources */,
+				1F3B69811F7CD504009A7FFA /* ChooseAlertView.xib in Resources */,
 				C1A959CE1CBB7F96007A1DC9 /* share_red@3x.png in Resources */,
 				C17970531CD372F0002B7EAA /* send@2x.png in Resources */,
 				C16A2BE01CC4F3C000AB4A7C /* float_btn_del@3x.png in Resources */,
@@ -5529,6 +5547,7 @@
 				C1F44A491D12A88000A8FD34 /* RATreeView+Private.m in Sources */,
 				9C840B071F4EDCC100B2F765 /* NSString+URL.m in Sources */,
 				C11A27321D2DFCF70033764F /* FMHandLoginVC.m in Sources */,
+				1F3B697F1F7CD4EB009A7FFA /* ChooseAlertView.m in Sources */,
 				1FD575D21F7A4ABF0074824F /* WeChetLoginAPI.m in Sources */,
 				C1FB83F21DBF029A00D09541 /* APJob.m in Sources */,
 				C178B6021D34D6D900445FE4 /* FMStatusLayout.m in Sources */,
@@ -5624,6 +5643,7 @@
 				9C85B8FF1F3D60A00035114B /* FMBoxTableViewCell.m in Sources */,
 				9CE379821F43F4B200CC2F05 /* FMLoginTextField.m in Sources */,
 				C1E8F32C1CAE1CC400E1F1FC /* NSBKeyframeAnimationFunctions.c in Sources */,
+				1F3B69851F7D0444009A7FFA /* FMCloudUserTableViewCell.m in Sources */,
 				C19136051CC73F36008BAB93 /* FMGetUsersAPI.m in Sources */,
 				C1BD17AC1CD9A3A10001DF05 /* FMShareScrollComment.m in Sources */,
 				F6FBFE0E1E540583003CD8CB /* FMUserLoginInfo.m in Sources */,

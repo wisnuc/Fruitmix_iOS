@@ -73,9 +73,15 @@
 //            });
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.responseJsonObject);
-     
+        NSArray * userArr;
+        if (KISCLOUD) {
+            NSDictionary *dic = request.responseJsonObject;
+            userArr = dic[@"data"];
+        }else{
+             userArr = request.responseJsonObject;
+        }
 //        FMUsers * model = [FMUsers yy_modelWithJSON:request.responseJsonObject];
-           NSArray * userArr = request.responseJsonObject;
+        
         NSMutableArray *tempDataSource = [NSMutableArray arrayWithCapacity:0];
         for (NSDictionary * dic in userArr) {
             FMUsers * model = [FMUsers yy_modelWithJSON:dic];

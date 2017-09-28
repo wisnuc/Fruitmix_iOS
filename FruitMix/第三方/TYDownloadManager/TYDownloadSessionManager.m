@@ -600,9 +600,13 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
     if (!downloadModel || downloadModel.state == TYDownloadStateSuspended) {
         return;
     }
-    
-    float progress = (double)totalBytesWritten/totalBytesExpectedToWrite;
-    
+    float progress;
+    if (KISCLOUD) {
+       progress = (double)totalBytesWritten/downloadModel.size;
+    }else{
+       progress = (double)totalBytesWritten/totalBytesExpectedToWrite;
+    }
+   
     int64_t resumeBytesWritten = downloadModel.progress.resumeBytesWritten;
     
     NSTimeInterval downloadTime = -1 * [downloadModel.downloadDate timeIntervalSinceNow];

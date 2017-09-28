@@ -19,7 +19,9 @@
 #import "GetStationAPI.h"
 #import "CloudLoginModel.h"
 #import "FMCloudUserModel.h"
-#import "FMAccountUsersAPI.h"
+#import "FMGetUsersAPI.h"
+#import "ChooseAlertView.h"
+#import "FMCloudUserTableViewCell.h"
 
 #define kCount 3
 @interface FMLoginViewController ()
@@ -36,6 +38,7 @@ WXApiDelegate
     AFNetworkReachabilityManager * _manager;
     NSTimer* _reachabilityTimer;
     NSMutableArray *_userDataSource;
+    ChooseAlertView *_alertView;
 }
 @property (strong, nonatomic) UIScrollView *stationScrollView;
 @property (strong, nonatomic) UIView *stationCardView;
@@ -54,6 +57,12 @@ WXApiDelegate
 @property (nonatomic) NSInteger userDataCount;
 @property (nonatomic) UIButton *handButton;
 @property (nonatomic) UserModel * user;
+@property (strong, nonatomic) NSMutableArray *cloudLoginStationArray;
+@property (strong, nonatomic) NSMutableArray *cloudOriginStationArray;
+@property (nonatomic) NSInteger current;
+@property (nonatomic) NSString *guid;
+@property (nonatomic) NSString *token;
+@property (nonatomic) NSString *nickName;
 
 @end
 
@@ -381,12 +390,13 @@ WXApiDelegate
 }
 
 - (void)weChatCallBackRespCode:(NSString *)code{
+    @weaky(self)
     [FMDBControl asyncLoadPhotoToDB];
     [SXLoadingView showProgressHUD:@"正在登录"];
     [[WeChetLoginAPI apiWithCode:code] startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         MyNSLog(@"%@",request.responseJsonObject);
         [SXLoadingView hideProgressHUD];
-        [self loginToDoWithResponse:request.responseJsonObject];
+        [weak_self loginToDoWithResponse:request.responseJsonObject];
     } failure:^(__kindof JYBaseRequest *request) {
         [SXLoadingView hideProgressHUD];
         MyNSLog(@"%@",request.error);
@@ -399,35 +409,31 @@ WXApiDelegate
 }
 
 -(void)loginToDoWithResponse:(id)response{
+    @weaky(self)
 //    CloudLoginModel * model = [CloudLoginModel yy_modelWithJSON:response];
     NSDictionary *dic = response;
     NSDictionary *dataDic = dic[@"data"];
     NSString *token = dataDic[@"token"];
+    _token = token;
 //    FMCloudUserModel *userModel = [FMCloudUserModel yy_modelWithDictionary:dataDic];
     NSDictionary *userDic = dataDic[@"user"];
     NSString *GUID = userDic[@"id"];
-  
- 
-    
+    _guid = GUID;
+    _nickName = userDic[@"nickName"];
     MyNSLog(@"Cloud登录");
-    //判断是否为同一用户退出后登录
-//    if (!IsNilString(DEF_UUID) && !IsEquallString(DEF_UUID, _user.uuid) ) {
-//        //清除deviceID
-//    }
     FMConfigInstance.userToken = token;
-
-//    //更新图库
+    FMConfigInstance.userUUID = userDic[@"id"];
     JYRequestConfig * config = [JYRequestConfig sharedConfig];
     config.baseURL = WX_BASE_URL;
-    
-    [self getStationWithGUID:GUID userDic:userDic];
-    
+    [weak_self getStationWithGUID:GUID userDic:userDic];
 }
 
 - (void)getStationWithGUID:(NSString *)Guid userDic:(NSDictionary *)userDic{
+    @weaky(self)
     [[GetStationAPI apiWithGUID:Guid]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         MyNSLog(@"%@",request.responseJsonObject);
         NSDictionary *rootDic = request.responseJsonObject;
+        _cloudOriginStationArray = [NSMutableArray arrayWithCapacity:0];
         if([rootDic[@"data"] isEqual:[NSNull null]]||rootDic[@"data"] ==nil) {
             [SXLoadingView showProgressHUDText:@"您的微信尚未绑定任何设备" duration:1];
             FMConfigInstance.userToken = nil;
@@ -435,20 +441,37 @@ WXApiDelegate
             config.baseURL = nil;
         }else{
             NSMutableArray *dataArray = [NSMutableArray arrayWithArray:[rootDic objectForKey:@"data"]];
+            [_expandCell.task cancel];
+            [_reachabilityTimer invalidate];
+            _reachabilityTimer = nil;
+            [_browser stopServer];
+             self.cloudLoginStationArray=[NSMutableArray arrayWithCapacity:0];
             for (NSDictionary *dic in dataArray) {
                 NSNumber * isOnlineNumber = dic[@"isOnline"];
                 BOOL isOnline =  [isOnlineNumber boolValue];
-                MyNSLog(@"%@",isOnlineNumber);
-                if (isOnline && [dic[@"name"] isEqualToString:@"HomeStation"]) {
-                    MyNSLog(@"成功");
+                if (isOnline) {
                     FMConfigInstance.isCloud = YES;
-                    FMConfigInstance.userUUID = Guid;
-                    [[NSUserDefaults standardUserDefaults] setObject:dic[@"id"] forKey:KSTATIONID_STR];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
-                    [self LoginActionWithUserDic:userDic];
-//                    [self getUsers];
+                    //常规登录
+//                    [self LoginActionWithUserDic:userDic StationDic:dic];
+                    [weak_self getUsersWithStationDic:dic completeBlock:^(NSMutableDictionary *mutableDic) {
+                    }];
+//                    [_cloudOriginStationArray addObject:dic];
                 }
             }
+//            MyNSLog(@"%@",weak_self.cloudLoginStationArray);
+            FMConfigInstance.userToken = nil;
+//            self.cloudLoginStationArray = userArr;
+            if (self.cloudLoginStationArray.count == 1) {
+                [self loginButtonClick:nil];
+            }else if (self.cloudLoginStationArray.count == 0) {
+                FMConfigInstance.userToken = nil;
+                FMConfigInstance.isCloud = NO;
+                 [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
+            }else{
+                [weak_self setChooseView];
+                [_alertView.tableView reloadData];
+            }
+//            FMConfigInstance.isCloud = nil;
         }
     } failure:^(__kindof JYBaseRequest *request) {
          NSLog(@"%@",request.error);
@@ -456,22 +479,139 @@ WXApiDelegate
     
 }
 
-- (void)getUsers{
-    FMAccountUsersAPI *api = [FMAccountUsersAPI new];
+- (void)getUsersWithStationDic:(NSDictionary *)stationDic completeBlock:(void(^)(NSMutableDictionary *mutableDic))block{
+     NSString *stationId = stationDic[@"id"];
+    FMGetUsersAPI *api = [FMGetUsersAPI apiWithStationId:stationId];
     [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-        NSLog(@"%@",request.responseJsonObject);
+         MyNSLog(@"%@",request.responseJsonObject);
+        NSDictionary *rootDic = request.responseJsonObject;
+        NSMutableArray *arr = rootDic[@"data"];
+        NSMutableDictionary *mutableDic;
+        for (int i = 0; i<arr.count; i++) {
+            NSDictionary *dic = arr[i];
+            if (dic[@"global"]!=nil && dic[@"global"]!=[NSNull null]) {
+                NSDictionary *globalDic = dic[@"global"];
+                NSString * idString =  globalDic[@"id"];
+                if ([_guid isEqualToString:idString]) {
+                     mutableDic = [NSMutableDictionary dictionaryWithDictionary:dic];
+                    [mutableDic addEntriesFromDictionary:stationDic];
+                    NSLog(@"%@",mutableDic);
+                  [_cloudLoginStationArray addObject:mutableDic];
+                    [_alertView.tableView reloadData];
+                    block(mutableDic);
+                }
+            }
+        }
+ 
     } failure:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.error);
     }];
 }
 
-- (void)LoginActionWithUserDic:(NSDictionary *)userDic{
+- (void)setChooseView{
+    _alertView = [[[NSBundle mainBundle] loadNibNamed:@"ChooseAlertView" owner:self options:nil] lastObject];
+    _alertView.frame = CGRectMake(0, 0, JYSCREEN_WIDTH, JYSCREEN_HEIGHT);
+    _alertView.tableView.delegate = self;
+    _alertView.tableView.dataSource = self;
+    [_alertView.loginButton addTarget:self action:@selector(loginButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [[[[UIApplication sharedApplication] windows] lastObject] addSubview:_alertView];
+}
+
+- (void)loginButtonClick:(UIButton *)sender{
+    [_alertView removeFromSuperview];
+    _alertView =nil;
+    
+    NSMutableDictionary *mutableDic;
+    if (_cloudLoginStationArray.count!=0) {
+     mutableDic  = _cloudLoginStationArray[_current];
+        
+    }else{
+        FMConfigInstance.userToken = nil;
+        FMConfigInstance.isCloud = NO;
+        [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
+        return;
+    }
+    FMConfigInstance.userToken = _token;
+    FMConfigInstance.isCloud = YES;
+     FMConfigInstance.userUUID = mutableDic[@"uuid"];
+    [[NSUserDefaults standardUserDefaults] setObject:mutableDic[@"id"] forKey:KSTATIONID_STR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[NSUserDefaults standardUserDefaults]setObject:@0 forKey:@"addCount"];
+    
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
+    if(IsNilString(USER_SHOULD_SYNC_PHOTO) || IsEquallString(USER_SHOULD_SYNC_PHOTO, mutableDic[@"id"])){
+        //设置   可备份用户为
+        [[NSUserDefaults standardUserDefaults] setObject:mutableDic[@"id"] forKey:USER_SHOULD_SYNC_PHOTO_STR];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        //重启photoSyncer
+        //        [PhotoManager shareManager].canUpload = YES;
+    }
+    //重置数据
+    [MyAppDelegate resetDatasource];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        //保存用户信息
+        FMUserLoginInfo * info = [FMUserLoginInfo new];
+        if ( _nickName.length !=0) {
+            info.userName = _nickName;
+        }
+        MyNSLog(@"登录用户:%@", info.userName);
+        info.uuid = mutableDic[@"uuid"];
+        //        info.deviceId = [PhotoManager getUUID];
+        //            info.jwt_token = token;
+        info.bonjour_name = mutableDic[@"name"] ;
+        //           NSLog(@"%@",_service.hostName);
+        [FMDBControl addUserLoginInfo:info];
+        //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
+    });
+    //组装UI
+    //        if (def_token.length == 0 ) {
+    UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
+    // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
+    UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        NSLog(@"点击了取消按钮");
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            //                [PhotoManager shareManager].canUpload = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"dontBackUp" object:nil userInfo:nil];
+            NSLog(@"点击了确定按钮");
+        });
+    }];
+    
+    UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"备份" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            //                 [PhotoManager shareManager].canUpload = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"backUp" object:nil];
+            NSLog(@"点击了确定按钮");
+        });
+    }];
+    // 3.将“取消”和“确定”按钮加入到弹框控制器中
+    [alertVc addAction:cancle];
+    [alertVc addAction:confirm];
+    [self presentViewController:alertVc animated:YES completion:^{
+    }];
+
+    MyAppDelegate.window.rootViewController = nil;
+    [MyAppDelegate.window resignKeyWindow];
+    [MyAppDelegate.window removeFromSuperview];
+    MyAppDelegate.sharesTabBar = [[RDVTabBarController alloc]init];
+    [MyAppDelegate initWithTabBar:MyAppDelegate.sharesTabBar];
+    [MyAppDelegate.sharesTabBar setSelectedIndex:0];
+    MyAppDelegate.filesTabBar = nil;
+    [MyAppDelegate resetDatasource];
+    MyAppDelegate.leftMenu = nil;
+    
+    [MyAppDelegate initLeftMenu];
+    [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
+}
+
+
+- (void)LoginActionWithUserDic:(NSDictionary *)userDic StationDic:(NSDictionary *)stationDic{
 //        NSString * def_token = DEF_Token;
+        [[NSUserDefaults standardUserDefaults] setObject:stationDic[@"id"] forKey:KSTATIONID_STR];
+        [[NSUserDefaults standardUserDefaults] synchronize];
         [[NSUserDefaults standardUserDefaults]setObject:@0 forKey:@"addCount"];
-        [_expandCell.task cancel];
-        [_reachabilityTimer invalidate];
-        _reachabilityTimer = nil;
-        [_browser stopServer];
+    
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"uploadImageArr"];
         if(IsNilString(USER_SHOULD_SYNC_PHOTO) || IsEquallString(USER_SHOULD_SYNC_PHOTO, userDic[@"id"])){
             //设置   可备份用户为
@@ -491,7 +631,7 @@ WXApiDelegate
             info.uuid = userDic[@"id"];
             //        info.deviceId = [PhotoManager getUUID];
 //            info.jwt_token = token;
-//            info.bonjour_name = _service.hostName;
+            info.bonjour_name = stationDic[@"name"] ;
             //           NSLog(@"%@",_service.hostName);
             [FMDBControl addUserLoginInfo:info];
             //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
@@ -577,7 +717,11 @@ WXApiDelegate
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return _userDataSource.count;
+    if (tableView == _alertView.tableView) {
+        return _cloudLoginStationArray.count;
+    }else{
+        return _userDataSource.count;
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -585,44 +729,80 @@ WXApiDelegate
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    LoginTableViewCell *cell;
-    self.userListTableViwe.separatorStyle = UITableViewCellSeparatorStyleNone;
-    cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([LoginTableViewCell class])];
-    if (!cell) {
-        cell= [[[NSBundle mainBundle] loadNibNamed:@"LoginTableViewCell" owner:nil options:nil] lastObject];
+    if (tableView == _userListTableViwe) {
+        LoginTableViewCell *cell;
+        self.userListTableViwe.separatorStyle = UITableViewCellSeparatorStyleNone;
+        cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([LoginTableViewCell class])];
+        if (!cell) {
+            cell= [[[NSBundle mainBundle] loadNibNamed:@"LoginTableViewCell" owner:nil options:nil] lastObject];
+        }
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        UserModel *model = _userDataSource[indexPath.row];
+        
+        //    NSLog(@"%@======%lu",model.username,(unsigned long)_userDataSource.count);
+        cell.userNameLabel.text = model.username;
+        cell.userNameImageView.image = [UIImage imageForName:model.username size:cell.userNameImageView.bounds.size];
+        
+        return cell;
+    }else{
+     _alertView.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+      FMCloudUserTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([FMCloudUserTableViewCell class])];
+        if (!cell) {
+            cell= [[[NSBundle mainBundle] loadNibNamed:@"FMCloudUserTableViewCell" owner:nil options:nil] lastObject];
+        }
+//        NSLog(@"%@",_cloudLoginStationArray);
+       NSDictionary *modelDic = _cloudLoginStationArray[indexPath.row];
+       cell.userNameLabel.text = [NSString stringWithFormat:@"%@",modelDic[@"username"]];
+       cell.stationName.text = [NSString stringWithFormat:@"在%@上",modelDic[@"name"]];
+        return cell;
     }
     
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-
-    UserModel *model = _userDataSource[indexPath.row];
-    
-//    NSLog(@"%@======%lu",model.username,(unsigned long)_userDataSource.count);
-    cell.userNameLabel.text = model.username;
-    cell.userNameImageView.image = [UIImage imageForName:model.username size:cell.userNameImageView.bounds.size];
-  
-    return cell;
 }
 
 #pragma mark tableView delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-     UserModel *model = _userDataSource[indexPath.row];;
-
-    FMUserLoginViewController *userLoginVC = [[FMUserLoginViewController alloc]init];
-    FMSerachService * ser;
-    if (_userDataCount >0) {
-       ser  = _tempDataSource[_userDataCount];
+    if (tableView == _userListTableViwe) {
+        UserModel *model = _userDataSource[indexPath.row];;
+        
+        FMUserLoginViewController *userLoginVC = [[FMUserLoginViewController alloc]init];
+        FMSerachService * ser;
+        if (_userDataCount >0) {
+            ser  = _tempDataSource[_userDataCount];
+        }else{
+            ser = _tempDataSource[0];
+        }
+        userLoginVC.service = ser;
+        userLoginVC.user = model;
+        
+        [self.navigationController pushViewController:userLoginVC animated:YES];
+        
+        [self applicationWillResignActive:nil];
     }else{
-      ser = _tempDataSource[0];
+        _current=indexPath.row;
+        [_alertView.tableView reloadData];
     }
-    userLoginVC.service = ser;
-    userLoginVC.user = model;
     
-    [self.navigationController pushViewController:userLoginVC animated:YES];
-
-    [self applicationWillResignActive:nil];
 }
 
+- (UITableViewCellAccessoryType)tableView:(UITableView*)tableView accessoryTypeForRowWithIndexPath:(NSIndexPath*)indexPath
+{
+    
+    if(tableView == _alertView.tableView){
+        if(_current==indexPath.row)
+        {
+            return UITableViewCellAccessoryCheckmark;
+        }
+        else
+        {
+            return UITableViewCellAccessoryNone;
+        }
+    }else{
+        return UITableViewCellAccessoryNone;
+    }
+   
+}
 - (UIScrollView *)stationScrollView{
     if (!_stationScrollView) {
         _stationScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, JYSCREEN_WIDTH,448/2 + 64)];

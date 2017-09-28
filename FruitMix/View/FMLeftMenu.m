@@ -199,7 +199,7 @@
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     [weak_self siftPhotosWithBlock:^(NSMutableArray *uploadArray) {
 //        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
-            [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+            [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                 NSSet *localPhotoHashArrSet = [NSSet setWithArray:result];
                 NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];
                     NSNumber *number = [NSNumber numberWithUnsignedInteger:arr.count];
@@ -297,11 +297,17 @@
                             if (successful) {
                                 NSString *entryuuid = PHOTO_ENTRY_UUID;
                                 [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-                                    //                    NSLog(@"%@",responseObject);
-                                    NSDictionary * dic = responseObject;
+                                    NSArray * arr ;
+                                    if (!KISCLOUD) {
+                                        NSDictionary * dic =  responseObject;
+                                        arr = dic[@"entries"];
+                                    }else {
+                                        NSDictionary * dic =  responseObject;
+                                        NSDictionary * entriesDic = dic[@"data"];
+                                        arr = entriesDic[@"entries"];
+                                    }
                                     NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
                                     
-                                    NSArray * arr = [dic objectForKey:@"entries"];
                                     for (NSDictionary *dic in arr) {
                                         FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
                                         [photoArrHash addObject:nasPhoto.fmhash];
@@ -346,11 +352,17 @@
         }];
     }else{
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-        //                    NSLog(@"%@",responseObject);
-        NSDictionary * dic = responseObject;
+
+        NSArray * arr ;
+        if (!KISCLOUD) {
+            NSDictionary * dic =  responseObject;
+            arr = dic[@"entries"];
+        }else {
+            NSDictionary * dic =  responseObject;
+            NSDictionary * entriesDic = dic[@"data"];
+            arr = entriesDic[@"entries"];
+        }
         NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
-        
-        NSArray * arr = [dic objectForKey:@"entries"];
         for (NSDictionary *dic in arr) {
             FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
             [photoArrHash addObject:nasPhoto.fmhash];
@@ -395,16 +407,16 @@
 //      MyNSLog(@"本地所有照片left++++++++>%@",_allCount);
 //     [[FMPhotoDataSource shareInstance]getNetPhotos];
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
-    
-  
+
     if (KISCLOUD) {
      self.nameLabel.text = _userInfo.userName;
+//     self.bonjourLabel.text = _userInfo.bonjour_name;
     }else{
-    self.bonjourLabel.text = _userInfo.bonjour_name;
+ 
     self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
     self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
     }
-    
+    self.bonjourLabel.text = _userInfo.bonjour_name;
 //===================================优雅的分割线/备份详情==========================================
     UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
     progressLb.font = [UIFont systemFontOfSize:12];

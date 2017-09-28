@@ -10,5 +10,8 @@
 
 @interface FLUploadFilesAPI : JYBaseRequest
 @property (nonatomic) NSString * photouuid;
-+(instancetype)apiWithPhotoUUID:(NSString *)photoUUID;
+@property (nonatomic) NSString *photoName;
+@property (nonatomic) NSString *sha256;
+@property (nonatomic) NSInteger size;
++(instancetype)apiWithPhotoUUID:(NSString *)photoUUID PhotoName:(NSString *)photoName Hash:(NSString *)sha256 Size:(NSInteger)size;
 @end

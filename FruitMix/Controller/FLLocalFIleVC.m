@@ -162,6 +162,7 @@
     [self performSelector:@selector(delayMethod) withObject:nil/*可传任意类型参数*/ afterDelay:1.0];
    
 }
+
 -(void)delayMethod{
     [self initData];
     [self.tableview reloadData];
@@ -212,8 +213,9 @@
         if (model.state != TYDownloadStateRunning){
             cell.timeLabel.text = @"等待下载";
         }
+
         [[TYDownLoadDataManager  manager] downloadModel:model progress:^(TYDownloadProgress *progress) {
-            cell.timeLabel.text = [self detailTextForDownloadProgress:progress];
+            cell.timeLabel.text = [self detailTextForDownloadProgress:progress downLoadModel:model];
             if (progress.progress == 1.0000000) {
                 [self initData];
                 [_tableview reloadData];
@@ -339,20 +341,25 @@
 
 
 
-- (NSString *)detailTextForDownloadProgress:(TYDownloadProgress *)progress
+- (NSString *)detailTextForDownloadProgress:(TYDownloadProgress *)progress downLoadModel:(TYDownloadModel *)model
 {
-    NSString *fileSizeInUnits = [NSString stringWithFormat:@"%.2f %@",
+    
+    NSString *fileSizeInUnits;
+    if (KISCLOUD) {
+     fileSizeInUnits =  [TYDownloadUtility calculateUnit:model.size];
+    }else{
+    fileSizeInUnits  = [NSString stringWithFormat:@"%.2f %@",
                                  [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long)progress.totalBytesExpectedToWrite],
                                  [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesExpectedToWrite]];
-    
+    }
 //    NSMutableString *detailLabelText = [NSMutableString stringWithFormat:@"FileSize:%@ Downloaded:%.2f %@ (%.2f%%) Speed: %.2f %@/sec LeftTime: %dsec",fileSizeInUnits,
 //                                        [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long)progress.totalBytesWritten],
 //                                        [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesWritten],progress.progress*100,
 //                                        [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long) progress.speed],
 //                                        [TYDownloadUtility calculateUnit:(unsigned long long)progress.speed]
 //                                        ,progress.remainingTime];
-    NSMutableString *detailLabelText = [NSMutableString stringWithFormat:@"已下载:%.2f/%@ ",
-                                        [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long)progress.totalBytesWritten],
+    NSMutableString *detailLabelText = [NSMutableString stringWithFormat:@"已下载:%@/%@ ",
+                                        [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesWritten],
                                         fileSizeInUnits];
 //     [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesWritten],progress.progress*100
     return detailLabelText;
