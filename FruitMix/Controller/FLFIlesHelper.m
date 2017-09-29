@@ -121,7 +121,7 @@
     _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
     downloadModel.size = model.size;
-    NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
+//    NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
     for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
         if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
@@ -137,12 +137,12 @@
         }
     }
     
-    for (FLDownload * downloadModelIn in downloadedArr) {
-        if ([downloadModelIn.name isEqualToString:downloadModel.fileName]) {
-            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@已下载完成",downloadModel.fileName] duration:1];
-            return;
-        }
-    }
+//    for (FLDownload * downloadModelIn in downloadedArr) {
+//        if ([downloadModelIn.name isEqualToString:downloadModel.fileName]) {
+//            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@已下载完成",downloadModel.fileName] duration:1];
+//            return;
+//        }
+//    }
   
     [manager startWithDownloadModel:downloadModel progress:progress state:state];
      [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
@@ -186,18 +186,86 @@
    
     @weaky(self);
     if ([model.type isEqualToString:@"file"]) {
-        NSString *downloadString = @"下载该文件";
+    
         cell.clickBlock = ^(FLFilesCell * cell){
+            cell.downBtn.userInteractionEnabled = YES;
             weak_self.chooseModel = model;
+            NSString *downloadString  = @"下载该文件";
+            NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
+            
+            for (FLDownload * downloadModelIn in downloadedArr) {
+                if ([downloadModelIn.name isEqualToString:model.name]) {
+                    downloadString = @"重新下载";
+                }
+            }
+            
+            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
+                if ([downloadModelIn.fileName isEqualToString:model.name]) {
+                    downloadString = nil;
+                    cell.downBtn.userInteractionEnabled = NO;
+                }
+            }
+            
+            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+                if ([downloadModelIn.fileName isEqualToString:model.name]) {
+                    downloadString = nil;
+                    cell.downBtn.userInteractionEnabled = NO;
+                }
+            }
+           
+    
+            NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
+            if (downloadString) {
+                [arr addObject:downloadString];
+            }
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
                                                                      delegate:nil
                                                             cancelButtonTitle:@"取消"
-                                                        otherButtonTitleArray:@[downloadString]];
+                                                        otherButtonTitleArray:arr];
             actionSheet.clickedHandle = ^(LCActionSheet *actionSheet, NSInteger buttonIndex){
                 if (buttonIndex == 1) {
+                    if ([downloadString isEqualToString:@"重新下载"]) {
+                        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                        NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",model.name]];
+                        if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                            NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
+                            NSString * exestr = [filePath lastPathComponent];
+                            NSString *urlString;
+                            //    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithCapacity:0];
+                            if (KISCLOUD) {
+                                NSString *sourceUrlString = [NSString stringWithFormat:@"/drives/%@/dirs/%@/entries/%@",DRIVE_UUID,uuid,model.uuid];
+                                NSString *urlStringBase64 = [sourceUrlString base64EncodedString];
+                                urlString= [NSString stringWithFormat:@"%@stations/%@/pipe?resource=%@&method=GET&name=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,urlStringBase64,exestr];
+                            }else{
+                                urlString= [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+                            }
+                            NSString *encodedString = [urlString URLEncodedString];
+                            TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
+//                            [[TYDownLoadDataManager manager]deleteFileWithDownloadModel:downloadModel];
+                            NSMutableArray * arrayTemp = downloadedArr;
+                            
+                            NSArray * array = [NSArray arrayWithArray: arrayTemp];
+                            for (FLDownload * downloadModelIn in array) {
+//                                [downloadedArr removeObject:downloadModelIn];
+                                if ([downloadModelIn.name isEqualToString:model.name]) {
+                                    [FMDBControl  updateDownloadWithFile:downloadModelIn isAdd:NO];
+                                }
+                            }
+                        }else{
+                            NSMutableArray * arrayTemp = downloadedArr;
+                            NSArray * array = [NSArray arrayWithArray: arrayTemp];
+                            for (FLDownload * downloadModelIn in array) {
+//                                  [downloadedArr removeObject:downloadModelIn];
+                                if ([downloadModelIn.name isEqualToString:model.name]) {
+                                    [FMDBControl  updateDownloadWithFile:downloadModelIn isAdd:NO];
+                                }
+                            }
+                        }
+                    }
+                  
                     [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:uuid];
                     [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",model.name] forDuration:0.5];
-
+                    
                     if (viewController) {
                         FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
                         [viewController.navigationController pushViewController:downloadVC animated:YES];

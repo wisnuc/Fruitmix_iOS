@@ -15,6 +15,7 @@
     NSMutableArray * _localphotoDigest;
     CFAbsoluteTime  _start;
     CFAbsoluteTime _end;
+    BOOL  _isLoadFinish;
 }
 
 +(instancetype)shareInstance{
@@ -34,6 +35,7 @@
 
 -(instancetype)init{
     if (self = [super init]) {
+        _isLoadFinish = true;
         self.imageArr = [NSMutableArray arrayWithCapacity:0];
         self.timeArr = [NSMutableArray arrayWithCapacity:0];
 //        self.dataSource = [NSMutableArray arrayWithCapacity:0];
@@ -56,27 +58,30 @@
 //    option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
     _start = CFAbsoluteTimeGetCurrent();
     // do something
-    
-
-    [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result){
-        NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
-        for (FMLocalPhoto * photo in result) {
-            [_photosLocalIds addObject:photo.localIdentifier];//记录本地图的ids
-             FMPhotoAsset * asset = [FMPhotoAsset new];
-             asset.localId = photo.localIdentifier;
-             asset.degist = photo.degist;
-             asset.createtime = photo.createDate;
-            
-            if (asset.degist.length)
-                [_localphotoDigest addObject:asset.degist];
-             [arr addObject:asset];
-        }
-        self.imageArr = arr;
-        [self sequencePhotosAndCompleteBlock:^{
-            //搜索网络数据
-            [self getNetPhotos];
+    if (_isLoadFinish) {
+        _isLoadFinish = false;
+        [FMDBControl getDBPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result){
+            NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
+            for (FMLocalPhoto * photo in result) {
+                [_photosLocalIds addObject:photo.localIdentifier];//记录本地图的ids
+                FMPhotoAsset * asset = [FMPhotoAsset new];
+                asset.localId = photo.localIdentifier;
+                asset.degist = photo.degist;
+                asset.createtime = photo.createDate;
+                
+                if (asset.degist.length)
+                    [_localphotoDigest addObject:asset.degist];
+                [arr addObject:asset];
+            }
+            self.imageArr = arr;
+            [self sequencePhotosAndCompleteBlock:^{
+                //搜索网络数据
+                [self getNetPhotos];
+            }];
         }];
-    }];
+    }
+
+   
 }
 
 -(void)getNetPhotos{
@@ -91,6 +96,7 @@
 //            NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
             NSLog(@"载入Media失败,%@",request.error);
+            _isLoadFinish = true;
         }];
     });
 }
@@ -181,16 +187,20 @@
                 for (IDMPhoto * photo  in photoArr) {
                     __block BOOL isExist = NO;
                     [_imageArr enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                        if ([[obj getPhotoHash] isEqual:[photo getPhotoHash]]) {//数组中已经存在该对象
-                            *stop = YES;
-                            isExist = YES;
+                        if ([[photo class] isKindOfClass:[IDMPhoto class]] && [[obj class] isKindOfClass:[IDMPhoto class]]) {
+                            if ([[obj getPhotoHash] isEqual:[photo getPhotoHash]]) {//数组中已经存在该对象
+                                *stop = YES;
+                                isExist = YES;
+                            }
                         }
+                       
                     }];
                     if (!isExist) {//如果不存在就添加进去
                         [_imageArr addObject:photo];
                     }
                 }
                 [self initPhotosIsRefrash];
+                _isLoadFinish = true;
             }
         }
         

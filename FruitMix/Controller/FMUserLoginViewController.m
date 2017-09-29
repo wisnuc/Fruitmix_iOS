@@ -71,10 +71,12 @@
 }
 
 - (void)loginButtonClick:(UIButton *)sender{
+     FMConfigInstance.isCloud = NO;
     [FMDBControl asyncLoadPhotoToDB];
     [self.view endEditing:YES];
     sender.userInteractionEnabled = NO;
     [SXLoadingView showProgressHUD:@"正在登录"];
+   
     NSString * UUID = [NSString stringWithFormat:@"%@:%@",_user.uuid,IsNilString(_loginTextField.text)?@"":_loginTextField.text];
     NSString * basic = [UUID base64EncodedString];
     [[LoginAPI apiWithServicePath:_service.path AuthorizationBasic:basic]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {

@@ -29,18 +29,18 @@
     NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
     NSString * exestr = [filePath lastPathComponent];
     NSString *urlString;
-//    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithCapacity:0];
+    //    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithCapacity:0];
     if (KISCLOUD) {
-    NSString *sourceUrlString = [NSString stringWithFormat:@"/drives/%@/dirs/%@/entries/%@",DRIVE_UUID,uuid,model.uuid];
-    NSString *urlStringBase64 = [sourceUrlString base64EncodedString];
-    urlString= [NSString stringWithFormat:@"%@stations/%@/pipe?resource=%@&method=GET&name=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,urlStringBase64,exestr];
+        NSString *sourceUrlString = [NSString stringWithFormat:@"/drives/%@/dirs/%@/entries/%@",DRIVE_UUID,uuid,model.uuid];
+        NSString *urlStringBase64 = [sourceUrlString base64EncodedString];
+        urlString= [NSString stringWithFormat:@"%@stations/%@/pipe?resource=%@&method=GET&name=%@",[JYRequestConfig sharedConfig].baseURL,KSTATIONID,urlStringBase64,exestr];
     }else{
-    urlString= [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
+        urlString= [NSString stringWithFormat:@"%@drives/%@/dirs/%@/entries/%@?name=%@",[JYRequestConfig sharedConfig].baseURL,DRIVE_UUID,uuid,model.uuid,exestr];
     }
     NSString *encodedString = [urlString URLEncodedString];
     
     TYDownloadModel * downloadModel = [[TYDownloadModel alloc] initWithURLString:encodedString filePath:filePath];
-//    _downloadModel = downloadModel;
+    //    _downloadModel = downloadModel;
     downloadModel.jy_fileName = model.name;
     downloadModel.size = model.size;
     NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
@@ -54,13 +54,6 @@
     for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
         if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
             [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在等待下载",downloadModel.fileName]  duration:1];
-            return;
-        }
-    }
-    
-    for (FLDownload * downloadModelIn in downloadedArr) {
-        if ([downloadModelIn.name isEqualToString:downloadModel.fileName]) {
-            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@已下载完成",downloadModel.fileName] duration:1];
             return;
         }
     }

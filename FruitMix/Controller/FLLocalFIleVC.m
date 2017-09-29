@@ -30,13 +30,20 @@
 
 @implementation FLLocalFIleVC
 
+- (instancetype)init{
+    if (self = [super init]) {
+       [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(freshData:) name:@"deleteCompleteNoti" object:nil];
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self initData];
     [self configTableView];
     [self createNavBtns];
     self.title = @"文件下载";
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(freshData:) name:@"deleteCompleteNoti" object:nil];
+    
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
@@ -49,7 +56,9 @@
 - (void)freshData:(NSNotification *)noti{
     dispatch_async(dispatch_get_main_queue(), ^{
           [self initData];
-          [self.tableview reloadData];
+        if (self.tableview ) {
+           [self.tableview reloadData];
+        }
     });
 }
 
@@ -253,7 +262,7 @@
         };
 
     }else{
-        model = self.downloadeds[indexPath.row];
+         model = self.downloadeds[indexPath.row];
         uuid = ((FLDownload *)model).uuid;
         cell.nameLabel.text = ((FLDownload *)model).name;
         cell.timeLabel.text = [NSString stringWithFormat:@"下载于:%@",((FLDownload *)model).downloadtime];

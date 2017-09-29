@@ -199,6 +199,7 @@ NSInteger imageUploadCount = 0;
         success(request.dataTask,request.responseJsonObject);
     } failure:^(__kindof JYBaseRequest *request) {
          failure(request.dataTask,request.error);
+        NSLog(@"%@",request.error);
     }];
 }
 

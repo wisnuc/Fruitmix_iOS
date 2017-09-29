@@ -92,6 +92,12 @@
     _usersDic = usersDic;
 }
 
+- (void)setAvatarUrl:(NSString *)avatarUrl{
+    _avatarUrl = avatarUrl;
+    [[NSUserDefaults standardUserDefaults] setObject:avatarUrl forKey:KAVATARURL_STR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 -(NSMutableDictionary *)usersDic{
     if (!_usersDic) {
         NSArray * users = [FMDBControl getAllUsers];

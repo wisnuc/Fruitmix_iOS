@@ -258,18 +258,18 @@
 
 
 +(void)getDBAllLocalPhotosWithCompleteBlock:(selectComplete)block{
-    
     __weak id weakSelf = self;
     dispatch_async([FMUtil setterDefaultQueue], ^{
         FMDBSet * dbSet = [FMDBSet shared];
         if (dbSet.isLoading) {
             //如果 数据库正在同步照片库 等两秒
-//            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0/*延迟执行时间*/ * NSEC_PER_SEC));
-//
-//            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
-   
-                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:1];
-//            });
+            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
+            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+                [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+                    
+                }];
+//                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:2];
+            });
         }else{
             FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
             NSArray * arr = [cmd fetchArray];
@@ -690,15 +690,17 @@
             if (result.count == 1) {
                 [FMFileManagerInstance removeFileWithFileName:download.name andCompleteBlock:^(BOOL isSuccess) {
                     if (isSuccess) {
-                        [self _removeDownloadColum:download.uuid];
-//                        NSLog(@"👎%@😁%@",download.uuid,download.name);
+                        [FMDBControl _removeDownloadColum:download.uuid];
+                        NSLog(@"👎%@😁%@",download.uuid,download.name);
                     }
                 }];
-            }else
-                [self _removeDownloadColum:download.uuid];
+            }else{
+                [FMDBControl _removeDownloadColum:download.uuid];
             NSLog(@"成功删除一条记录：%@",download.name);
-        }else
+            }
+        }else{
             NSLog(@"未下载，无法删除");
+        }
     }
 }
 

@@ -153,7 +153,11 @@
         self.title             = title;
         self.delegate          = delegate;
         self.cancelButtonTitle = cancelButtonTitle;
-        self.otherButtonTitles = otherButtonTitleArray;
+        if (otherButtonTitleArray.count >0 && otherButtonTitleArray!=nil) {
+            self.otherButtonTitles = otherButtonTitleArray;
+        }else{
+            self.otherButtonTitles = [NSMutableArray arrayWithCapacity:0];
+        }
         
         [self setupView];
     }

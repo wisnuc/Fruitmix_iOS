@@ -39,6 +39,8 @@ WXApiDelegate
     NSTimer* _reachabilityTimer;
     NSMutableArray *_userDataSource;
     ChooseAlertView *_alertView;
+    RACSubject *_subject;
+    NSString * _avatarUrl;
 }
 @property (strong, nonatomic) UIScrollView *stationScrollView;
 @property (strong, nonatomic) UIView *stationCardView;
@@ -64,11 +66,13 @@ WXApiDelegate
 @property (nonatomic) NSString *token;
 @property (nonatomic) NSString *nickName;
 
+
 @end
 
 @implementation FMLoginViewController
 
 - (void)viewWillAppear:(BOOL)animated{
+    
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:animated];
 //    [self.navigationController.navigationBar setBackgroundColor:UICOLOR_RGB(0x0288d1)];
@@ -77,6 +81,7 @@ WXApiDelegate
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
       _reachabilityTimer =  [NSTimer scheduledTimerWithTimeInterval:12 target:self selector:@selector(searchingAndRefresh) userInfo:nil repeats:YES];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -420,6 +425,8 @@ WXApiDelegate
     NSString *GUID = userDic[@"id"];
     _guid = GUID;
     _nickName = userDic[@"nickName"];
+    NSString *avatarString = userDic[@"avatarUrl"];
+    _avatarUrl = avatarString;
     MyNSLog(@"Cloud登录");
     FMConfigInstance.userToken = token;
     FMConfigInstance.userUUID = userDic[@"id"];
@@ -446,31 +453,64 @@ WXApiDelegate
             _reachabilityTimer = nil;
             [_browser stopServer];
              self.cloudLoginStationArray=[NSMutableArray arrayWithCapacity:0];
-            for (NSDictionary *dic in dataArray) {
-                NSNumber * isOnlineNumber = dic[@"isOnline"];
-                BOOL isOnline =  [isOnlineNumber boolValue];
-                if (isOnline) {
-                    FMConfigInstance.isCloud = YES;
-                    //常规登录
-//                    [self LoginActionWithUserDic:userDic StationDic:dic];
-                    [weak_self getUsersWithStationDic:dic completeBlock:^(NSMutableDictionary *mutableDic) {
-                    }];
-//                    [_cloudOriginStationArray addObject:dic];
+            _subject = [RACSubject subject];
+            [weak_self setChooseView];
+//            __block BOOL fresh = false;
+//            [dataArray enumerateObjectsUsingBlock:^(NSDictionary *dic, NSUInteger idx, BOOL * _Nonnull stop) {
+//                 NSNumber * isOnlineNumber = dic[@"isOnline"];
+//                 BOOL isOnline =  [isOnlineNumber boolValue];
+//                if (isOnline) {
+//                    FMConfigInstance.isCloud = YES;
+//                    //常规登录
+//                    //[self LoginActionWithUserDic:userDic StationDic:dic];
+//                    [weak_self getUsersWithStationDic:dic completeBlock:^(NSMutableDictionary *mutableDic) {
+//                        _alertView.hidden = NO;
+//                        [_subject sendNext:@"1"];
+//                    }];
+//                    *stop = YES;
+                      FMConfigInstance.isCloud = NO;
+            
+                    for (NSDictionary *dic in dataArray) {
+                        NSLog(@"%@",dic);
+                        NSNumber * isOnlineNumber = dic[@"isOnline"];
+                        BOOL isOnline =  [isOnlineNumber boolValue];
+                        if (isOnline) {
+                            FMConfigInstance.isCloud = YES;
+                            //常规登录
+                            //[self LoginActionWithUserDic:userDic StationDic:dic];
+                            [weak_self getUsersWithStationDic:dic completeBlock:^(NSMutableDictionary *mutableDic) {
+                                _alertView.hidden = NO;
+                                [_subject sendNext:@"1"];
+                            }];
+                        }else{
+                          [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
+                        }
+                    }
+                    
+//                }
+//            }];
+            
+            [_subject subscribeNext:^(id x) {
+                // block调用时刻：当信号发出新值，就会调用.
+                if (self.cloudLoginStationArray.count == 0) {
+                    FMConfigInstance.userToken = nil;
+                    FMConfigInstance.isCloud = NO;
+                    [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
+                }else{
+                    [_alertView.tableView reloadData];
                 }
-            }
-//            MyNSLog(@"%@",weak_self.cloudLoginStationArray);
+            }];
+           
             FMConfigInstance.userToken = nil;
 //            self.cloudLoginStationArray = userArr;
-            if (self.cloudLoginStationArray.count == 1) {
-                [self loginButtonClick:nil];
-            }else if (self.cloudLoginStationArray.count == 0) {
-                FMConfigInstance.userToken = nil;
-                FMConfigInstance.isCloud = NO;
-                 [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
-            }else{
-                [weak_self setChooseView];
-                [_alertView.tableView reloadData];
-            }
+//            if (self.cloudLoginStationArray.count == 1) {
+//                [self loginButtonClick:nil];
+//            }else
+
+    
+                // block调用时刻：每当有信号发出数据，就会调用block.
+     
+            
 //            FMConfigInstance.isCloud = nil;
         }
     } failure:^(__kindof JYBaseRequest *request) {
@@ -496,10 +536,11 @@ WXApiDelegate
                      mutableDic = [NSMutableDictionary dictionaryWithDictionary:dic];
                     [mutableDic addEntriesFromDictionary:stationDic];
                     NSLog(@"%@",mutableDic);
-                  [_cloudLoginStationArray addObject:mutableDic];
-                    [_alertView.tableView reloadData];
+                    [_cloudLoginStationArray addObject:mutableDic];
+                 
                     block(mutableDic);
                 }
+                   [_alertView.tableView reloadData];
             }
         }
  
@@ -515,6 +556,7 @@ WXApiDelegate
     _alertView.tableView.dataSource = self;
     [_alertView.loginButton addTarget:self action:@selector(loginButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     [[[[UIApplication sharedApplication] windows] lastObject] addSubview:_alertView];
+    _alertView.hidden = YES;
 }
 
 - (void)loginButtonClick:(UIButton *)sender{
@@ -533,7 +575,8 @@ WXApiDelegate
     }
     FMConfigInstance.userToken = _token;
     FMConfigInstance.isCloud = YES;
-     FMConfigInstance.userUUID = mutableDic[@"uuid"];
+    FMConfigInstance.userUUID = mutableDic[@"uuid"];
+    FMConfigInstance.avatarUrl = _avatarUrl;
     [[NSUserDefaults standardUserDefaults] setObject:mutableDic[@"id"] forKey:KSTATIONID_STR];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [[NSUserDefaults standardUserDefaults]setObject:@0 forKey:@"addCount"];

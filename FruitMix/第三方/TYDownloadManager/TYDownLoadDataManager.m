@@ -334,7 +334,7 @@
 // 取消下载
 - (void)cancleWithDownloadModel:(TYDownloadModel *)downloadModel
 {
-    if (!downloadModel.task && downloadModel.state == TYDownloadStateReadying) {
+    if ((!downloadModel.task && downloadModel.state == TYDownloadStateReadying)||downloadModel.state == TYDownloadStateReadying) {
         [self removeDownLoadingModelForURLString:downloadModel.downloadURL];
         @synchronized (self) {
             [self.waitingDownloadModels removeObject:downloadModel];

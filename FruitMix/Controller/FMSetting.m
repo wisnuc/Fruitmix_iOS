@@ -109,7 +109,7 @@
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 3;
+    return 2;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -156,17 +156,19 @@
 //            progressLb.hidden = !_displayProgress;
 //        }
     }
-    if (indexPath.row == 1) {
-        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
-        titleLb.text = @"手机网络上传:";
-        titleLb.font = [UIFont systemFontOfSize:17];
-        [cell.contentView addSubview:titleLb];
-        
-        UISwitch *switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
-        switchBtn.on = SHOULD_WLNN_UPLOAD;
-        [switchBtn addTarget:self  action:@selector(switchBtnHandleForWWNN:) forControlEvents:UIControlEventValueChanged];
-        [cell.contentView addSubview:switchBtn];
-    }else if(indexPath.row == 2){
+//    if (indexPath.row == ) {
+//        UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
+//        titleLb.text = @"手机网络上传:";
+//        titleLb.font = [UIFont systemFontOfSize:17];
+//        [cell.contentView addSubview:titleLb];
+//
+//        UISwitch *switchBtn = [[UISwitch alloc]initWithFrame:CGRectMake(__kWidth - 70, 16, 50, 40)];
+//        switchBtn.on = SHOULD_WLNN_UPLOAD;
+//        [switchBtn addTarget:self  action:@selector(switchBtnHandleForWWNN:) forControlEvents:UIControlEventValueChanged];
+//        [cell.contentView addSubview:switchBtn];
+//    }
+else
+        if(indexPath.row == 1){
         UILabel * titleLb = [[UILabel alloc] initWithFrame:CGRectMake(16, 23, 200, 17)];
         titleLb.text = @"清除缓存";
         titleLb.font = [UIFont systemFontOfSize:17];
@@ -207,7 +209,7 @@
 //        _displayProgress = !_displayProgress;
 //        [self.settingTableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
-    else if (indexPath.row == 2) {
+    else if (indexPath.row == 1) {
         NSUInteger  i = [SDImageCache sharedImageCache].getSize;
        i = i + [[YYImageCache sharedCache].diskCache totalCost];
         if(i>0){

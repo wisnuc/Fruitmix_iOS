@@ -24,6 +24,7 @@ block();\
 @property (nonatomic) NSString * deviceUUID;
 @property (nonatomic) NSString * userUUID;
 @property (nonatomic) NSString * nickName;
+@property (nonatomic) NSString * avatarUrl;
 @property (nonatomic) BOOL isCloud;
 
 @property (nonatomic) NSMutableDictionary * usersDic;//存储所有用户的map
