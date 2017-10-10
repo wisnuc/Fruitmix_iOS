@@ -70,7 +70,7 @@ typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
 /**
  *  后台计算 本地新增图片 的 degist
  */
-+(void)calculateDigestWhenPhotoHaveNot;
++(void)calculateDigestWhenPhotoHaveNotCompleteBlock:(void(^)(NSArray * arr))block;
 /*
  *  计算单张 本地照片 的 digest
  *

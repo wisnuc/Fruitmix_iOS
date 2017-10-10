@@ -225,6 +225,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     _addButton.hidden = NO;
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     self.cellStatus = FLFliesCellStatusCanChoose;
+    _countLb.text = [NSString stringWithFormat:@"已选%ld个文件",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
     [self.tableview reloadData];
     //     }
 }
@@ -240,6 +241,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
     _addButton.hidden = YES;
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     self.cellStatus = FLFliesCellStatusNormal;
+     _countLb.text = [NSString stringWithFormat:@"已选1个文件"];
     [self.tableview reloadData];
 }
 
@@ -513,7 +515,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
                 [[FLFIlesHelper helper] removeChooseFile:model];
             }else
                 [[FLFIlesHelper helper] addChooseFile:model];
-            _countLb.text = [NSString stringWithFormat:@"已选%ld张",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
+            _countLb.text = [NSString stringWithFormat:@"已选%ld个文件",(unsigned long)[FLFIlesHelper helper].chooseFiles.count];
             [self.tableview reloadData];
         }else{
             NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -660,7 +662,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
         [_chooseHeadView addSubview:leftBtn];
         
         //    }
-        _countLb.text = @"选择文件";
+        _countLb.text = [NSString stringWithFormat:@"已选1个文件"];
         _countLb.font = [UIFont fontWithName:FANGZHENG size:16];
     }
     return _chooseHeadView;

@@ -83,6 +83,7 @@ static MBProgressHUD  *s_progressHUD = nil;
         s_progressHUD.removeFromSuperViewOnHide = YES;
         s_progressHUD.animationType = MBProgressHUDAnimationZoom;
         s_progressHUD.dimBackground = YES;
+//        s_progressHUD.
         if ([aString length]>0) {
             s_progressHUD.labelText = aString;
         }
@@ -90,6 +91,9 @@ static MBProgressHUD  *s_progressHUD = nil;
         
         s_progressHUD.opacity = 0.7;
         [s_progressHUD show:YES];
+        if (s_progressHUD) {
+             [s_progressHUD hide:YES afterDelay:30];
+        }
     });
     
     
@@ -113,7 +117,7 @@ static MBProgressHUD  *s_progressHUD = nil;
 + (void)hideProgressHUD {
     if (s_progressHUD) {
         dispatch_async(dispatch_get_main_queue(), ^{
-           [s_progressHUD hide:YES afterDelay:20];
+           [s_progressHUD hide:YES];
             [s_progressHUD removeFromSuperview];
         });
     }

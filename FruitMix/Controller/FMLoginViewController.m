@@ -102,11 +102,18 @@ WXApiDelegate
     [_browser stopServer];
 }
 
+- (instancetype)init{
+    if (self = [super init]) {
+   
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     _dataSource = [NSMutableArray arrayWithCapacity:0];
-    [self firstbeginSearching];
     [self.view addSubview:self.stationScrollView];
+ 
     [self setStationCardView];
     [self.view addSubview:self.stationPageControl];
     [self.view addSubview:self.logoImageView];
@@ -114,6 +121,7 @@ WXApiDelegate
     [self.view addSubview:self.userListTableViwe];
     [self.view addSubview:self.wechatView];
     [self.view addSubview:self.handButton];
+    [self firstbeginSearching];
 }
 
 - (void)beginSearching {
@@ -136,7 +144,7 @@ WXApiDelegate
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         NSLog(@"发现 %lu 台设备",(unsigned long)_browser.discoveredServers.count);
         if (_browser.discoveredServers.count == 0) {
-            [self viewOfSeaching:NO];
+             [SXLoadingView hideProgressHUD];
         }
         
     });
@@ -145,7 +153,6 @@ WXApiDelegate
 -(void)viewOfSeaching:(BOOL)seaching{
     if(seaching){
         [SXLoadingView showProgressHUD:@"正在搜索..."];
-    
     }else{
         [SXLoadingView hideProgressHUD];
     }

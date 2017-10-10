@@ -42,6 +42,7 @@
         _photosLocalIds = [NSMutableSet set];
         _localphotoDigest = [NSMutableArray arrayWithCapacity:0];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibruaryChange) name:PHOTO_LIBRUARY_CHANGE_NOTIFY object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(initPhotos) name:@"calculateDigestComplete" object:nil];
         [self initPhotos];
     }
     return self;
@@ -101,70 +102,6 @@
     });
 }
 
-- (void)siftPhotos{
-    @weaky(self)
-    NSString *entryuuid = PHOTO_ENTRY_UUID;
-    [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-        //                    NSLog(@"%@",responseObject);
-        NSDictionary * dic = responseObject;
-        NSMutableArray * photoArrHash = [NSMutableArray arrayWithCapacity:0];
-        
-        NSArray * arr = [dic objectForKey:@"entries"];
-        for (NSDictionary *dic in arr) {
-            FMNASPhoto *nasPhoto = [FMNASPhoto yy_modelWithJSON:dic];
-            [photoArrHash addObject:nasPhoto.fmhash];
-        }
-         dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-            NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
-            for (FMLocalPhoto * p in result) {
-                if (p.degist.length >0) {
-                    [localPhotoHashArr addObject:p.degist];
-                }
-            }
-            NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
-            NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
-            
-            NSPredicate * filterPredicate_same = [NSPredicate predicateWithFormat:@"SELF IN %@",[localPhotoHashArrSet allObjects]];
-            NSArray * filter_no = [[photoArrHashSet allObjects] filteredArrayUsingPredicate:filterPredicate_same];
-            NSMutableArray * siftPhotoArrHash  = [NSMutableArray arrayWithCapacity:0];
-            [siftPhotoArrHash addObjectsFromArray:filter_no];
-//            NSLog(@"😜😜😜😜😜%ld",(long)filter_no.count);
-            [[NSUserDefaults standardUserDefaults] setObject:siftPhotoArrHash forKey:@"uploadImageArr"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-            
-            MyNSLog(@"请求NAS 照片返回%@",responseObject);
-//            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];
-//            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
-        }];
-        
-         });
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-        NSLog(@"%ld",(long)rep.statusCode);
-        
-        if (rep.statusCode == 404) {
-            [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
-                if (successful) {
-                    [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
-                        if (successful) {
-                            [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
-                                if (successful) {
-                                    [weak_self siftPhotos];
-                                }
-                            }];
-                        }
-                    }];
-                }
-            }];
-            //
-        }
-        
-    }];
-    
-}
-
-
 -(void)analysisPhotos:(id)response{
     NSArray * userArr ;
     if ([response isKindOfClass:[NSArray class]]) {
@@ -182,8 +119,12 @@
                     [photoArr addObject:nasPhoto];
                 }
             }
-            if (photoArr.count) {
+            if (photoArr.count>0) {
                 self.netphotoArr = photoArr;
+                FMDBSet * dbSet = [FMDBSet shared];
+                if (dbSet.degistIsLoading) {
+                     [_imageArr addObjectsFromArray:photoArr];
+                }else{
                 for (IDMPhoto * photo  in photoArr) {
                     __block BOOL isExist = NO;
                     [_imageArr enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -199,7 +140,11 @@
                         [_imageArr addObject:photo];
                     }
                 }
+              }
                 [self initPhotosIsRefrash];
+                _isLoadFinish = true;
+            }else{
+               [self initPhotosIsRefrash];
                 _isLoadFinish = true;
             }
         }

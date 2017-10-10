@@ -28,6 +28,8 @@
 
 @property (nonatomic)BOOL isLoading;
 
+@property (nonatomic)BOOL degistIsLoading;
+
 @property (nonatomic) FMDTContext * photo;
 
 @property (nonatomic) FMDTContext * nasPhoto;

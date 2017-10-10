@@ -333,7 +333,7 @@
         [_chooseHeadView addSubview:leftBtn];
         [self.navigationController.view addSubview:_chooseHeadView];
     }
-    _countLb.text = @"选择照片";
+//    _countLb.text = @"选择照片";
     _countLb.font = [UIFont fontWithName:FANGZHENG size:16];
     [UIView animateWithDuration:0.5 animations:^{
         _chooseHeadView.transform = CGAffineTransformTranslate(_chooseHeadView.transform, 0, 64);
@@ -883,15 +883,15 @@
      self.collectionView.mj_header.hidden = YES;
 //    self.collectionView.mj_header.hidden = YES;
     NSIndexPath * indexPath = [self.collectionView indexPathForCell:cell];
-    FMPhotoAsset * asset = self.photoDataSource.dataSource[indexPath.section][indexPath.row];
+    FMPhotoAsset * asset = self.photoDataSource.dataSource[indexPath.section][indexPath.row]; 
     
-   
+  
     self.collectionView.fmState = FMPhotosCollectionViewCellStateCanChoose;
     [self.collectionView reloadData];
     _rightbtn.userInteractionEnabled = NO;
     [self addLeftBtn];
     _addButton.hidden = NO;
-    
+      _countLb.text = [NSString stringWithFormat:@"已选1张"];
     BOOL shouldChoose = YES;
 //    if ([self.photoDataSource.netphotoArr containsObject:asset]) {
 //        FMNASPhoto * p = (FMNASPhoto *)asset;

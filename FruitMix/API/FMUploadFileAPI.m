@@ -386,6 +386,7 @@ NSInteger imageUploadCount = 0;
     } CompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.responseJsonObject);
       NSArray * arr = request.responseJsonObject;
+        
       for (NSDictionary *entriesDic in arr) {
        NSDictionary *dic = entriesDic[@"data"];
       EntriesModel *model = [EntriesModel yy_modelWithDictionary:dic];
@@ -409,14 +410,9 @@ NSInteger imageUploadCount = 0;
     [[FLCreateFolderAPI apiWithParentUUID:DRIVE_UUID finderName:@"上传的照片"] startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.responseJsonObject);
         NSArray * arr ;
-        if (!KISCLOUD) {
-            NSDictionary * dic =  request.responseJsonObject;
-            arr = dic[@"entries"];
-        }else {
-            NSDictionary * dic =  request.responseJsonObject;
-            NSDictionary * entriesDic = dic[@"data"];
-            arr = entriesDic[@"entries"];
-        }
+        NSDictionary * dic =  request.responseJsonObject;
+        NSDictionary * entriesDic = dic[@"data"];
+        arr = entriesDic[@"entries"];
         for (NSDictionary *entriesDic in arr) {
             EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
             if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
@@ -433,10 +429,7 @@ NSInteger imageUploadCount = 0;
         }
         NSLog(@"%@",request.error);
     }];
-         
-         
-         
-//
+
 //         startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
 //            NSDictionary *dic= @{@"op": @"mkdir"};
 //            NSData *data= [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:nil];

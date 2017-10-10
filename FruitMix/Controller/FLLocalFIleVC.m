@@ -111,20 +111,20 @@
 -(void)deleteChooseFiles{
     for (TYDownloadModel * model in self.needDownloads) {
         if ([self.chooseArr containsObject:model.fileName]) {
+            [self.chooseArr removeObject:model];
             [[TYDownLoadDataManager manager] cancleWithDownloadModel:model];
-            [self.chooseArr removeObject:model.fileName];
             [[TYDownLoadDataManager manager] deleteFileWithDownloadModel:model];
             [self deleteFilesWithFileName:model.fileName];
         }
     }
     
     NSMutableArray * arrayTemp = self.downloadeds;
-    
     NSArray * array = [NSArray arrayWithArray: arrayTemp];
-    
     for (FLDownload * down in array) {
         if ([self.chooseArr containsObject:down.uuid]) {
+            [self.downloadeds removeObject:down];
             [FMDBControl updateDownloadWithFile:down isAdd:NO];
+           
         }
     }
     [self changeStatus];

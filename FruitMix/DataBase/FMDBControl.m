@@ -118,6 +118,7 @@
 +(void)asyncLoadPhotoToDBWithCompleteBlock:(void(^)(NSArray * addArr))block{    
     FMDBSet * dbSet = [FMDBSet shared];
     dbSet.isLoading = YES;
+    dbSet.degistIsLoading = YES;
     dispatch_async([FMUtil setterDefaultQueue], ^{
         PhotoManager * manager = [PhotoManager shareManager];
         [manager getAllPHAssetAndCompleteBlock:^(NSArray<PHAsset *> *result) {
@@ -184,14 +185,24 @@
                         //执行插入操作
                         [icmd saveChangesInBackground:^{
                             NSLog(@"照片入库完成");
-                            dbSet.isLoading = NO;
-                            
                             result2 = nil;
                             //后台 计算 degist
-                            [PhotoManager calculateDigestWhenPhotoHaveNot];
+                            dbSet.isLoading = NO;
+                            [PhotoManager calculateDigestWhenPhotoHaveNotCompleteBlock:^(NSArray *arr) {
+                            [[NSNotificationCenter defaultCenter]postNotificationName:@"calculateDigestComplete" object:nil];
+//                                BOOL switchOn = SWITHCHON_BOOL
+//                                if (switchOn) {
+//                                    [PhotoManager shareManager].canUpload = NO;
+//                                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC);
+//                                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+//                                        [PhotoManager shareManager].canUpload = YES;
+//                                    });
+//                                }
+                                 dbSet.degistIsLoading = NO;
+                            }];
                             if (block)
                                 block(addArr);
-                            
+                         
                         }];
                     }
                 }];
@@ -231,7 +242,7 @@
         if (dbSet.isLoading) {
             //如果 数据库正在同步照片库 等两秒
             dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf performSelector:@selector(getDBPhotosWithCompleteBlock:) withObject:block afterDelay:1];
+                [weakSelf performSelector:@selector(getDBPhotosWithCompleteBlock:) withObject:block afterDelay:2];
             });
         }else{
             FMDTSelectCommand * scmd  = FMDT_SELECT(dbSet.syncLogs);
@@ -256,20 +267,22 @@
 }
 
 
-
 +(void)getDBAllLocalPhotosWithCompleteBlock:(selectComplete)block{
     __weak id weakSelf = self;
     dispatch_async([FMUtil setterDefaultQueue], ^{
         FMDBSet * dbSet = [FMDBSet shared];
-        if (dbSet.isLoading) {
+        if (dbSet.degistIsLoading) {
             //如果 数据库正在同步照片库 等两秒
-            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
-            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
-                [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-                    
-                }];
-//                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:2];
-            });
+//            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
+//            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+//                [weakSelf getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
+//                }];
+             dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:5];
+                 });
+//            });
+        
+//            [weakSelf  performSelectorInBackground:@selector(getDBAllLocalPhotosWithCompleteBlock:)  withObject:block];
         }else{
             FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
             NSArray * arr = [cmd fetchArray];

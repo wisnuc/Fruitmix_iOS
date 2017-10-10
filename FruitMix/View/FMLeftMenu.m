@@ -88,16 +88,16 @@
         make.centerY.equalTo(_backupLabel.mas_centerY);
         make.right.equalTo(_progressLabel.mas_left).offset(-6);
     }];
-    
 
+     [self getUserInfo];
     
     if (KISCLOUD) {
+         self.nameLabel.text = _userInfo.userName;
         NSString *avatarUrl = KAVATARURL;
         [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:avatarUrl] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             
         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
             self.userHeaderIV.image = [self imageCirclewithImage:image];
-            
         }];
     }
     
@@ -120,12 +120,9 @@
     [notiCenter addObserver:self selector:@selector(receiveNotificationForUploadOverNoti:) name:@"uploadOverNoti" object:nil];
     [notiCenter addObserver:self selector:@selector(synchronizeStationPhoto) name:@"synchronizeStationPhoto" object:nil];
 
+
      dispatch_async(dispatch_get_main_queue(), ^{
-         [self getUserInfo];
-         self.nameLabel.text = _userInfo.userName;
-         self.bonjourLabel.text = _userInfo.bonjour_name;
-         
-         //===================================优雅的分割线/备份详情==========================================
+
          UILabel * progressLb = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, __kWidth, 15)];
          progressLb.font = [UIFont systemFontOfSize:12];
          progressLb.textAlignment = NSTextAlignmentCenter;
@@ -134,11 +131,10 @@
          });
     self.nameLabel.font = [UIFont fontWithName:DONGQING size:14];
     if (KISCLOUD) {
-       
+
     }
     else{
-        self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
-        self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
+       
     }
   
      });
@@ -166,7 +162,7 @@
 -(instancetype)initWithCoder:(NSCoder *)aDecoder{
     self = [super initWithCoder:aDecoder];
     if (self) {
-    
+       
     }
     return self;
 }
@@ -244,9 +240,9 @@
 //    }
 }
 
+
 - (void)getAllPhotoCount{
     @weaky(self)
-//    [FMDBControl  asyncLoadPhotoToDB];
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     [weak_self siftPhotosWithBlock:^(NSMutableArray *uploadArray) {
 //        [FMDBControl asyncLoadPhotoToDBWithCompleteBlock:^(NSArray *addArr) {
@@ -386,7 +382,6 @@
                                         [photoArrHash addObject:nasPhoto.fmhash];
                                     }
 //                                    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                    
                                         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                                             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
                                             for (FMLocalPhoto * p in result) {
@@ -394,7 +389,6 @@
                                                     [localPhotoHashArr addObject:p.degist];
                                                 }
                                             }
-                                            
                                             //                MyNSLog(@"%u",localPhotoHashArr.count);
                                             NSSet *photoArrHashSet = [NSSet setWithArray:photoArrHash];
                                             NSSet *localPhotoHashArrSet = [NSSet setWithArray:localPhotoHashArr];
@@ -416,6 +410,18 @@
                                         
 //                                    });
                                 } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                                    NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
+                                    NSLog(@"%ld",(long)rep.statusCode);
+                                    if (rep.statusCode == 404) {
+                                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+                                        if ([NSThread isMainThread]) {
+                                          [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                                        }else{
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                             [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                                        });
+                                        }
+                                    }
                                 }];
                             }
                         }];
@@ -470,8 +476,14 @@
         NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
         NSLog(@"%ld",(long)rep.statusCode);
         if (rep.statusCode == 404) {
-         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
-            [weak_self siftPhotosWithBlock:nil];
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
+            if ([NSThread isMainThread]) {
+                [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+            }else{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                });
+            }
         }
         }];
     }
@@ -479,10 +491,15 @@
 
 -(void)layoutSubviews{
     [super layoutSubviews];
-
+    [self getUserInfo];
+    if (!KISCLOUD) {
+        self.bonjourLabel.text = _userInfo.bonjour_name;
+        self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
+        self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
+    }
 //    [cell.contentView addSubview:progressLb];
 //    progressLb.hidden = !_displayProgress;
-    ;
+
 }
 -(NSString *)notRounding:(float)price afterPoint:(int)position{
     NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:position raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:NO];
@@ -567,6 +584,7 @@
 - (void)receiveNotificationForPhotoChange:(NSNotification *)noti{
     [self receiveNotification:nil];
 }
+
 - (void)receiveNotificationForUploadOverNoti:(NSNotification *)noti{
       [self getAllPhotoCount];
 //      [FMUserLoginViewController siftPhotoFromNetwork];
@@ -610,7 +628,6 @@
                         self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                         self.backUpProgressView.progress = progress;
                         NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
-
                         self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
                     }
                 }else{

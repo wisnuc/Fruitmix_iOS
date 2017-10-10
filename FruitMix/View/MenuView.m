@@ -244,10 +244,10 @@
 -(void)openMenuView{
     
     FMLeftMenu * view = (FMLeftMenu *)self.leftMenuView;
-    if (!KISCLOUD) {
-        view.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
-        view.userHeaderIV.image = [UIImage imageForName:view.nameLabel.text size:view.userHeaderIV.bounds.size];
-    }
+//    if (!KISCLOUD) {
+//        view.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
+//        view.userHeaderIV.image = [UIImage imageForName:view.nameLabel.text size:view.userHeaderIV.bounds.size];
+//    }
 
     [UIView animateWithDuration:0.3 animations:^{
         CGFloat x           = 0;
