@@ -492,7 +492,9 @@
                 if (image && isShare) [tempDownArr addObject:image];
                 [weak_self.pv setValueForProcess:progress];
                 if (items.count > complete) {
-                    [weak_self downloadItem:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+                    if (_shouldDownload) {
+                        [weak_self downloadItem:items[finish] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+                    }
                 }else{
                     _shouldDownload = NO;
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -503,7 +505,9 @@
                     });
                 }
             };
-            [self downloadItem:items[0] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+            if (_shouldDownload) {
+                [self downloadItem:items[0] withShare:isShare withCompleteBlock:weakHelper.downloadCompleteBlock];
+            }
         }
     });
 }

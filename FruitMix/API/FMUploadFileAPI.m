@@ -113,7 +113,8 @@ NSInteger imageUploadCount = 0;
 //}
 
 + (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock{
-    [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
+    @weaky(self)
+    [weak_self getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
         NSLog(@"🍄%@",responseObject);
         NSArray * arr ;
         if (!KISCLOUD) {
@@ -133,13 +134,13 @@ NSInteger imageUploadCount = 0;
                     completeBlock(YES);
                 }else{
                     if (KISCLOUD) {
-                        [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                        [weak_self creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                             if (successful) {
                                 completeBlock(YES);
                             }
                         }];
                     }else{
-                    [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                    [weak_self creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                         if (successful) {
                             completeBlock(YES);
                         }
@@ -149,13 +150,13 @@ NSInteger imageUploadCount = 0;
             }
         }else{
             if (KISCLOUD) {
-                [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                [weak_self creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                     if (successful) {
                         completeBlock(YES);
                     }
                 }];
             }else{
-                [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                [weak_self creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                     if (successful) {
                         completeBlock(YES);
                     }
@@ -495,7 +496,7 @@ NSInteger imageUploadCount = 0;
 + (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
     @weaky(self)
     NSString *photoDirName = [NSString stringWithFormat:@"来自%@",[FMUploadFileAPI getDeviceName]];
-    [FMUploadFileAPI getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
+    [weak_self getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
         NSArray * arr ;
         if (!KISCLOUD) {
             NSDictionary * dic = responseObject;

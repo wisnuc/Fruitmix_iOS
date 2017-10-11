@@ -431,7 +431,6 @@
         }];
     }else{
     [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
-
         NSArray * arr ;
         if (!KISCLOUD) {
             NSDictionary * dic =  responseObject;
@@ -492,8 +491,8 @@
 -(void)layoutSubviews{
     [super layoutSubviews];
     [self getUserInfo];
+     self.bonjourLabel.text = _userInfo.bonjour_name;
     if (!KISCLOUD) {
-        self.bonjourLabel.text = _userInfo.bonjour_name;
         self.nameLabel.text = [FMConfigInstance getUserNameWithUUID:DEF_UUID];
         self.userHeaderIV.image = [UIImage imageForName:self.nameLabel.text size:self.userHeaderIV.bounds.size];
     }
@@ -614,7 +613,6 @@
 //               overCount ++;
 //                MyNSLog(@"%d",overCount);
                 if ([NSThread isMainThread] ) {
-                    
                     if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
                         self.backUpProgressView.progress = 1;
                         self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
@@ -630,6 +628,7 @@
                         NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
                         self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
                     }
+                      MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
                 }else{
                     dispatch_async(dispatch_get_main_queue(), ^{
                         if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
@@ -648,24 +647,21 @@
 
                             self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
                         }
+                          MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
                     });
                 }
-                MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
-        
     });
 
 }
 
 
 - (void)synchronizeStationPhoto{
-
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSSet *localPhotoHashSetArr = [NSSet setWithArray:result];
             NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashSetArr allObjects]];
             MyNSLog(@"%lu",(unsigned long)arr.count);
             _allCount = [NSNumber numberWithUnsignedInteger:arr.count];
-
             NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
             for (FMLocalPhoto * p in result) {

@@ -324,11 +324,11 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 -(void)fl_Datasource:(FLDataSource *)datasource finishLoading:(BOOL)finish{
     if (datasource == self.dataSource && finish) {
+        [self sequenceDataSource];
+        [self.fileTableView reloadData];
         [_fileTableView.mj_header endRefreshing];
         [self.fileTableView displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES  andTableViewFrame:self.view.bounds
                              andTouchBlock:nil];
-        [self sequenceDataSource];
-        [self.fileTableView reloadData];
     }else{
          [_fileTableView.mj_header endRefreshing];
     }

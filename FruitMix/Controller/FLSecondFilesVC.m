@@ -231,7 +231,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 }
 
 - (void)actionForNormalStatus{
-    if (self.cellStatus == FLFliesCellStatusNormal) {
+    if (self.cellStatus == FLFliesCellStatusNormal){
         return;
     }
     [self.tableview.mj_header setHidden:NO];
@@ -316,7 +316,7 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 //    for ( FLFilesModel * model in isFilesArr) {
 //        [self.dataSource.dataSource addObjectsFromArray:isFilesArr];
 //    }
-    
+   
     NSMutableArray *isFilesArr = [NSMutableArray arrayWithCapacity:0];
     NSMutableArray *isNotFilesArr = [NSMutableArray arrayWithCapacity:0];
     for ( FLFilesModel * model  in self.dataSource.dataSource) {
@@ -470,10 +470,10 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
 -(void)fl_Datasource:(FLDataSource *)datasource finishLoading:(BOOL)finish{
  
     if (datasource == self.dataSource && finish) {
-        [self.tableview.mj_header endRefreshing];
-        [self.tableview displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES andTableViewFrame:self.view.bounds andTouchBlock:nil];
         [self sequenceDataSource];
         [self.tableview reloadData];
+        [self.tableview.mj_header endRefreshing];
+        [self.tableview displayWithMsg:@"暂无文件" withRowCount:self.dataSource.dataSource.count andIsNoData:YES andTableViewFrame:self.view.bounds andTouchBlock:nil];
     }
 }
 
