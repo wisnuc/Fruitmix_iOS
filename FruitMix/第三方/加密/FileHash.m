@@ -62,8 +62,7 @@ typedef struct _FileHashComputationContext {
     CFReadStreamRef readStream = fileURL ? CFReadStreamCreateWithFile(kCFAllocatorDefault, fileURL) : NULL;
     BOOL didSucceed = readStream ? (BOOL)CFReadStreamOpen(readStream) : NO;
     if (didSucceed) {
-        
-        
+
         const size_t chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
         (*context->initFunction)(context->hashObjectPointer);
         BOOL hasMoreData = YES;
@@ -78,7 +77,6 @@ typedef struct _FileHashComputationContext {
                 (*context->updateFunction)(context->hashObjectPointer, (const void *)buffer, (CC_LONG)readBytesCount);
             }
         }
-        
         unsigned char digest[context->digestLength];
         (*context->finalFunction)(digest, context->hashObjectPointer);
         

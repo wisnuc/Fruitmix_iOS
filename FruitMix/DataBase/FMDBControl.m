@@ -189,6 +189,8 @@
                             //后台 计算 degist
                             dbSet.isLoading = NO;
                             [PhotoManager calculateDigestWhenPhotoHaveNotCompleteBlock:^(NSArray *arr) {
+                             
+                             dbSet.degistIsLoading = NO;
                             [[NSNotificationCenter defaultCenter]postNotificationName:@"calculateDigestComplete" object:nil];
 //                                BOOL switchOn = SWITHCHON_BOOL
 //                                if (switchOn) {
@@ -198,7 +200,7 @@
 //                                        [PhotoManager shareManager].canUpload = YES;
 //                                    });
 //                                }
-                                 dbSet.degistIsLoading = NO;
+                            
                             }];
                             if (block)
                                 block(addArr);
@@ -266,7 +268,6 @@
     });
 }
 
-
 +(void)getDBAllLocalPhotosWithCompleteBlock:(selectComplete)block{
     __weak id weakSelf = self;
     dispatch_async([FMUtil setterDefaultQueue], ^{
@@ -278,7 +279,7 @@
 //                [weakSelf getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
 //                }];
              dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:5];
+                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:2];
                  });
 //            });
         

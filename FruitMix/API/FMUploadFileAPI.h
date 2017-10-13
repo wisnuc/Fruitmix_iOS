@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface FMUploadFileAPI : NSObject
+//+(instancetype)shareManager;
 
 +(void)uploadAddressFileWithFilePath:(NSString *)filePath andCompleteBlock:(void(^)(BOOL success))completeBlock;
 + (void)getDriveInfoCompleteBlock:(void(^)(BOOL successful))completeBlock;

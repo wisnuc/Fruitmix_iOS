@@ -645,7 +645,7 @@
             
         };
         
-        // 初始化completionHandler，当post结束之后（无论是done还是cancell）该blog都会被调用
+        // 初始化completionHandler，当post结束之后（无论是done还是cancel）该blog都会被调用
         activityVC.completionWithItemsHandler = myBlock;
         
         //关闭系统的一些activity类型 UIActivityTypeAirDrop 屏蔽aridrop

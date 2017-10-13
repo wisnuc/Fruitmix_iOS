@@ -212,7 +212,6 @@ WXApiDelegate
     }
 }
 
-
 -(void)refreshDatasource{
     NSMutableArray * temp = [NSMutableArray arrayWithCapacity:0];
     _userDataSource = [NSMutableArray arrayWithCapacity:0];
@@ -230,9 +229,15 @@ WXApiDelegate
         [self.userListTableViwe reloadData];
     }
     
-    for (UIView *view in _stationScrollView.subviews) {
-          [view removeFromSuperview];
+//    for (UIView *view in _stationScrollView.subviews) {
+//
+////        MyNSLog(@"%@",view);
+//          [view removeFromSuperview];
+//    }
+    if (_stationScrollView) {
+        [_stationScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }
+
     [self updateInfo];
     [self setStationCardView];
 

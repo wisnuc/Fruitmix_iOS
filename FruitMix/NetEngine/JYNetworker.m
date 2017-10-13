@@ -32,6 +32,7 @@
             [request setValue:headerFields[key] forHTTPHeaderField:key];
         }
     }
+          
 //    if (parameters !=nil) {
 //        NSString *valueStr = [NSString stringWithFormat:@"resource=%@&method=%@",parameters[@"method"],parameters[@"resource"]];
 //        NSData *postData = [valueStr dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];

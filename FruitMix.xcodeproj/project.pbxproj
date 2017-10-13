@@ -1588,7 +1588,7 @@
 		C1C52AE31D26804F007A04F8 /* MenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuView.h; sourceTree = "<group>"; };
 		C1C52AE41D26804F007A04F8 /* MenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuView.m; sourceTree = "<group>"; };
 		C1C52AE61D268058007A04F8 /* FMLeftMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMLeftMenu.h; sourceTree = "<group>"; };
-		C1C52AE71D268058007A04F8 /* FMLeftMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMLeftMenu.m; sourceTree = "<group>"; };
+		C1C52AE71D268058007A04F8 /* FMLeftMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMLeftMenu.m; sourceTree = "<group>"; wrapsLines = 0; };
 		C1C52AE81D268058007A04F8 /* FMLeftMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMLeftMenu.xib; sourceTree = "<group>"; };
 		C1C52AEB1D2A1200007A04F8 /* UIViewController+JYControllerTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+JYControllerTools.h"; sourceTree = "<group>"; };
 		C1C52AEC1D2A1200007A04F8 /* UIViewController+JYControllerTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+JYControllerTools.m"; sourceTree = "<group>"; };

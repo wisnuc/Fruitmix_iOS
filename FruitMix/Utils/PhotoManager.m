@@ -33,6 +33,8 @@
 #import "EntriesModel.h"
 
 #import "FMUserLoginViewController.h"
+
+//#import "Test.h"
 NSString * const UploadFinishNotifi = @"uploadfinish";
 
 static NSString * const kBackgroundSessionIdentifier = @"com.fruitmix.backgroundsession";
@@ -54,6 +56,7 @@ NSString * JY_UUID() {
     BOOL _switchOn;
     NSNumber *_allCount;
     NSOperationQueue *_queue;
+    NSMutableArray *_arr;
 //    NSMutableArray *_imageUploadArr;
 //    NSTimer *_reachabilityTimer;
     
@@ -88,7 +91,6 @@ NSString * JY_UUID() {
         _getImageQueue.maxConcurrentOperationCount = 1;
         _getImageQueue.qualityOfService = NSQualityOfServiceUserInitiated;
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
-      
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(siftUploadArrCompleteBlock:) name:@"siftPhoto" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:@"enterForeground" object:nil];
@@ -180,7 +182,7 @@ NSString * JY_UUID() {
 
 - (void)cleanUploadTask{
     _canUpload = NO;
-    startUpload = YES;
+//    startUpload = YES;
     dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
     dispatch_after(delayTime, dispatch_get_main_queue(), ^{
         [_queue cancelAllOperations];
@@ -421,11 +423,12 @@ NSString * JY_UUID() {
     if (resource.originalFilename) {
         fileName = resource.originalFilename;
     }
-    
+   
     if (asset.mediaType == PHAssetMediaTypeImage) {
         PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
         options.version = PHImageRequestOptionsVersionCurrent;
         options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+        options.resizeMode = PHImageRequestOptionsResizeModeNone;
         options.synchronous = YES;
         options.networkAccessAllowed = YES;
         //[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]
@@ -451,6 +454,9 @@ NSString * JY_UUID() {
                     if([mgr fileExistsAtPath:PATH_IMAGE_FILE])
 //                        dispatch_async(dispatch_get_main_queue(), ^{
                             block(PATH_IMAGE_FILE);
+                    if ([fileName isEqualToString:@"IMG_1284.JPG"]) {
+                        MyNSLog(@"🙄%@",PATH_IMAGE_FILE);
+                    }
 //                        });
                     else
                         block(nil);
@@ -610,7 +616,9 @@ NSString * JY_UUID() {
 -(void)setCanUpload:(BOOL)canUpload{
     _canUpload = canUpload;
     if (canUpload){
+//     if (startUpload||_uploadarray.count == 0) {
         [PhotoManager reStartUploader];
+//         }
     }else{
         [_reachabilityTimer invalidate];
         _reachabilityTimer = nil;
@@ -620,10 +628,7 @@ NSString * JY_UUID() {
 }
 
 +(void)reStartUploader{
-    if (startUpload) {
         [[PhotoManager shareManager] startUploadPhotos];//上传照片
-    }
-   
      BOOL swichOn = SWITHCHON_BOOL;
     if (swichOn) {
         MyNSLog(@"开关状态======>备份开关状态：开启");
@@ -710,10 +715,8 @@ NSString * JY_UUID() {
                                     if (rep.statusCode == 404) {
                                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
                                     }
-                                    startUpload = YES;
-                                    if (switchOn  && shouldUpload) {
-                                        [[PhotoManager shareManager] setCanUpload:YES];
-                                    }
+//                                    startUpload = YES;
+                                     [self performSelector:@selector(siftUploadArrCompleteBlock:) withObject:block];
                                 }];
 
                                 }
@@ -784,10 +787,12 @@ NSString * JY_UUID() {
         if (rep.statusCode == 404) {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
         }
-          startUpload = YES;
-        if (switchOn  && shouldUpload) {
-            [[PhotoManager shareManager] setCanUpload:YES];
-        }
+        
+        [self performSelector:@selector(siftUploadArrCompleteBlock:) withObject:block];
+//          startUpload = YES;
+//        if (switchOn  && shouldUpload) {
+//            [[PhotoManager shareManager] setCanUpload:YES];
+//        }
     }];
 }
 }
@@ -795,13 +800,13 @@ NSString * JY_UUID() {
 //static  NSInteger overCount = 0;
 //标注是否可以上传（wifi）
 BOOL shouldUpload = NO;
-BOOL startUpload = YES;
+
 -(void)startUploadPhotos{
     
         __weak typeof(self) weakSelf = self;
             if (_uploadarray.count == 0) {
                 [self siftUploadArrCompleteBlock:^(NSMutableArray *uploadArr) {
-                      startUpload = NO;
+//                      startUpload = NO;
                      _uploadarray = [NSMutableArray arrayWithArray:uploadArr];
                   MyNSLog(@"回调后判断是否进入上传序列");
                     dispatch_queue_t queue = dispatch_queue_create("tk.bourne.Queue", DISPATCH_QUEUE_SERIAL);
@@ -823,7 +828,7 @@ BOOL startUpload = YES;
                 }];
    
             }else{
-                 startUpload = NO;
+//                 startUpload = NO;
                 dispatch_queue_t queue = dispatch_queue_create("tk.bourne.Queue", DISPATCH_QUEUE_SERIAL);
                 //2.把任务添加到队列中执行
                 dispatch_barrier_async(queue, ^(){
@@ -855,6 +860,7 @@ BOOL startUpload = YES;
     [PhotoManager shareManager].isUploading = YES;
        uploadHelper.singleFailureBlock = ^() {
         NSLog(@"上传失败");
+//        startUpload = YES;
         if (_uploadarray.count == 0) {
                MyNSLog(@"传完了");
             [[NSNotificationCenter defaultCenter]postNotificationName:@"uploadOverNoti" object:nil];
@@ -875,12 +881,12 @@ BOOL startUpload = YES;
     uploadHelper.singleSuccessBlock  = ^(NSString *url) {
         [array addObject:url];
         currentIndex++;
-        
+//         startUpload = YES;
         MyNSLog(@"要上传的所有照片数量======>%lu",(unsigned long)_uploadarray.count);
 //        MyNSLog(@"要上传的所有照片Hash======>%@",imageArr);
         if (_uploadarray.count == 0) {
             MyNSLog(@"传完了");
-
+//           startUpload = YES;
         }
         if (!_canUpload) {
             if (_reachabilityTimer) {
@@ -903,7 +909,7 @@ BOOL startUpload = YES;
         else {
             
             if(_canUpload && shouldUpload){
-                @autoreleasepool {
+//                @autoreleasepool {
                   MyNSLog(@"上传返回成功，即将上传下一张");
 
                _queue  = [[NSOperationQueue alloc] init];
@@ -925,7 +931,7 @@ BOOL startUpload = YES;
                     [_queue cancelAllOperations];
                     return ;
                 }
-            }
+//            }
             }else{
                 [PhotoManager shareManager].isUploading = NO;
             }
@@ -936,7 +942,7 @@ BOOL startUpload = YES;
         if(imageArr.count>0){
             MyNSLog(@"进入上传队列");
             MyNSLog (@"要传的照片Hash=====>%@",_uploadarray[0]);
-            [self uploadImage:_uploadarray[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+            [weakSelf uploadImage:_uploadarray[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
         }
     }
 }
@@ -1041,7 +1047,7 @@ BOOL startUpload = YES;
                     return ;
                 }
                BOOL switchOn = SWITHCHON_BOOL;
-                    startUpload = YES;
+//                    startUpload = YES;
 //                __block BOOL completed = NO;
 //                NSCondition *condition = [[NSCondition alloc] init];
 //                @synchronized(self){
@@ -1196,7 +1202,7 @@ BOOL startUpload = YES;
     [[FMFileManager shareManager] removeFileAtPath:filePath];
     
     if (isSuccess) {
-           startUpload = YES;
+//           startUpload = YES;
 //        dispatch_async([FMUtil setterCacheQueue], ^{
 //            FMDTUpdateCommand * ucmd = [[FMDBSet shared].photo createUpdateCommand];
 //            [ucmd fieldWithKey:@"degist" val:str];
@@ -1243,6 +1249,7 @@ BOOL startUpload = YES;
                 MyNSLog(@"上传一张用时时间%f======>",_end-_start);
                 NSLog(@"上传成功！%@",str);
     //            }];
+
              [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
             if (success) success(str);
             
@@ -1294,13 +1301,13 @@ BOOL startUpload = YES;
 }
 
 +(void)calculateDigestWhenPhotoHaveNotCompleteBlock:(void(^)(NSArray * arr))block{
+    
     dispatch_async([FMUtil setterLowQueue], ^{
         FMDBSet * set = [FMDBSet shared];
         FMDTSelectCommand * scmd = FMDT_SELECT(set.photo);
         [scmd whereIsNull:@"degist"];
         NSArray * photosArr = [scmd fetchArray];
         NSLog(@"共%ld需要计算hash",(unsigned long)photosArr.count);
-     
         if (photosArr.count>0) { //计算digest
               CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
             NSMutableArray *array = [[NSMutableArray alloc] init];
@@ -1325,24 +1332,28 @@ BOOL startUpload = YES;
                     [weakSelf calculateDigestWithLocalId:((FMLocalPhoto *)photosArr[currentIndex]).localIdentifier andCompleteBlock:weakHelper.singleSuccessBlock];
                 }
             };
-            [self calculateDigestWithLocalId:((FMLocalPhoto *)photosArr[0]).localIdentifier andCompleteBlock:weakHelper.singleSuccessBlock];
+            [weakSelf calculateDigestWithLocalId:((FMLocalPhoto *)photosArr[0]).localIdentifier andCompleteBlock:weakHelper.singleSuccessBlock];
         }else{
               block(photosArr);
         }
     });
 }
-
+BOOL startCalculate = YES;
 + (void)_getImageDataWithPHAsset:(PHAsset *)asset andCompleteBlock:(void(^)(NSString * filePath))block{
+
+    if (startCalculate) {
+    startCalculate = NO;
     PHAssetResource *resource = [[PHAssetResource assetResourcesForAsset:asset] firstObject];
     NSString *fileName = @"tempUploadImage.jpg";
     if (resource.originalFilename) {
         fileName = resource.originalFilename;
     }
-    
+  
     if (asset.mediaType == PHAssetMediaTypeImage) {
         PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
         options.version = PHImageRequestOptionsVersionCurrent;
         options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+        options.resizeMode = PHImageRequestOptionsResizeModeNone;
         options.synchronous = YES;
         options.networkAccessAllowed = YES;
         //[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]
@@ -1363,14 +1374,24 @@ BOOL startUpload = YES;
             opt.networkAccessAllowed = YES;
             [[PHAssetResourceManager defaultManager] writeDataForAssetResource:resource toFile:[NSURL fileURLWithPath:PATH_IMAGE_FILE] options:opt completionHandler:^(NSError * _Nullable error) {
                 if (error) {
+                    startCalculate = YES;
                     block(nil);
                 }else{
-                    if([mgr fileExistsAtPath:PATH_IMAGE_FILE])
+                    if([mgr fileExistsAtPath:PATH_IMAGE_FILE]){
+                          startCalculate = YES;
                         //                        dispatch_async(dispatch_get_main_queue(), ^{
                         block(PATH_IMAGE_FILE);
+//                        if ([fileName isEqualToString:@"IMG_9999.JPG"]) {
+//                            MyNSLog(@"😁%@",PATH_IMAGE_FILE);
+//                        }
+                        
                     //                        });
-                    else
+                    }else{
+                          startCalculate = YES;
                         block(nil);
+                       
+                    }
+                    
                 }
             }];
         }
@@ -1378,30 +1399,53 @@ BOOL startUpload = YES;
             NSLog(@"iOS 8.0 - iOS 9.0");
             [[PHImageManager defaultManager] requestImageDataForAsset: asset options: options resultHandler: ^(NSData * imageData, NSString * dataUTI, UIImageOrientation orientation, NSDictionary * info) {
                 if (imageData) {
+                      startCalculate = YES;
                     [imageData writeToFile:PATH_IMAGE_FILE atomically:YES];
                     dispatch_async(dispatch_get_main_queue(), ^{
                         block(PATH_IMAGE_FILE);
                     });
                 }else{
                     block(nil);
+                      startCalculate = YES;
                 }
             }];
         }
     }else{
         block(nil);
+         startCalculate = YES;
+    }
     }
 }
 
+
 +(void)calculateDigestWithLocalId:(NSString *)localId andCompleteBlock:(void(^)(BOOL success,NSString * digest))block{
+ 
+    @weaky(self)
     NSAssert(!IsNilString(localId), @"localId can not be nil when calculate digest");
     PHAsset * asset = [[FMLocalPhotoStore shareStore] checkPhotoIsLocalWithLocalId:localId];
+//    if (!IsEquallString(asset.localIdentifier, localId)) {
+//        MyNSLog(@"🍄AssetLocalId>>>>>>> %@,loaclId>>>>>>>>> %@", asset.localIdentifier,localId);
+//    }
+  
+   
     if (asset) {
-        [self _getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
+        [weak_self _getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
             if (filePath) {
+               NSString * exestr = [filePath lastPathComponent];
+             
                NSDictionary *dic  = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
                NSDate *modificationDate = [dic valueForKey:@"NSFileModificationDate"];
                 dispatch_async([FMUtil setterLowQueue], ^{
+                    
                     NSString * localDegist = [FileHash sha256HashOfFileAtPath:filePath];
+//                    [[Test shareManager].arr addObject:exestr];
+//                    MyNSLog(@"🍄照片文件名>>>>>>> %@,localDegist>>>>>>>>> %@", exestr,localDegist);
+//                    MyNSLog(@"%@", [Test shareManager].arr);
+                    //    }
+                  
+//                    if ([exestr isEqualToString:@"IMG_9999.JPG"]) {
+//                        MyNSLog(@"==🍄==Hash>>>%@  filpath>>>%@",localDegist,filePath);
+//                    }
                     if (localDegist) {
                         NSDate *modificationDate2 = [dic valueForKey:@"NSFileModificationDate"];
                         if ([modificationDate isEqualToDate:modificationDate2]) {
@@ -1444,8 +1488,6 @@ BOOL startUpload = YES;
 static NSInteger s = 0;
 - (void)errorActionWithTask:(NSURLSessionDataTask *)task HashString:(NSString *)hashStr{
     BOOL switchOn = SWITHCHON_BOOL;
-   
-    @weaky(self)
     NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
     NSLog(@"%@",task.error);
     if (rep.statusCode == 404) {
@@ -1475,7 +1517,7 @@ static NSInteger s = 0;
 //            self.canUpload = YES;
 //        });
 //    }
-    startUpload = YES;
+//    startUpload = YES;
     BOOL switchOn = SWITHCHON_BOOL;
     NSMutableArray *uploadImageArr = [NSMutableArray arrayWithCapacity:0];
     NSMutableArray *array = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
@@ -1489,13 +1531,13 @@ static NSInteger s = 0;
     if (_uploadarray.count >0) {
         [_uploadarray removeObjectAtIndex:0];
     }
-//    NSNumber *number = [NSNumber numberWithUnsignedInteger:[_allCount unsignedIntegerValue] - _uploadarray.count];
-//    
-//    [[NSUserDefaults standardUserDefaults]setObject:number forKey:@"addCount"];
+    NSNumber *number = [NSNumber numberWithUnsignedInteger:[_allCount unsignedIntegerValue] - _uploadarray.count];
+    
+    [[NSUserDefaults standardUserDefaults]setObject:number forKey:@"addCount"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+//    [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
 //    [[NSUserDefaults standardUserDefaults] synchronize];
-////    [[NSUserDefaults standardUserDefaults] setObject:uploadImageArr forKey:@"uploadImageArr"];
-////    [[NSUserDefaults standardUserDefaults] synchronize];
-//    [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"backUpProgressChange" object:nil];
 //    if (switchOn &&_canUpload && shouldUpload) {
 //        [self uploadImages:_uploadarray success:^(NSArray *arr) {
 //            //                [FMPhotoDataSource siftPhotos];

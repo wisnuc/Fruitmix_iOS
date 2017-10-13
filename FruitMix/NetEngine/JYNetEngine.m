@@ -65,6 +65,7 @@
 
 -(void)addFormDataRequest:(id<JYRequestDelegate>)request formDataBlock:(JYRequestFormDataBlock)formDataBlock uploadProgressBlock:(JYUploadProgressBlock)uploadProgress{
      JYBaseRequest * fullRequest = request;
+    @autoreleasepool {
     NSMutableURLRequest * urlRequest = [JYNetworker workerCreateFormDataRequestWithRequest:request formDataBlock:formDataBlock];
     if ([request respondsToSelector:@selector(responseSerialization)]) {
         _manager.responseSerializer = [request responseSerialization];
@@ -80,6 +81,7 @@
     
    [fullRequest.dataTask resume];
    [self addRecord:fullRequest];
+   };
 }
 
 -(void)cancleRequest:(id<JYRequestDelegate>)request{

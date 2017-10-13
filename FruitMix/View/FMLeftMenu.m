@@ -249,20 +249,24 @@
             [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
                    NSMutableArray *array = [NSMutableArray arrayWithCapacity:0];
                    for (FMLocalPhoto * photo  in result) {
+//                       MyNSLog(@"%@",photo.degist);
                        if (photo.degist.length >0) {
-                         [array addObject:photo];
+                         [array addObject:photo.degist];
                        }
 //                    __block BOOL isExist = NO;
 //                    [array enumerateObjectsUsingBlock:^(FMLocalPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
 //                            if ([obj.degist isEqualToString:photo.degist]) {//数组中已经存在该对象
 //                                *stop = YES;
 //                                isExist = YES;
+//                            }
+//                      }];
+//                        if (!isExist) {//如果不存在就添加进去
+//    
+//                           [array addObject:photo];
+//                       }
                     }
-//                    }];
-//                    if (!isExist) {//如果不存在就添加进去
-                
-//                    }
-//                   }
+//
+
                 NSSet *localPhotoHashArrSet = [NSSet setWithArray:array];
                 NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];
                     NSNumber *number = [NSNumber numberWithUnsignedInteger:arr.count];
@@ -329,7 +333,18 @@
             if (photo.degist.length>0) {
                 [array addObject:photo.degist];
             }
+//            __block BOOL isExist = NO;
+//            [array enumerateObjectsUsingBlock:^(FMLocalPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//                if ([obj.degist isEqualToString:photo.degist]) {//数组中已经存在该对象
+//                    *stop = YES;
+//                    isExist = YES;
+//                }
+//            }];
+//            if (!isExist) {//如果不存在就添加进去
+//                [array addObject:photo];
+//            }
         }
+        
         NSSet *localPhotoHashArrSet = [NSSet setWithArray:array];
         NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];
         MyNSLog(@"%lu",(unsigned long)arr.count)
@@ -356,6 +371,7 @@
 
 - (void)siftPhotosWithBlock:(void(^)(NSMutableArray *uploadArray))completeBlock{
     @weaky(self)
+//    __weak FMUploadFileAPI *weak
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     if (entryuuid ==0) {
         [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
@@ -415,10 +431,10 @@
                                     if (rep.statusCode == 404) {
                                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
                                         if ([NSThread isMainThread]) {
-                                          [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                                          [weak_self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
                                         }else{
                                         dispatch_async(dispatch_get_main_queue(), ^{
-                                             [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                                             [weak_self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
                                         });
                                         }
                                     }
@@ -477,13 +493,13 @@
         if (rep.statusCode == 404) {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
             if ([NSThread isMainThread]) {
-                [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                [weak_self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
             }else{
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
+                    [weak_self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];
                 });
             }
-        }
+          }
         }];
     }
 }
@@ -513,7 +529,7 @@
 //static NSInteger overCount = 0;
 - (void)receiveNotification:(NSNotification *)noti{
     @weaky(self)
-    if (_allCount == nil) {
+//    if (_allCount == nil) {
         [self getAllPhotoCountWithBlock:^(NSNumber *allCount) {
             if (allCount!=nil) {
                 [weak_self asyncPhoto];
@@ -522,9 +538,9 @@
 //        dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0/*延迟执行时间*/ * NSEC_PER_SEC));
 //        dispatch_after(delayTime, dispatch_get_main_queue(), ^{
 //                    });
-    }else{
-        [weak_self asyncPhoto];
-    }
+//    }else{
+//        [weak_self asyncPhoto];
+//    }
     
 }
 
@@ -548,7 +564,7 @@
     }else{
         mutiplyDecimal = [progressDecimalNumber decimalNumberByMultiplyingBy:decimalNumber];
     }
-      MyNSLog(@"线程：%@",[NSThread currentThread]);
+//      MyNSLog(@"线程：%@",[NSThread currentThread]);
     if ([NSThread isMainThread] ) {
 //        if ([alreadyCountNumber unsignedIntegerValue]/[_allCount unsignedIntegerValue]>=1) {
 //            self.backUpProgressView.progress = 1;
@@ -585,21 +601,23 @@
 }
 
 - (void)receiveNotificationForUploadOverNoti:(NSNotification *)noti{
-      [self getAllPhotoCount];
+    [self getAllPhotoCountWithBlock:^(NSNumber *allCount) {
+        dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1/*延迟执行时间*/ * NSEC_PER_SEC));
+        dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+            [self overUploadAction];
+        });
+    }];
 //      [FMUserLoginViewController siftPhotoFromNetwork];
-    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5/*延迟执行时间*/ * NSEC_PER_SEC));
-    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
-          [self overUploadAction];
-    });
+   
 //    [self synchronizeStationPhoto];
 }
 
 - (void)overUploadAction{
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSMutableArray *uploadImageArr = [NSMutableArray array];
-            uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
-//  NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]valueForKey: @"addCount"];
-                float progress = (float)uploadImageArr.count/[_allCount floatValue];
+//            NSMutableArray *uploadImageArr = [NSMutableArray array];
+//            uploadImageArr = [[NSUserDefaults standardUserDefaults] objectForKey:@"uploadImageArr"];
+              NSNumber *addCountNumber = [[NSUserDefaults standardUserDefaults]valueForKey: @"addCount"];
+                float progress = [addCountNumber floatValue]/[_allCount floatValue];
                 //                 NSDecimalNumberHandler* roundingBehavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:0 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:YES];
                 NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:progress afterPoint:2]]];
                 NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
@@ -613,40 +631,40 @@
 //               overCount ++;
 //                MyNSLog(@"%d",overCount);
                 if ([NSThread isMainThread] ) {
-                    if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
-                        self.backUpProgressView.progress = 1;
-                        self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
-                        self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
-//                        if ([PhotoManager shareManager].canUpload) {
-//                            [PhotoManager shareManager].canUpload = NO;
-//                            [[PhotoManager shareManager].uploadarray removeAllObjects];
-//                            [PhotoManager shareManager].canUpload = YES;
-//                        }
-                    }else{
+//                    if ([addCountNumber integerValue]/[_allCount unsignedIntegerValue]>=1) {
+//                        self.backUpProgressView.progress = 1;
+//                        self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
+//                        self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
+////                        if ([PhotoManager shareManager].canUpload) {
+////                            [PhotoManager shareManager].canUpload = NO;
+////                            [[PhotoManager shareManager].uploadarray removeAllObjects];
+////                            [PhotoManager shareManager].canUpload = YES;
+////                        }
+//                    }else{
                         self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                         self.backUpProgressView.progress = progress;
-                        NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
-                        self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
-                    }
+//                        NSNumber * number = [NSNumber numberWithInteger:[addCountNumber integerValue]];
+                        self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",addCountNumber,_allCount];
+//                    }
                       MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
                 }else{
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        if ((NSUInteger)uploadImageArr.count/[_allCount unsignedIntegerValue]>=1) {
-                            self.backUpProgressView.progress = 1;
-                            self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
-                            self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
-//                            if ([PhotoManager shareManager].canUpload) {
-//                                [PhotoManager shareManager].canUpload = NO;
-//                                [[PhotoManager shareManager].uploadarray removeAllObjects];
-//                                [PhotoManager shareManager].canUpload = YES;
-//                            }
-                        }else{
+//                        if ([addCountNumber integerValue]/[_allCount unsignedIntegerValue]>=1) {
+//                            self.backUpProgressView.progress = 1;
+//                            self.backupLabel.text = [NSString stringWithFormat:@"已备份100%%"];
+//                            self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",_allCount,_allCount];
+////                            if ([PhotoManager shareManager].canUpload) {
+////                                [PhotoManager shareManager].canUpload = NO;
+////                                [[PhotoManager shareManager].uploadarray removeAllObjects];
+////                                [PhotoManager shareManager].canUpload = YES;
+////                            }
+//                        }else{
                             self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
                             self.backUpProgressView.progress = progress;
-                            NSNumber * number = [NSNumber numberWithUnsignedInteger:uploadImageArr.count];
+//                            NSNumber * number = [[NSNumber numberWithInteger:[addCountNumber integerValue] ];
 
-                            self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",number,_allCount];
-                        }
+                            self.progressLabel.text = [NSString stringWithFormat:@"%@/%@",addCountNumber,_allCount];
+//                        }
                           MyNSLog(@"已上传：%@/本地照片总数:%@",self.progressLabel.text,_allCount);
                     });
                 }
@@ -660,7 +678,7 @@
         [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
             NSSet *localPhotoHashSetArr = [NSSet setWithArray:result];
             NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashSetArr allObjects]];
-            MyNSLog(@"%lu",(unsigned long)arr.count);
+//            MyNSLog(@"%lu",(unsigned long)arr.count);
             _allCount = [NSNumber numberWithUnsignedInteger:arr.count];
             NSMutableArray * tmp = [NSMutableArray arrayWithCapacity:0];
             NSMutableArray *localPhotoHashArr = [NSMutableArray arrayWithCapacity:0];
