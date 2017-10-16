@@ -71,6 +71,7 @@
 // 回调代理的队列
 @property (strong, nonatomic) NSOperationQueue *queue;
 
+
 @end
 
 @implementation TYDownLoadDataManager
@@ -93,6 +94,8 @@
         _maxDownloadCount = 1;
         _resumeDownloadFIFO = YES;
         _isBatchDownload = NO;
+        _isDownloading = NO;
+        _isAlertDownload = NO;
     }
     return self;
 }
@@ -189,7 +192,6 @@
 {
     downloadModel.progressBlock = progress;
     downloadModel.stateBlock = state;
-    
     [self startWithDownloadModel:downloadModel];
 }
 
@@ -198,17 +200,17 @@
     if (!downloadModel) {
         return;
     }
-//    if ([self.downloadingModels containsObject:downloadModel]) {
+    if ([self.downloadingModels containsObject:downloadModel]) {
 //         [self cancleWithDownloadModel:downloadModel];
 //        [_downloadingModels removeObject:downloadModel];
-//        return;
-//    }
-//    if ([self.waitingDownloadModels containsObject:downloadModel]) {
+        return;
+    }
+    if ([self.waitingDownloadModels containsObject:downloadModel]) {
 //      [self cancleWithDownloadModel:downloadModel];
 //         [_waitingDownloadModels removeObject:downloadModel];
 //      
-//        return;
-//    }
+        return;
+    }
     
     if (downloadModel.state == TYDownloadStateReadying) {
         [self downloadModel:downloadModel didChangeState:TYDownloadStateReadying filePath:nil error:nil];
@@ -240,10 +242,14 @@
     }
     
     @synchronized (self) {
-       
+         MyNSLog(@"等待下载>>>%@ 正在下载>>>>%@",_waitingDownloadModels,_downloadingModels);
         // 还有未下载的
+        if (self.downloadingModels.count >0&& [self.downloadingModels containsObject:downloadModel]) {
+            [self resumeWithDownloadModel:downloadModel];
+        }else{
         if (self.waitingDownloadModels.count > 0) {
             [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
+        }
         }
     }
 }
@@ -256,6 +262,12 @@
     }
     @synchronized (self) {
         if (self.downloadingModels.count >= _maxDownloadCount ) {
+            if (_isAlertDownload) {
+                if ([self.downloadingModels indexOfObject:downloadModel] == NSNotFound) {
+                    [self.downloadingModels addObject:downloadModel];
+                }
+                return YES;
+            }else{
             if ([self.waitingDownloadModels indexOfObject:downloadModel] == NSNotFound) {
                 [self.waitingDownloadModels addObject:downloadModel];
                 self.downloadingModelDic[downloadModel.downloadURL] = downloadModel;
@@ -263,6 +275,7 @@
             downloadModel.state = TYDownloadStateReadying;
             [self downloadModel:downloadModel didChangeState:TYDownloadStateReadying filePath:nil error:nil];
             return NO;
+            }
         }
         
         if ([self.waitingDownloadModels indexOfObject:downloadModel] != NSNotFound) {
@@ -318,6 +331,7 @@
     }
     
     [downloadModel.task resume];
+    _isDownloading = YES;
     downloadModel.state = TYDownloadStateRunning;
     [self downloadModel:downloadModel didChangeState:TYDownloadStateRunning filePath:nil error:nil];
 }
@@ -328,6 +342,13 @@
     if (!downloadModel.manualCancle) {
         downloadModel.manualCancle = YES;
         [downloadModel.task cancel];
+        _isDownloading = NO;
+        if ([self.waitingDownloadModels indexOfObject:downloadModel] == NSNotFound) {
+            if ([self.downloadingModels indexOfObject:downloadModel] != NSNotFound) {
+                [self.downloadingModels removeObject:downloadModel];
+            }
+            [self.waitingDownloadModels addObject:downloadModel];
+        }
     }
 }
 
@@ -337,6 +358,9 @@
     if ((!downloadModel.task && downloadModel.state == TYDownloadStateReadying)||downloadModel.state == TYDownloadStateReadying) {
         [self removeDownLoadingModelForURLString:downloadModel.downloadURL];
         @synchronized (self) {
+            if ([_downloadingModels containsObject:downloadModel]) {
+                  [self.downloadingModels removeObject:downloadModel];
+            }
             [self.waitingDownloadModels removeObject:downloadModel];
         }
         downloadModel.state = TYDownloadStateNone;
@@ -347,8 +371,35 @@
     if (downloadModel.state != TYDownloadStateCompleted && downloadModel.state != TYDownloadStateFailed){
         [downloadModel.task cancel];
         downloadModel.task = nil;
+//         MyNSLog(@"等待下载>>>%@ 正在下载>>>>%@",_waitingDownloadModels,_downloadingModels);
         [self deleteFileWithDownloadModel:downloadModel];
         [self.downloadingModels removeObject:downloadModel];
+        if ([_waitingDownloadModels containsObject:downloadModel]) {
+            [self.waitingDownloadModels removeObject:downloadModel];
+        }
+        _isDownloading = NO;
+        if (_isAlertDownload) {
+            _isAlertDownload = NO;
+        }
+       
+        if (_waitingDownloadModels.count >0) {
+             [self suspendWithDownloadModel:_waitingDownloadModels.firstObject];
+        }
+    }else {
+        [downloadModel.task cancel];
+        downloadModel.task = nil;
+        if ([_waitingDownloadModels containsObject:downloadModel]) {
+            [self.waitingDownloadModels removeObject:downloadModel];
+        }
+        [self deleteFileWithDownloadModel:downloadModel];
+        [self.downloadingModels removeObject:downloadModel];
+        _isDownloading = NO;
+        if (_isAlertDownload) {
+            _isAlertDownload = NO;
+        }
+        if (_waitingDownloadModels.count >0) {
+            [self suspendWithDownloadModel:_waitingDownloadModels.firstObject];
+        }
     }
 }
 
@@ -525,8 +576,8 @@
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSHTTPURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-    NSDictionary *dict = [response allHeaderFields];
-    MyNSLog(@"%@",dict);
+//    NSDictionary *dict = [response allHeaderFields];
+//    MyNSLog(@"%@",dict);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
 //    NSLog(@"===========>>>>>😆😆😆😆%@",dataTask.taskDescription);
     if (!downloadModel) {
@@ -646,6 +697,9 @@
            [self willResumeNextWithDowloadModel:downloadModel];
          });
     }
+    
+    _isDownloading = NO;
+    _isAlertDownload = NO;
 }
 
 @end

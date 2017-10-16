@@ -58,6 +58,7 @@
         }
     }
     [[TYDownLoadDataManager manager] startWithDownloadModel:downloadModel];
+    [TYDownLoadDataManager manager].isAlertDownload = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
 }
 

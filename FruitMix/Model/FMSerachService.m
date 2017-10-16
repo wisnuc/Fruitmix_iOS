@@ -27,7 +27,6 @@
 //    static int i = 0;
 //    __weak typeof(self) weakSelf = self;
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
-    
     manager.requestSerializer.timeoutInterval = 20;
 //    MyNSLog(@"%@",_path);
     _task = [manager GET:[NSString stringWithFormat:@"%@users",_path] parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {

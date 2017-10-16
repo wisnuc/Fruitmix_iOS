@@ -67,7 +67,9 @@
     _needDownloads = [NSMutableArray arrayWithCapacity:0];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].downloadingModels];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].waitingDownloadModels];
- 
+    NSSet *set = [NSSet setWithArray:_needDownloads];
+    [_needDownloads removeAllObjects];
+    [_needDownloads addObjectsFromArray:[set allObjects]];
 //    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 2 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 //    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }

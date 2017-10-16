@@ -521,18 +521,18 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
             NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",model.name]];
             
-            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
-                if ([downloadModelIn.fileName isEqualToString:model.name]) {
-                    [SXLoadingView showProgressHUDText:@"该文件正在下载"duration:1];
-                    return;
-                }
-            }
-            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
-                if ([downloadModelIn.fileName isEqualToString:model.name]) {
-                   [SXLoadingView showProgressHUDText:@"该文件正在等待下载"duration:1];
-                    return;
-                }
-            }
+//            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+//                if ([downloadModelIn.fileName isEqualToString:model.name]) {
+//                    [SXLoadingView showProgressHUDText:@"该文件正在下载"duration:1];
+//                    return;
+//                }
+//            }
+//            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+//                if ([downloadModelIn.fileName isEqualToString:model.name]) {
+//                   [SXLoadingView showProgressHUDText:@"该文件正在等待下载"duration:1];
+//                    return;
+//                }
+//            }
 //            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath] &&[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize != model.size){
 //                [SXLoadingView showProgressHUDText:@"该文件正在下载"duration:1];
 //                return;
@@ -542,46 +542,46 @@ NSInteger filesNameSortSecond(id file1, id file2, void *context)
                 _documentController.delegate = self;
                 [self presentOptionsMenu];
             }
-//                else{
+                else{
 //                UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否下载该文件" preferredStyle:UIAlertControllerStyleAlert];
 //                UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
 //
 //                }];
 //
 //                UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"下载" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-//                    if (_progressView) {
-//                        [_progressView dismiss];
-//                        _progressView = nil;
-//                    }
-//                    if (!_progressView){
-//                        _progressView = [JYProcessView processViewWithType:ProcessTypeLine];
-//                        _progressView.descLb.text =@"正在下载文件";
-//                        _progressView.subDescLb.text = [NSString stringWithFormat:@"1个项目 "];
-//                        _progressView.cancleBlock = ^(){
-//                            [[FLFIlesHelper helper] cancleDownload];
-//                        };
-//
-//                        [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DRIVE_UUID Progress:^(TYDownloadProgress *progress) {
-//                            if (progress.progress) {
-//                                [_progressView setValueForProcess:progress.progress];
-//                                [_progressView show];
-//                            }
-//                        } State:^(TYDownloadState state, NSString *filePath, NSError *error) {
-//                            //                NSLog(@"%lu,%@,%@",(unsigned long)state,filePath,error);
-//                            if (state == TYDownloadStateCompleted) {
-//                                [_progressView dismiss];
-//                                //                                _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
-//                                //                                _documentController.delegate = self;
-//                                //                                [self presentOptionsMenu];
-//                            }
-//                        }];
-//                    }
+                    if (_progressView) {
+                        [_progressView dismiss];
+                        _progressView = nil;
+                    }
+                    if (!_progressView){
+                        _progressView = [JYProcessView processViewWithType:ProcessTypeLine];
+                        _progressView.descLb.text =@"正在下载文件";
+                        _progressView.subDescLb.text = [NSString stringWithFormat:@"1个项目 "];
+                        _progressView.cancleBlock = ^(){
+                            [[FLFIlesHelper helper] cancleDownload];
+                        };
+
+                        [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:_parentUUID Progress:^(TYDownloadProgress *progress) {
+                            if (progress.progress) {
+                                [_progressView setValueForProcess:progress.progress];
+                                [_progressView show];
+                            }
+                        } State:^(TYDownloadState state, NSString *filePath, NSError *error) {
+                            //                NSLog(@"%lu,%@,%@",(unsigned long)state,filePath,error);
+                            if (state == TYDownloadStateCompleted) {
+                                [_progressView dismiss];
+                                _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+                                _documentController.delegate = self;
+                                [self presentOptionsMenu];
+                            }
+                        }];
+                    }
 //                }];
 //                [alertVc addAction:cancle];
 //                [alertVc addAction:confirm];
 //                [self presentViewController:alertVc animated:YES completion:^{
 //                }];
-//            }
+            }
         }
     }
 }

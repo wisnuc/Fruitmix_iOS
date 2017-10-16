@@ -123,19 +123,31 @@
     downloadModel.size = model.size;
 //    NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
-    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
-        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
-            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在下载",downloadModel.fileName]  duration:1];
-            return;
-        }
+    if ([TYDownLoadDataManager manager].isDownloading) {
+         MyNSLog(@"😆");
+        [[TYDownLoadDataManager manager] suspendWithDownloadModel:[TYDownLoadDataManager manager].downloadingModels.firstObject];
+        manager.isAlertDownload = YES;
+        [manager startWithDownloadModel:downloadModel progress:progress state:state];
+        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
+    }else{
+        [manager startWithDownloadModel:downloadModel progress:progress state:state];
+        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
+        MyNSLog(@"🌶");
     }
-    
-    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
-        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
-            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在等待下载",downloadModel.fileName]  duration:1];
-            return;
-        }
-    }
+
+//    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
+//        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
+//            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在下载",downloadModel.fileName]  duration:1];
+//            return;
+//        }
+//    }
+//
+//    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+//        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
+//            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在等待下载",downloadModel.fileName]  duration:1];
+//            return;
+//        }
+//    }
     
 //    for (FLDownload * downloadModelIn in downloadedArr) {
 //        if ([downloadModelIn.name isEqualToString:downloadModel.fileName]) {
@@ -144,8 +156,7 @@
 //        }
 //    }
   
-    [manager startWithDownloadModel:downloadModel progress:progress state:state];
-     [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
+   
 }
 
 

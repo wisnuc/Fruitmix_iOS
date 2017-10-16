@@ -33,6 +33,12 @@
 // 全部并发 默认NO, 当YES时，忽略maxDownloadCount
 @property (nonatomic, assign) BOOL isBatchDownload;
 
+//是否正在下载状态
+@property (nonatomic, assign) BOOL isDownloading;
+
+// 弹窗下载
+@property (nonatomic, assign) BOOL isAlertDownload;
+
 // 单例
 + (TYDownLoadDataManager *)manager;
 
