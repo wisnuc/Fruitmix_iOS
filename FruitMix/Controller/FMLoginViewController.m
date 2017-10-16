@@ -119,8 +119,10 @@ WXApiDelegate
     [self.view addSubview:self.logoImageView];
     [self.view addSubview:self.userView];
     [self.view addSubview:self.userListTableViwe];
-    [self.view addSubview:self.wechatView];
     [self.view addSubview:self.handButton];
+     if ([WXApi isWXAppInstalled]) {
+     [self.view addSubview:self.wechatView];
+    }
     [self firstbeginSearching];
 }
 
@@ -212,7 +214,7 @@ WXApiDelegate
     }
 }
 
--(void)refreshDatasource{
+- (void)refreshDatasource{
     NSMutableArray * temp = [NSMutableArray arrayWithCapacity:0];
     _userDataSource = [NSMutableArray arrayWithCapacity:0];
     for (FMSerachService * ser in _dataSource) {
@@ -331,9 +333,8 @@ WXApiDelegate
         make.height.equalTo(@15);
     }];
 }
+
 - (void)setInfo{
-//    cell.DeviceNameLb.text = ser.name;
-//    cell.disPlayLb.text = ser.displayPath;
     _stationTypeLabel = [[UILabel alloc]init];
     _stationTypeLabel.text = @"我的设备";
     _stationTypeLabel.font = [UIFont systemFontOfSize:14];
@@ -399,11 +400,19 @@ WXApiDelegate
 }
 
 -(void)wechatLoginAction:(id)sender{
-    SendAuthReq* req =[[SendAuthReq alloc]init];
-    req.scope = @"snsapi_userinfo" ;
-//    req.state = @"123" ;
-    //第三方向微信终端发送一个SendAuthReq消息结构
-    [WXApi sendReq:req];
+    if ([WXApi isWXAppInstalled]) {
+        SendAuthReq *req = [[SendAuthReq alloc] init];
+        req.scope = @"snsapi_userinfo";
+        req.state = @"App";
+        [WXApi sendReq:req];
+    }
+    else {
+        [self setupAlertController];
+    }
+}
+
+- (void)setupAlertController{
+    [SXLoadingView showProgressHUDText:@"您尚未安装微信" duration:1.5];
 }
 
 - (void)weChatCallBackRespCode:(NSString *)code{
@@ -906,6 +915,9 @@ WXApiDelegate
 - (UITableView *)userListTableViwe{
     if (!_userListTableViwe) {
         _userListTableViwe = [[UITableView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.userView.frame), JYSCREEN_WIDTH, JYSCREEN_HEIGHT - _stationScrollView.frame.size.height - 8 - _userView.frame.size.height -48) style:UITableViewStylePlain];
+        if (![WXApi isWXAppInstalled]) {
+            _userListTableViwe.frame = CGRectMake(0, CGRectGetMaxY(self.userView.frame), JYSCREEN_WIDTH, JYSCREEN_HEIGHT - _stationScrollView.frame.size.height - 8 - _userView.frame.size.height);
+        }
         _userListTableViwe.delegate = self;
         _userListTableViwe.dataSource = self;
         _userListTableViwe.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];

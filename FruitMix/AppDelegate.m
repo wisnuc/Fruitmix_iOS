@@ -117,34 +117,39 @@
     return res;
 }
 
--(void) onReq:(BaseReq*)req{
+-(void)onReq:(BaseReq*)req{
     
     //onReq是微信终端向第三方程序发起请求，要求第三方程序响应。第三方程序响应完后必须调用sendRsp返回。在调用sendRsp返回时，会切回到微信终端程序界面。
 }
--(void) onResp:(BaseResp*)resp{
+-(void)onResp:(BaseResp*)resp{
     switch (resp.errCode) {
-        case 0://用户同意
+        case WXSuccess://用户同意
         {
             SendAuthResp *aresp = (SendAuthResp *)resp;
                 [_zhuxiao weChatCallBackRespCode:aresp.code];
         }
             break;
-        case -4://用户拒绝授权
-            //do ...
+        case WXErrCodeAuthDeny://用户拒绝授权
+            [SXLoadingView showProgressHUDText:@"授权失败" duration:1.5];
             break;
-        case -2://用户取消
-            //do ...
+        case WXErrCodeSentFail://用户取消
+            [SXLoadingView showProgressHUDText:@"发送失败" duration:1.5];
+            break;
+        case WXErrCodeUnsupport://用户取消
+            [SXLoadingView showProgressHUDText:@"微信不支持" duration:1.5];
+            break;
+        case WXErrCodeUserCancel://用户取消
+            [SXLoadingView showProgressHUDText:@"用户点击取消并返回" duration:1.5];
+            break;
+        case WXErrCodeCommon://用户取消
+            [SXLoadingView showProgressHUDText:@"普通错误类型" duration:1.5];
             break;
         default:
             break;
     }
-    
-    //    如果第三方程序向微信发送了sendReq的请求，那么onResp会被回调。sendReq请求调用后，会切到微信终端程序界面。
 }
 
-
--(BOOL) sendReq:(BaseReq*)req{
-    
+- (BOOL)sendReq:(BaseReq*)req{
     return YES;
 }
 
@@ -204,7 +209,6 @@
         [FMConfiguation shareConfiguation].shouldUpload = NO;
     }
 }
-
 
 //检查奔溃信息
 -(void)checkExceptions{
