@@ -613,6 +613,7 @@
         [[YYImageCache sharedCache].memoryCache removeAllObjects];
         self.filesTabBar = nil;
         self.sharesTabBar = nil;
+        
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self skipToLogin];
         });
@@ -629,6 +630,9 @@
         self.window.rootViewController = nil;
         [self.window resignKeyWindow];
         
+        for (UIView *view in self.window.subviews) {
+            [view removeFromSuperview];
+        }
         [self.window removeFromSuperview];
         [self reloadLeftMenuIsAdmin:NO];
         FMLoginViewController * vc = [[FMLoginViewController alloc]init];
@@ -697,8 +701,6 @@
 }
 
 -(void)asynAnyThings{
-   
-
     //上传照片
     //    shouldUplod(^{
   

@@ -70,9 +70,9 @@
     _needDownloads = [NSMutableArray arrayWithCapacity:0];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].downloadingModels];
     [_needDownloads addObjectsFromArray:[TYDownLoadDataManager manager].waitingDownloadModels];
-    NSSet *set = [NSSet setWithArray:_needDownloads];
-    [_needDownloads removeAllObjects];
-    [_needDownloads addObjectsFromArray:[set allObjects]];
+//    NSSet *set = [NSSet setWithArray:_needDownloads];
+//    [_needDownloads removeAllObjects];
+//    [_needDownloads addObjectsFromArray:[set allObjects]];
 //    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 2 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 //    [self.tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_downloadeds count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
@@ -167,13 +167,14 @@
         [self.chooseArr removeAllObjects];
     }
     _cellStatus = !_cellStatus;
+    [self initData];
     [self.tableview reloadData];
 }
 
 
 
 -(void)downloadFileChangeHandle:(NSNotification *)notify{
-    [self performSelector:@selector(delayMethod) withObject:nil/*可传任意类型参数*/ afterDelay:1.0];
+    [self performSelector:@selector(delayMethod) withObject:notify];
    
 }
 
@@ -273,7 +274,7 @@
         cell.timeLabel.text = [NSString stringWithFormat:@"下载于:%@",((FLDownload *)model).downloadtime];
 //        [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,model.name];
         cell.sizeLabel.text = [NSString fileSizeWithFileName:((FLDownload *)model).name];
-        MyNSLog(@"%@",((FLDownload *)model).filePath);
+//        MyNSLog(@"%@",((FLDownload *)model).filePath);
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;

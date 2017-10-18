@@ -42,6 +42,8 @@
                 MyNSLog(@"删除 %@ 成功",fileName);
                 block(YES);
             }
+        }else{
+             block(NO);
         }
     }
 }

@@ -118,8 +118,9 @@
 +(void)asyncLoadPhotoToDBWithCompleteBlock:(void(^)(NSArray * addArr))block{    
     FMDBSet * dbSet = [FMDBSet shared];
     dbSet.isLoading = YES;
-    dbSet.degistIsLoading = YES;
+     dbSet.degistIsLoading = YES;
     dispatch_async([FMUtil setterDefaultQueue], ^{
+    
         PhotoManager * manager = [PhotoManager shareManager];
         [manager getAllPHAssetAndCompleteBlock:^(NSArray<PHAsset *> *result) {
             __block NSArray * result2 = result;//创建插入对象
@@ -705,7 +706,19 @@
                 [FMFileManagerInstance removeFileWithFileName:download.name andCompleteBlock:^(BOOL isSuccess) {
                     if (isSuccess) {
                         [FMDBControl _removeDownloadColum:download.uuid];
-                        MyNSLog(@"👎%@😁%@",download.uuid,download.name);
+                        MyNSLog(@"%@😁%@",download.uuid,download.name);
+                    }else{
+                         MyNSLog(@"👎%@😁%@",download.uuid,download.name);
+                        NSString * filePath = [NSString stringWithFormat:@"%@/%@",File_DownLoad_DIR,download.name];
+                        if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                            NSError * error = nil;
+                            [[NSFileManager defaultManager]removeItemAtPath:filePath error:&error];
+                            if (!error) {
+                                [FMDBControl _removeDownloadColum:download.uuid];
+                            }
+                        }else{
+                            [FMDBControl _removeDownloadColum:download.uuid];
+                        }
                     }
                 }];
             }else{

@@ -500,12 +500,14 @@ WXApiDelegate
                             //常规登录
                             //[self LoginActionWithUserDic:userDic StationDic:dic];
                             [weak_self getUsersWithStationDic:dic completeBlock:^(NSMutableDictionary *mutableDic) {
-                                _alertView.hidden = NO;
+                                  _alertView.hidden = NO;
+                               
                                 [_subject sendNext:@"1"];
                             }];
-                        }else{
-                          [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
                         }
+//                            else{
+//                          [SXLoadingView showProgressHUDText:@"没有在线设备或未绑定设备" duration:1];
+//                        }
                     }
                     
 //                }
@@ -576,7 +578,7 @@ WXApiDelegate
     _alertView.tableView.delegate = self;
     _alertView.tableView.dataSource = self;
     [_alertView.loginButton addTarget:self action:@selector(loginButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-    [[[[UIApplication sharedApplication] windows] lastObject] addSubview:_alertView];
+   [self.view addSubview:_alertView];
     _alertView.hidden = YES;
 }
 

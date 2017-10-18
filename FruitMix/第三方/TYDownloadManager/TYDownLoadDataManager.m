@@ -70,8 +70,8 @@
 @property (nonatomic, strong) NSMutableArray *downloadingModels;
 // 回调代理的队列
 @property (strong, nonatomic) NSOperationQueue *queue;
-
-
+// 网络是否连接
+@property (nonatomic, assign) BOOL isConnectting;
 @end
 
 @implementation TYDownLoadDataManager
@@ -96,6 +96,9 @@
         _isBatchDownload = NO;
         _isDownloading = NO;
         _isAlertDownload = NO;
+        _isConnectting = YES;
+        [[NSNotificationCenter  defaultCenter] addObserver:self selector:@selector(noNetworkAction) name:FM_NET_STATUS_NOT_WIFI_NOTIFY object:nil];
+        [[NSNotificationCenter  defaultCenter] addObserver:self selector:@selector(networkAction) name:FM_NET_STATUS_WIFI_NOTIFY object:nil];
     }
     return self;
 }
@@ -250,13 +253,13 @@
     @synchronized (self) {
          MyNSLog(@"等待下载>>>%@ 正在下载>>>>%@",_waitingDownloadModels,_downloadingModels);
         // 还有未下载的
-        if (self.downloadingModels.count >0&& [self.downloadingModels containsObject:downloadModel]) {
-            [self resumeWithDownloadModel:downloadModel];
-        }else{
+//        if (self.downloadingModels.count >0&& [self.downloadingModels containsObject:downloadModel]) {
+//            [self resumeWithDownloadModel:downloadModel];
+//        }else{
         if (self.waitingDownloadModels.count > 0) {
             [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
         }
-        }
+//        }
     }
 }
 
@@ -274,9 +277,14 @@
                 }
                 return YES;
             }else{
-            if ([self.waitingDownloadModels indexOfObject:downloadModel] == NSNotFound) {
-                [self.waitingDownloadModels addObject:downloadModel];
-                self.downloadingModelDic[downloadModel.downloadURL] = downloadModel;
+                if (downloadModel.state == TYDownloadStateSuspended) {
+                    downloadModel.state = TYDownloadStateRunning;
+                    return YES;
+                }else{
+                if ([self.waitingDownloadModels indexOfObject:downloadModel] == NSNotFound) {
+                    [self.waitingDownloadModels addObject:downloadModel];
+                    self.downloadingModelDic[downloadModel.downloadURL] = downloadModel;
+                }
             }
             downloadModel.state = TYDownloadStateReadying;
             [self downloadModel:downloadModel didChangeState:TYDownloadStateReadying filePath:nil error:nil];
@@ -302,7 +310,7 @@
         return;
     }
     
-    if ([TYDownLoadDataManager manager].isDownloading || downloadModel.state == TYDownloadStateRunning ||[TYDownLoadDataManager manager].downloadingModels.count >0) {
+    if (([TYDownLoadDataManager manager].isDownloading || downloadModel.state == TYDownloadStateRunning)&& [TYDownLoadDataManager manager].downloadingModels.count >0) {
         if ([[TYDownLoadDataManager manager].downloadingModels containsObject:downloadModel]) {
             return;
         }
@@ -410,9 +418,9 @@
         }
        
     }
-//    if (_waitingDownloadModels.count >0) {
-//        [self resumeWithDownloadModel:_waitingDownloadModels.firstObject];
-//    }
+    if (_waitingDownloadModels.count >0) {
+        [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
+    }
 }
 
 #pragma mark - delete file
@@ -597,7 +605,7 @@
     // 获得服务器这次请求 返回数据的总长度
     long long totalBytesWritten =  [self fileSizeWithDownloadModel:downloadModel];
     long long totalBytesExpectedToWrite = totalBytesWritten + response.expectedContentLength;
-    MyNSLog(@"%lld👌👌👌",totalBytesExpectedToWrite);
+//    MyNSLog(@"%lld👌👌👌",totalBytesExpectedToWrite);
     downloadModel.progress.resumeBytesWritten = totalBytesWritten;
     downloadModel.progress.totalBytesWritten = totalBytesWritten;
     downloadModel.progress.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
@@ -662,6 +670,10 @@
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     MyNSLog(@"下载请求失败error %@",error);
+//    if (error) {
+//        NSString *errorString = [error.userInfo objectForKey: @"NSLocalizedDescription"];
+//        [SXLoadingView showProgressHUDText:errorString duration:1.5];
+//    }
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:task.taskDescription];
     
     if (!downloadModel) {
@@ -712,4 +724,23 @@
     _isAlertDownload = NO;
 }
 
+- (void)noNetworkAction{
+    self.isDownloading = NO;
+    TYDownloadModel *downloadModel =  _downloadingModels.firstObject;
+    downloadModel.state = TYDownloadStateSuspended;
+    _isConnectting = NO;
+}
+
+- (void)networkAction{
+    if (!_isConnectting) {
+        if (_downloadingModels.count>0) {
+            [self resumeWithDownloadModel:_downloadingModels.firstObject];
+            return;
+        }
+        if (_downloadingModels.count == 0 && _waitingDownloadModels.count>0) {
+          [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
+        }
+    }
+    _isConnectting = YES;
+}
 @end
