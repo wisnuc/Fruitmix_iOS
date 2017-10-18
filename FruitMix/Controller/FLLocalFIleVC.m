@@ -50,6 +50,9 @@
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
     [self initData];
     [self.tableview reloadData];
+//    if (![TYDownLoadDataManager manager].isDownloading && [TYDownLoadDataManager manager].downloadingModels.count == 0 && [TYDownLoadDataManager manager].waitingDownloadModels.count >0) {
+//        [[TYDownLoadDataManager manager] resumeWithDownloadModel:[TYDownLoadDataManager manager].waitingDownloadModels.firstObject];
+//    }
 
 }
 
@@ -126,7 +129,7 @@
         if ([self.chooseArr containsObject:down.uuid]) {
             [self.downloadeds removeObject:down];
             [FMDBControl updateDownloadWithFile:down isAdd:NO];
-           
+            [self deleteFilesWithFileName:down.name];
         }
     }
     [self changeStatus];
@@ -137,7 +140,7 @@
     NSFileManager *mgr = [NSFileManager defaultManager];
     // 文件属性
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",fileName]];
+    NSString *filePath = [[paths firstObject]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",fileName]];
     if ([mgr fileExistsAtPath:filePath]) {
         [mgr removeItemAtPath:filePath error:nil];
     }
@@ -351,7 +354,6 @@
 }
 
 
-
 - (NSString *)detailTextForDownloadProgress:(TYDownloadProgress *)progress downLoadModel:(TYDownloadModel *)model
 {
     
@@ -359,8 +361,8 @@
     if (KISCLOUD) {
      fileSizeInUnits =  [TYDownloadUtility calculateUnit:model.size];
     }else{
-    fileSizeInUnits  = [NSString stringWithFormat:@"%.2f %@",
-                                 [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long)progress.totalBytesExpectedToWrite],
+    fileSizeInUnits  = [NSString stringWithFormat:@"%@",
+//                                 [TYDownloadUtility calculateFileSizeInUnit:(unsigned long long)progress.totalBytesExpectedToWrite],
                                  [TYDownloadUtility calculateUnit:(unsigned long long)progress.totalBytesExpectedToWrite]];
     }
 //    NSMutableString *detailLabelText = [NSMutableString stringWithFormat:@"FileSize:%@ Downloaded:%.2f %@ (%.2f%%) Speed: %.2f %@/sec LeftTime: %dsec",fileSizeInUnits,

@@ -75,6 +75,7 @@
             download.downloadtime = dateString;
             download.uuid = downloadModel.fileName;
             download.userId = FMConfigInstance.userUUID;
+            download.filePath = downloadModel.filePath;
             [FMDBControl updateDownloadWithFile:download isAdd:YES];
           [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
         }

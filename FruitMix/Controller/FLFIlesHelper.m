@@ -16,6 +16,7 @@
 @property (nonatomic) NSMutableArray * chooseFilesUUID;
 @property (nonatomic) TYDownloadModel * downloadModel;
 
+
 @end
 
 @implementation FLFIlesHelper
@@ -123,18 +124,19 @@
     downloadModel.size = model.size;
 //    NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
     TYDownLoadDataManager *manager = [TYDownLoadDataManager manager];
-    if ([TYDownLoadDataManager manager].isDownloading) {
+    if ([TYDownLoadDataManager manager].isDownloading || downloadModel.state == TYDownloadStateRunning ||[TYDownLoadDataManager manager].downloadingModels.count >0) {
          MyNSLog(@"😆");
         [[TYDownLoadDataManager manager] suspendWithDownloadModel:[TYDownLoadDataManager manager].downloadingModels.firstObject];
         manager.isAlertDownload = YES;
-        [manager startWithDownloadModel:downloadModel progress:progress state:state];
-        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
-    }else{
-        [manager startWithDownloadModel:downloadModel progress:progress state:state];
-        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
-        MyNSLog(@"🌶");
+       
     }
-
+//    else{
+//        [manager startWithDownloadModel:downloadModel progress:progress state:state];
+//        [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
+//        MyNSLog(@"🌶");
+//    }
+    [manager startWithDownloadModel:downloadModel progress:progress state:state];
+    [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
 //    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
 //        if ([downloadModelIn.downloadURL isEqualToString:downloadModel.downloadURL]) {
 //            [SXLoadingView showProgressHUDText:[NSString stringWithFormat:@"%@正在下载",downloadModel.fileName]  duration:1];
@@ -202,33 +204,40 @@
             cell.downBtn.userInteractionEnabled = YES;
             weak_self.chooseModel = model;
             NSString *downloadString  = @"下载该文件";
+            NSString *openFileString;
             NSMutableArray *downloadedArr = [NSMutableArray arrayWithArray:[FMDBControl getAllDownloadFiles]];
             
             for (FLDownload * downloadModelIn in downloadedArr) {
                 if ([downloadModelIn.name isEqualToString:model.name]) {
                     downloadString = @"重新下载";
+                    openFileString = @"打开该文件";
                 }
             }
             
-            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
-                if ([downloadModelIn.fileName isEqualToString:model.name]) {
-                    downloadString = nil;
-                    cell.downBtn.userInteractionEnabled = NO;
-                }
-            }
-            
-            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
-                if ([downloadModelIn.fileName isEqualToString:model.name]) {
-                    downloadString = nil;
-                    cell.downBtn.userInteractionEnabled = NO;
-                }
-            }
+//            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
+//                if ([downloadModelIn.fileName isEqualToString:model.name]) {
+//                    downloadString = nil;
+//                    cell.downBtn.userInteractionEnabled = NO;
+//                }
+//            }
+//
+//            for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+//                if ([downloadModelIn.fileName isEqualToString:model.name]) {
+//                    downloadString = nil;
+//                    cell.downBtn.userInteractionEnabled = NO;
+//                }
+//            }
            
     
             NSMutableArray * arr = [NSMutableArray arrayWithCapacity:0];
-            if (downloadString) {
+            if (downloadString.length>0) {
                 [arr addObject:downloadString];
             }
+            
+            if (openFileString.length>0) {
+                [arr addObject:openFileString];
+            }
+            
             LCActionSheet *actionSheet = [[LCActionSheet alloc] initWithTitle:nil
                                                                      delegate:nil
                                                             cancelButtonTitle:@"取消"
@@ -273,6 +282,26 @@
                             }
                         }
                     }
+                    
+                    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].downloadingModels) {
+                        if ([downloadModelIn.fileName isEqualToString:model.name]) {
+                            if (viewController) {
+                                FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
+                                [viewController.navigationController pushViewController:downloadVC animated:YES];
+                                return ;
+                            }
+                        }
+                    }
+        
+                    for (TYDownloadModel * downloadModelIn in [TYDownLoadDataManager manager].waitingDownloadModels) {
+                        if ([downloadModelIn.fileName isEqualToString:model.name]) {
+                            if (viewController) {
+                                FLLocalFIleVC *downloadVC = [[FLLocalFIleVC alloc]init];
+                                [viewController.navigationController pushViewController:downloadVC animated:YES];
+                                  return ;
+                            }
+                        }
+                    }
                   
                     [[FLDownloadManager shareManager] downloadFileWithFileModel:model parentUUID:uuid];
                     [MyAppDelegate.notification displayNotificationWithMessage:[NSString stringWithFormat:@"%@已添加到下载列表",model.name] forDuration:0.5];
@@ -282,11 +311,19 @@
                         [viewController.navigationController pushViewController:downloadVC animated:YES];
                     }
                 }else if(buttonIndex == 2) {
-                    if ([viewController isEqual:[FLFilesVC class]]) {
-                        [(FLFilesVC *)viewController shareFiles];
-                    }else{
-                        [(FLSecondFilesVC *)viewController shareFiles];
+                    MyNSLog(@"打开该文件");
+                    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                    NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:[NSString stringWithFormat:@"JYDownloadCache/%@",model.name]];
+                    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                        if (_openFilesdelegate && [_openFilesdelegate respondsToSelector:@selector(openTheFileWithFilePath:)]) {
+                            [_openFilesdelegate openTheFileWithFilePath:filePath];
+                        }
                     }
+//                    if ([viewController isEqual:[FLFilesVC class]]) {
+//                        [(FLFilesVC *)viewController shareFiles];
+//                    }else{
+//                        [(FLSecondFilesVC *)viewController shareFiles];
+//                    }
                 }
             };
             actionSheet.scrolling          = YES;
@@ -305,6 +342,7 @@
     
     cell.status = status;
 }
+
 
 -(NSString *)getTimeWithTimeSecond:(long long)second{
     NSDate * date = [NSDate dateWithTimeIntervalSince1970:second];

@@ -223,6 +223,12 @@
         [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
         return;
     }
+   
+    
+    long long fileSize = [self fileSizeInCachePlistWithDownloadModel:downloadModel];
+    if (fileSize > 0 && fileSize != [self fileSizeWithDownloadModel:downloadModel]) {
+        [self deleteFileWithDownloadModel:downloadModel];
+    }
     
     // 验证是否存在
     if (downloadModel.task && downloadModel.task.state == NSURLSessionTaskStateRunning) {
@@ -296,6 +302,12 @@
         return;
     }
     
+    if ([TYDownLoadDataManager manager].isDownloading || downloadModel.state == TYDownloadStateRunning ||[TYDownLoadDataManager manager].downloadingModels.count >0) {
+        if ([[TYDownLoadDataManager manager].downloadingModels containsObject:downloadModel]) {
+            return;
+        }
+    }
+    
     if (![self canResumeDownlaodModel:downloadModel]) {
         return;
     }
@@ -331,9 +343,10 @@
     }
     
     [downloadModel.task resume];
-    _isDownloading = YES;
+   
     downloadModel.state = TYDownloadStateRunning;
     [self downloadModel:downloadModel didChangeState:TYDownloadStateRunning filePath:nil error:nil];
+     _isDownloading = YES;
 }
 
 // 暂停下载
@@ -382,9 +395,7 @@
             _isAlertDownload = NO;
         }
        
-        if (_waitingDownloadModels.count >0) {
-             [self suspendWithDownloadModel:_waitingDownloadModels.firstObject];
-        }
+    
     }else {
         [downloadModel.task cancel];
         downloadModel.task = nil;
@@ -397,10 +408,11 @@
         if (_isAlertDownload) {
             _isAlertDownload = NO;
         }
-        if (_waitingDownloadModels.count >0) {
-            [self suspendWithDownloadModel:_waitingDownloadModels.firstObject];
-        }
+       
     }
+//    if (_waitingDownloadModels.count >0) {
+//        [self resumeWithDownloadModel:_waitingDownloadModels.firstObject];
+//    }
 }
 
 #pragma mark - delete file
@@ -430,7 +442,6 @@
         if (error) {
             NSLog(@"delete file error %@",error);
         }
-        
         [self removeDownLoadingModelForURLString:downloadModel.downloadURL];
         // 删除资源总长度
         if ([self.fileManager fileExistsAtPath:[self fileSizePathWithDownloadModel:downloadModel]]) {
@@ -449,7 +460,6 @@
         downloadDirectory = self.downloadDirectory;
     }
     if ([self.fileManager fileExistsAtPath:downloadDirectory]) {
-        
         // 删除任务
         for (TYDownloadModel *downloadModel in [self.downloadingModelDic allValues]) {
             if ([downloadModel.downloadDirectory isEqualToString:downloadDirectory]) {
@@ -577,7 +587,7 @@
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSHTTPURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
 //    NSDictionary *dict = [response allHeaderFields];
-//    MyNSLog(@"%@",dict);
+    MyNSLog(@"%ld",(long)response.statusCode);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:dataTask.taskDescription];
 //    NSLog(@"===========>>>>>😆😆😆😆%@",dataTask.taskDescription);
     if (!downloadModel) {
@@ -651,7 +661,7 @@
  */
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    NSLog(@"%@",error);
+    MyNSLog(@"下载请求失败error %@",error);
     TYDownloadModel *downloadModel = [self downLoadingModelForURLString:task.taskDescription];
     
     if (!downloadModel) {

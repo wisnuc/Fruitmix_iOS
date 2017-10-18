@@ -14,7 +14,14 @@
 
 #define FLFilesStatusChangeNotify @"FLFilesStatusChangeNotify"
 
+@protocol FilesHelperOpenFilesDelegate <NSObject>
+
+-(void)openTheFileWithFilePath:(NSString *)filePath;
+
+@end
+
 @interface FLFIlesHelper : NSObject
+@property (nonatomic,weak) id<FilesHelperOpenFilesDelegate>openFilesdelegate;
 
 @property (nonatomic,readonly) NSMutableArray * chooseFiles;
 

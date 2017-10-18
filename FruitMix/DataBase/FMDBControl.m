@@ -705,15 +705,15 @@
                 [FMFileManagerInstance removeFileWithFileName:download.name andCompleteBlock:^(BOOL isSuccess) {
                     if (isSuccess) {
                         [FMDBControl _removeDownloadColum:download.uuid];
-                        NSLog(@"👎%@😁%@",download.uuid,download.name);
+                        MyNSLog(@"👎%@😁%@",download.uuid,download.name);
                     }
                 }];
             }else{
                 [FMDBControl _removeDownloadColum:download.uuid];
-            NSLog(@"成功删除一条记录：%@",download.name);
+            MyNSLog(@"成功删除一条记录：%@",download.name);
             }
         }else{
-            NSLog(@"未下载，无法删除");
+            MyNSLog(@"未下载，无法删除");
         }
     }
 }

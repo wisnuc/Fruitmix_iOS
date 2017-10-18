@@ -46,7 +46,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 @end
 
-@interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate,TYDownloadDelegate>
+@interface FLFilesVC ()<UITableViewDelegate,UITableViewDataSource,FLDataSourceDelegate,LCActionSheetDelegate,floatMenuDelegate,UIDocumentInteractionControllerDelegate,TYDownloadDelegate,FilesHelperOpenFilesDelegate>
 {
     UIButton * _leftBtn;
     UILabel * _countLb;
@@ -85,7 +85,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlerStatusChangeNotify:) name:FLFilesStatusChangeNotify object:nil];
     [self.view addSubview:self.addButton];
     [self initMjRefresh];
-  [TYDownLoadDataManager manager].delegate = self;
+    [TYDownLoadDataManager manager].delegate = self;
+    [FLFIlesHelper helper].openFilesdelegate = self;
 
 }
 - (void)initMjRefresh{
@@ -392,11 +393,52 @@ NSInteger filesNameSort(id file1, id file2, void *context)
             //                [SXLoadingView showProgressHUDText:@"该文件正在下载"duration:1];
             //                return;
             //            }
-            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]&&[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize == model.size) {
                 _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
                 _documentController.delegate = self;
                 [self presentOptionsMenu];
             }
+//            else if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]&&[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize != model.size)
+//            {
+//                if ([TYDownLoadDataManager manager].downloadingModels.count>0) {
+//                    [[TYDownLoadDataManager manager].downloadingModels enumerateObjectsUsingBlock:^(TYDownloadModel * downloadModelIn, NSUInteger idx, BOOL * _Nonnull stop) {
+//                        if ([downloadModelIn.fileName isEqualToString:model.name]) {
+//                            FLLocalFIleVC *localVC = [[FLLocalFIleVC alloc]init];
+//                            [self.navigationController pushViewController:localVC animated:YES];
+//                            *stop = YES;
+//                        }else{
+//                            if (!_progressView){
+//                                _progressView = [JYProcessView processViewWithType:ProcessTypeLine];
+//                                _progressView.descLb.text =@"正在下载文件";
+//                                _progressView.subDescLb.text = [NSString stringWithFormat:@"1个项目 "];
+//                                _progressView.cancleBlock = ^(){
+//                                    [[FLFIlesHelper helper] cancleDownload];
+//                                };
+//
+//                                [[FLFIlesHelper helper]downloadAloneFilesWithModel:model parentUUID:DRIVE_UUID Progress:^(TYDownloadProgress *progress) {
+//                                    if (progress.progress) {
+//                                        [_progressView setValueForProcess:progress.progress];
+//                                        [_progressView show];
+//                                    }
+//                                } State:^(TYDownloadState state, NSString *filePath, NSError *error) {
+//                                    //                NSLog(@"%lu,%@,%@",(unsigned long)state,filePath,error);
+//                                    if (state == TYDownloadStateCompleted) {
+//                                        [_progressView dismiss];
+//                                        _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+//                                        _documentController.delegate = self;
+//                                        [self presentOptionsMenu];
+//                                    }
+//                                }];
+//                            }
+//                        }
+//
+//                    }];
+//                }else{
+//
+//                }
+//
+//
+//            }
             else{
                 //                UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否下载该文件" preferredStyle:UIAlertControllerStyleAlert];
                 //                UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
@@ -404,6 +446,32 @@ NSInteger filesNameSort(id file1, id file2, void *context)
                 //                }];
                 //
                 //                UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"下载" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                
+                if ([TYDownLoadDataManager manager].downloadingModels.count>0) {
+                    __block BOOL isExist = NO;
+                    [[TYDownLoadDataManager manager].downloadingModels enumerateObjectsUsingBlock:^(TYDownloadModel * downloadModelIn, NSUInteger idx, BOOL * _Nonnull stop) {
+                        if ([downloadModelIn.fileName isEqualToString:model.name]) {
+                            isExist = YES;
+                        }
+                    }];
+                    if (isExist) {
+                        FLLocalFIleVC *localVC = [[FLLocalFIleVC alloc]init];
+                        [self.navigationController pushViewController:localVC animated:YES];
+                        return;
+                    }
+
+                }
+                
+                if ([TYDownLoadDataManager manager].waitingDownloadModels.count>0) {
+                    [[TYDownLoadDataManager manager].waitingDownloadModels enumerateObjectsUsingBlock:^(TYDownloadModel * downloadModelIn, NSUInteger idx, BOOL * _Nonnull stop) {
+                        if ([downloadModelIn.fileName isEqualToString:model.name]) {
+                            [[TYDownLoadDataManager manager].waitingDownloadModels removeObject:downloadModelIn];
+                        }
+                    }];
+                }
+                
+                    //            {
+                
                 if (_progressView) {
                     [_progressView dismiss];
                     _progressView = nil;
@@ -440,6 +508,9 @@ NSInteger filesNameSort(id file1, id file2, void *context)
         }
     }
 }
+
+
+
 -(void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error{
    
     if (state == TYDownloadStateCompleted) {
@@ -453,6 +524,7 @@ NSInteger filesNameSort(id file1, id file2, void *context)
         download.downloadtime = dateString;
         download.uuid = downloadModel.fileName;
         download.userId = FMConfigInstance.userUUID;
+        download.filePath = downloadModel.filePath;
         [FMDBControl updateDownloadWithFile:download isAdd:YES];
         [[NSNotificationCenter defaultCenter] postNotificationName:FLDownloadFileChangeNotify object:nil];
     }
@@ -475,6 +547,12 @@ NSInteger filesNameSort(id file1, id file2, void *context)
     }
     // display third-party apps as well as actions, such as Copy, Print, Save Image, Quick Look
     //    [_documentController presentOptionsMenuFromRect:self.view.bounds inView:self.view animated:YES];
+}
+
+- (void)openTheFileWithFilePath:(NSString *)filePath{
+    _documentController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+    _documentController.delegate = self;
+    [self presentOptionsMenu];
 }
 
 - (void)shareFiles{

@@ -36,10 +36,10 @@
             NSError * error = nil;
             [_filemanager removeItemAtPath:filePath error:&error];
             if (error){
-                NSLog(@"删除失败 %@",error);
+                MyNSLog(@"删除失败 %@",error);
                 block(NO);
             }else{
-                NSLog(@"删除 %@ 成功",fileName);
+                MyNSLog(@"删除 %@ 成功",fileName);
                 block(YES);
             }
         }
