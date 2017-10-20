@@ -174,13 +174,20 @@
 
 
 -(void)downloadFileChangeHandle:(NSNotification *)notify{
-    [self performSelector:@selector(delayMethod) withObject:notify];
+    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5/*延迟执行时间*/ * NSEC_PER_SEC));
+    
+    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+        [self initData];
+        [self.tableview reloadData];
+    });
+    
+
+//    [self performSelector:@selector(delayMethod) withObject:notify afterDelay:0.3];
    
 }
 
 -(void)delayMethod{
-    [self initData];
-    [self.tableview reloadData];
+  
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 2;

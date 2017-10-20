@@ -184,8 +184,11 @@
         cell.sizeLabel.hidden = YES;
     }
     cell.downBtn.hidden = ((status == FLFliesCellStatusNormal)?![model.type isEqualToString:@"file"]:YES);
-    
-    
+    if (status == FLFliesCellStatusNormal) {
+        cell.downBtn.userInteractionEnabled = YES;
+    }else{
+         cell.downBtn.userInteractionEnabled = NO;
+    }
     if ([self containsFile:model]) {
         cell.f_ImageView.hidden = YES;
         cell.layerView.image = [UIImage imageNamed:@"check_circle_select"];

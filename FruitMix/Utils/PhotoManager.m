@@ -640,6 +640,7 @@ NSString * JY_UUID() {
 
 
 - (void)siftUploadArrCompleteBlock:(void (^)(NSMutableArray *uploadArr))block{
+ 
     @weaky(self)
     BOOL switchOn = SWITHCHON_BOOL;
     if (_uploadarray) {
@@ -1033,11 +1034,13 @@ BOOL shouldUpload = NO;
 -(void)_uploadPhotoWithAsset:(PHAsset *)asset success:(void (^)(NSString *url))success failure:(void (^)())failure{
     @weaky(self);
     MyNSLog(@"即将进入请求");
+//    __weak FMUploadFileAPI *uploadApi = [FMUploadFileAPI shareManager];
 //typedef void(^successBlock)(NSString *url);
 //    successBlock = success;
 //    dispatch_async([FMUtil setterBackGroundQueue], ^{
+         __weak FMUploadFileAPI *weakUploadFileAPI = [FMUploadFileAPI shareManager] ;
         [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
-        
+   
             if (filePath) {
                 NSString * hashStr = [FileHash sha256HashOfFileAtPath:filePath];
                 MyNSLog(@"localId:%@,hashStr:%@",asset.localIdentifier,hashStr);

@@ -24,9 +24,17 @@
     static FMUploadFileAPI * uploadFileAPI = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        uploadFileAPI = [FMUploadFileAPI new];
+        uploadFileAPI = [[FMUploadFileAPI alloc]init];
     });
     return uploadFileAPI;
+}
+
+- (instancetype)init{
+    self = [super init];
+    if (self) {
+        
+    }
+    return self;
 }
 
 NSInteger imageUploadCount = 0;
@@ -123,7 +131,8 @@ NSInteger imageUploadCount = 0;
 
 + (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock{
     @weaky(self)
-    [weak_self getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
+
+    [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
         NSLog(@"🍄%@",responseObject);
         NSArray * arr ;
         if (!KISCLOUD) {
@@ -135,37 +144,60 @@ NSInteger imageUploadCount = 0;
             arr = entriesDic[@"entries"];
         }
         if (arr.count>0) {
-            for (NSDictionary *entriesDic in arr) {
+            [arr enumerateObjectsUsingBlock:^(NSDictionary *entriesDic, NSUInteger idx, BOOL * _Nonnull stop) {
                 EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
                 if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
                     [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
                     [[NSUserDefaults standardUserDefaults] synchronize];
                     completeBlock(YES);
+                    *stop = YES;
                 }else{
                     if (KISCLOUD) {
-                        [weak_self creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                        [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                             if (successful) {
                                 completeBlock(YES);
                             }
                         }];
                     }else{
-                    [weak_self creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
-                        if (successful) {
-                            completeBlock(YES);
-                        }
-                    }];
+                        [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                            if (successful) {
+                                completeBlock(YES);
+                            }
+                        }];
                     }
                 }
-            }
+            }];
+//            for (NSDictionary *entriesDic in arr) {
+//                EntriesModel *model = [EntriesModel yy_modelWithDictionary:entriesDic];
+//                if ([model.name isEqualToString:@"上传的照片"] && [model.type isEqualToString:@"directory"]) {
+//                    [[NSUserDefaults standardUserDefaults] setObject:model.uuid forKey:ENTRY_UUID_STR];
+//                    [[NSUserDefaults standardUserDefaults] synchronize];
+//                    completeBlock(YES);
+//                }else{
+//                    if (KISCLOUD) {
+//                        [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+//                            if (successful) {
+//                                completeBlock(YES);
+//                            }
+//                        }];
+//                    }else{
+//                    [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+//                        if (successful) {
+//                            completeBlock(YES);
+//                        }
+//                    }];
+//                    }
+//                }
+//            }
         }else{
             if (KISCLOUD) {
-                [weak_self creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                [FMUploadFileAPI creatCloudPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                     if (successful) {
                         completeBlock(YES);
                     }
                 }];
             }else{
-                [weak_self creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
+                [FMUploadFileAPI creatPhotoMainFatherDirEntryCompleteBlock:^(BOOL successful) {
                     if (successful) {
                         completeBlock(YES);
                     }
@@ -226,7 +258,7 @@ CFAbsoluteTime  start;
     startUpload = NO;
     MyNSLog(@"==========================开始上传==============================");
     NSString * hashString = [FileHash sha256HashOfFileAtPath:filePath];
-    NSInteger sizeNumber = (NSInteger)[weak_self fileSizeAtPath:filePath];
+    NSInteger sizeNumber = (NSInteger)[FMUploadFileAPI fileSizeAtPath:filePath];
     NSString * exestr = [filePath lastPathComponent];
         MyNSLog (@"上传照片POST请求:\n上传照片照片名======>%@\n Hash======>%@\n",exestr,hashString);
     if (hashString.length<=0) {
@@ -579,7 +611,7 @@ CFAbsoluteTime  start;
 + (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock{
     @weaky(self)
     NSString *photoDirName = [NSString stringWithFormat:@"来自%@",[FMUploadFileAPI getDeviceName]];
-    [weak_self getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
+    [FMUploadFileAPI getDirEntryWithUUId:ENTRY_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
         NSArray * arr ;
         if (!KISCLOUD) {
             NSDictionary * dic = responseObject;
@@ -598,13 +630,13 @@ CFAbsoluteTime  start;
                     completeBlock(YES);
                 }else{
                     if (KISCLOUD) {
-                        [weak_self _creatCloudPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                        [FMUploadFileAPI _creatCloudPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
                             if (successful) {
                                 completeBlock(YES);
                             }
                         }];
                     }else{
-                        [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                        [FMUploadFileAPI _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
                             if (successful) {
                                 completeBlock(YES);
                             }
@@ -615,13 +647,13 @@ CFAbsoluteTime  start;
             }
         }else{
             if (KISCLOUD) {
-                [weak_self _creatCloudPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                [FMUploadFileAPI _creatCloudPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
                     if (successful) {
                         completeBlock(YES);
                     }
                 }];
             }else{
-                [weak_self _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
+                [FMUploadFileAPI _creatPhotoDirEntryWithPhotoDirName:photoDirName CompleteBlock:^(BOOL successful) {
                     if (successful) {
                         completeBlock(YES);
                     }
@@ -818,7 +850,7 @@ CFAbsoluteTime  start;
     }
 }
 + (void)getPhotoUUIDWithBlock:(void(^)(BOOL successful))completeBlock{
-    [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
+    [FMUploadFileAPI  getDriveInfoCompleteBlock:^(BOOL successful) {
     if (successful) {
     [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
         if (successful) {

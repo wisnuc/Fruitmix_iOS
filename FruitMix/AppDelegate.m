@@ -41,6 +41,7 @@
 #import "WeChetLoginAPI.h"
 
 #import "FileHash.h"
+#import "TYDownLoadDataManager.h"
 
 
 // Log levels: off, error, warn, info, verbose
@@ -598,7 +599,7 @@
         NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
         [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
         [[PhotoManager shareManager] cleanUploadTask];
- 
+        [[TYDownLoadDataManager manager] cleanTask];
      //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
 
 //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:UUID_STR];

@@ -318,7 +318,7 @@
     [ucmd fieldWithKey:@"uploadTime" val: [NSNull new]];
     [ucmd saveChanges];
     
-//    FMDTDeleteCommand * cmd2 = FMDT_DELETE(dbSet.photo);
+//    FMDTDeleteCommand * cmd2 = FMDT_DELETE(dbSet.download);
 //    [cmd2 saveChanges];
     
     FMDTDeleteCommand * cmd3 = FMDT_DELETE(dbSet.needUploadMediaShare);

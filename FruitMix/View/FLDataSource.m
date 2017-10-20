@@ -26,6 +26,7 @@
     //        [self getFilesWithUUID:[FMConfiguation shareConfiguation].userHome];
     NSString *dirUUID = DRIVE_UUID;
     //        NSLog(@"%@",DRIVE_UUID);
+      __weak FMUploadFileAPI *weakUploadFileAPI = [FMUploadFileAPI shareManager] ;
     if (dirUUID.length==0) {
         [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
             if (successful) {
@@ -105,7 +106,7 @@
 }
 
 -(void)getFilesWithUUID:(NSString *)uuid{
-    [FMUploadFileAPI  getDirEntryWithUUId:(NSString *)uuid success:^(NSURLSessionDataTask *task, id responseObject) {
+    [FMUploadFileAPI getDirEntryWithUUId:(NSString *)uuid success:^(NSURLSessionDataTask *task, id responseObject) {
         NSArray * arr ;
         if (!KISCLOUD) {
            NSDictionary * dic = responseObject;

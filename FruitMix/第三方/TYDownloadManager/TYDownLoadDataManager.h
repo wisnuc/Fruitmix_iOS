@@ -78,4 +78,6 @@
 - (void)downloadModel:(TYDownloadModel *)downloadModel updateProgress:(TYDownloadProgress *)progress;
 
 - (NSMutableDictionary *)fileSizePlistWithDownloadModel:(TYDownloadModel *)downloadModel;
+
+- (void)cleanTask;
 @end

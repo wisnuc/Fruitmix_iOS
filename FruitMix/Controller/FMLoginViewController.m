@@ -501,7 +501,6 @@ WXApiDelegate
                             //[self LoginActionWithUserDic:userDic StationDic:dic];
                             [weak_self getUsersWithStationDic:dic completeBlock:^(NSMutableDictionary *mutableDic) {
                                   _alertView.hidden = NO;
-                               
                                 [_subject sendNext:@"1"];
                             }];
                         }
@@ -514,7 +513,6 @@ WXApiDelegate
 //            }];
             
             [_subject subscribeNext:^(id x) {
-                // block调用时刻：当信号发出新值，就会调用.
                 if (self.cloudLoginStationArray.count == 0) {
                     FMConfigInstance.userToken = nil;
                     FMConfigInstance.isCloud = NO;
@@ -523,18 +521,11 @@ WXApiDelegate
                     [_alertView.tableView reloadData];
                 }
             }];
-           
             FMConfigInstance.userToken = nil;
 //            self.cloudLoginStationArray = userArr;
 //            if (self.cloudLoginStationArray.count == 1) {
 //                [self loginButtonClick:nil];
 //            }else
-
-    
-                // block调用时刻：每当有信号发出数据，就会调用block.
-     
-            
-//            FMConfigInstance.isCloud = nil;
         }
     } failure:^(__kindof JYBaseRequest *request) {
          NSLog(@"%@",request.error);

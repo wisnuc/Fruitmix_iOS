@@ -371,9 +371,9 @@
 
 - (void)siftPhotosWithBlock:(void(^)(NSMutableArray *uploadArray))completeBlock{
     @weaky(self)
-//    __weak FMUploadFileAPI *weak
     NSString *entryuuid = PHOTO_ENTRY_UUID;
     if (entryuuid ==0) {
+        __block BOOL sift = YES;
         [FMUploadFileAPI getDriveInfoCompleteBlock:^(BOOL successful) {
             if (successful) {
                 [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
@@ -382,6 +382,7 @@
                             if (successful) {
                                 NSString *entryuuid = PHOTO_ENTRY_UUID;
                                 [FMUploadFileAPI getDirEntryWithUUId:entryuuid success:^(NSURLSessionDataTask *task, id responseObject) {
+                                    if (sift) {
                                     NSArray * arr ;
                                     if (!KISCLOUD) {
                                         NSDictionary * dic =  responseObject;
@@ -418,17 +419,18 @@
                                             [[NSUserDefaults standardUserDefaults] synchronize];
                                             if (siftPhotoArrHash) {
                                                 completeBlock(siftPhotoArrHash);
+                                                sift = NO;
                                             }
                                             MyNSLog(@"请求NAS 照片返回%@",responseObject);
                                             //            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhoto" object:nil];
                                             //            [[NSNotificationCenter defaultCenter] postNotificationName:@"siftPhotoForLeftMenu" object:nil];
                                         }];
-                                        
+                                    }
 //                                    });
                                 } failure:^(NSURLSessionDataTask *task, NSError *error) {
                                     NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-                                    NSLog(@"%ld",(long)rep.statusCode);
-                                    if (rep.statusCode == 404) {
+                                    MyNSLog(@"%ld",(long)rep.statusCode);
+                                    if (rep.statusCode &&rep.statusCode== 404) {
                                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
                                         if ([NSThread isMainThread]) {
                                           [weak_self performSelector:@selector(siftPhotosWithBlock:) withObject:completeBlock];

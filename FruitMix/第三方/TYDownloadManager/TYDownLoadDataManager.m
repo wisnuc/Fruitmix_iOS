@@ -72,6 +72,8 @@
 @property (strong, nonatomic) NSOperationQueue *queue;
 // 网络是否连接
 @property (nonatomic, assign) BOOL isConnectting;
+// 是否停止下载
+@property (nonatomic, assign) BOOL stopDownload;
 @end
 
 @implementation TYDownLoadDataManager
@@ -97,6 +99,7 @@
         _isDownloading = NO;
         _isAlertDownload = NO;
         _isConnectting = YES;
+        _stopDownload = NO;
         [[NSNotificationCenter  defaultCenter] addObserver:self selector:@selector(noNetworkAction) name:FM_NET_STATUS_NOT_WIFI_NOTIFY object:nil];
         [[NSNotificationCenter  defaultCenter] addObserver:self selector:@selector(networkAction) name:FM_NET_STATUS_WIFI_NOTIFY object:nil];
     }
@@ -220,18 +223,21 @@
         return;
     }
     
+    if ( downloadModel.size  > 0 && downloadModel.size != [self fileSizeWithDownloadModel:downloadModel]) {
+        [self deleteFileWithDownloadModel:downloadModel];
+    }
+    
     // 验证是否已经下载文件
     if ([self isDownloadCompletedWithDownloadModel:downloadModel]) {
+        
         downloadModel.state = TYDownloadStateCompleted;
         [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
         return;
     }
    
     
-    long long fileSize = [self fileSizeInCachePlistWithDownloadModel:downloadModel];
-    if (fileSize > 0 && fileSize != [self fileSizeWithDownloadModel:downloadModel]) {
-        [self deleteFileWithDownloadModel:downloadModel];
-    }
+//    long long fileSize = [self fileSizeInCachePlistWithDownloadModel:downloadModel];
+    
     
     // 验证是否存在
     if (downloadModel.task && downloadModel.task.state == NSURLSessionTaskStateRunning) {
@@ -253,13 +259,16 @@
     @synchronized (self) {
          MyNSLog(@"等待下载>>>%@ 正在下载>>>>%@",_waitingDownloadModels,_downloadingModels);
         // 还有未下载的
-//        if (self.downloadingModels.count >0&& [self.downloadingModels containsObject:downloadModel]) {
-//            [self resumeWithDownloadModel:downloadModel];
+     if (_isConnectting) {
+//        if (self.downloadingModels.count >0&& [self.downloadingModels containsObject:downloadModel] && !_isDownloading) {
+//
+//                 [self resumeWithDownloadModel:downloadModel];
 //        }else{
-        if (self.waitingDownloadModels.count > 0) {
+        if (self.waitingDownloadModels.count > 0 && !_stopDownload) {
             [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
         }
-//        }
+      }
+//     }
     }
 }
 
@@ -269,7 +278,11 @@
     if (_isBatchDownload) {
         return YES;
     }
+    if (!downloadModel) {
+        return YES;
+    }
     @synchronized (self) {
+        if (_isConnectting) {
         if (self.downloadingModels.count >= _maxDownloadCount ) {
             if (_isAlertDownload) {
                 if ([self.downloadingModels indexOfObject:downloadModel] == NSNotFound) {
@@ -299,8 +312,11 @@
         if ([self.downloadingModels indexOfObject:downloadModel] == NSNotFound) {
             [self.downloadingModels addObject:downloadModel];
         }
-        return YES;
+        }else{
+            return NO;
+        }
     }
+     return YES;
 }
 
 // 恢复下载
@@ -360,6 +376,9 @@
 // 暂停下载
 - (void)suspendWithDownloadModel:(TYDownloadModel *)downloadModel
 {
+    if (!downloadModel) {
+        return;
+    }
     if (!downloadModel.manualCancle) {
         downloadModel.manualCancle = YES;
         [downloadModel.task cancel];
@@ -524,7 +543,9 @@
   
     if (_delegate && [_delegate respondsToSelector:@selector(downloadModel:didChangeState:filePath:error:)]) {
 //         MyNSLog(@"🌶%@",downloadModel.jy_fileName);
-        
+//        if (downloadModel.state == TYDownloadStateFailed) {
+//            
+//        }
         [_delegate downloadModel:downloadModel didChangeState:state filePath:filePath error:error];
     }
     
@@ -686,40 +707,49 @@
     downloadModel.task = nil;
     
     [self removeDownLoadingModelForURLString:downloadModel.downloadURL];
-
+  
     if (downloadModel.manualCancle) {
         // 暂停下载
         dispatch_async(dispatch_get_main_queue(), ^(){
             downloadModel.manualCancle = NO;
             downloadModel.state = TYDownloadStateSuspended;
             [self downloadModel:downloadModel didChangeState:TYDownloadStateSuspended filePath:nil error:nil];
-            [self willResumeNextWithDowloadModel:downloadModel];
+//            [self willResumeNextWithDowloadModel:downloadModel];
+            return ;
         });
+        
+    
     }else if (error){
-        // 下载失败
-        dispatch_async(dispatch_get_main_queue(), ^(){
-            downloadModel.state = TYDownloadStateFailed;
-            [self downloadModel:downloadModel didChangeState:TYDownloadStateFailed filePath:nil error:error];
-            [self willResumeNextWithDowloadModel:downloadModel];
-        });
+            // 下载失败
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                downloadModel.state = TYDownloadStateFailed;
+                [self downloadModel:downloadModel didChangeState:TYDownloadStateFailed filePath:nil error:error];
+                [self willResumeNextWithDowloadModel:downloadModel];
+
+            });
+        
     }else if ([self isDownloadCompletedWithDownloadModel:downloadModel]) {
         // 下载完成
         dispatch_async(dispatch_get_main_queue(), ^(){
-            [self.downloadingModels removeObject:downloadModel];
             downloadModel.state = TYDownloadStateCompleted;
-            [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
-           [self willResumeNextWithDowloadModel:downloadModel];
+            [self.downloadingModels removeObject:downloadModel];
+            if (downloadModel.size <= [self fileSizeWithDownloadModel:downloadModel]){
+                [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
+            }
+             [self willResumeNextWithDowloadModel:downloadModel];
         });
     }else {
         // 下载完成
          dispatch_async(dispatch_get_main_queue(), ^(){
              downloadModel.state = TYDownloadStateCompleted;
             [self.downloadingModels removeObject:downloadModel];
-             [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
+             MyNSLog(@"😆 %lld😝%lld",downloadModel.size, [self fileSizeWithDownloadModel:downloadModel])
+             if (downloadModel.size <= [self fileSizeWithDownloadModel:downloadModel]) {
+                 [self downloadModel:downloadModel didChangeState:TYDownloadStateCompleted filePath:downloadModel.filePath error:nil];
+             }
            [self willResumeNextWithDowloadModel:downloadModel];
          });
     }
-    
     _isDownloading = NO;
     _isAlertDownload = NO;
 }
@@ -727,20 +757,54 @@
 - (void)noNetworkAction{
     self.isDownloading = NO;
     TYDownloadModel *downloadModel =  _downloadingModels.firstObject;
+    [self suspendWithDownloadModel:downloadModel];
     downloadModel.state = TYDownloadStateSuspended;
     _isConnectting = NO;
 }
 
 - (void)networkAction{
     if (!_isConnectting) {
+        _isConnectting = YES;
         if (_downloadingModels.count>0) {
+            TYDownloadModel *downloadModel =  _downloadingModels.firstObject;
+            downloadModel.manualCancle = NO;
             [self resumeWithDownloadModel:_downloadingModels.firstObject];
             return;
         }
         if (_downloadingModels.count == 0 && _waitingDownloadModels.count>0) {
+            [_waitingDownloadModels enumerateObjectsUsingBlock:^( TYDownloadModel *downloadModel, NSUInteger idx, BOOL * _Nonnull stop) {
+               downloadModel.manualCancle = NO;
+            }];
+            
           [self resumeWithDownloadModel:_resumeDownloadFIFO ? self.waitingDownloadModels.firstObject:self.waitingDownloadModels.lastObject];
         }
+        
+       
     }
-    _isConnectting = YES;
+    
+}
+
+- (void)cleanTask{
+    _stopDownload = YES;
+    if (_downloadingModels.count >0) {
+        NSMutableArray *downloadingArr = _downloadingModels;
+        NSArray * array = [NSArray arrayWithArray: downloadingArr];
+        for (TYDownloadModel *model in array) {
+             [model.task cancel];
+            [self cancleWithDownloadModel:model];
+            [self deleteFileWithDownloadModel:model];
+        }
+    }
+    
+    if (_waitingDownloadModels.count >0) {
+        NSMutableArray *waitingDownloadArr = _waitingDownloadModels;
+        NSArray * array = [NSArray arrayWithArray: waitingDownloadArr];
+        for (TYDownloadModel *model in array) {
+             [model.task cancel];
+            [self cancleWithDownloadModel:model];
+            [self deleteFileWithDownloadModel:model];
+        }
+    }
+    _stopDownload = NO;
 }
 @end
