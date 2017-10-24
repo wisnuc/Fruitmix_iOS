@@ -94,10 +94,11 @@
     if (KISCLOUD) {
          self.nameLabel.text = _userInfo.userName;
         NSString *avatarUrl = KAVATARURL;
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:avatarUrl] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:avatarUrl] options:SDWebImageDownloaderHighPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             
         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
             self.userHeaderIV.image = [self imageCirclewithImage:image];
+//            MyNSLog(@"%@",NSStringFromCGSize(image.size))  ;
         }];
     }
     

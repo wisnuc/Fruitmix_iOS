@@ -615,6 +615,13 @@
         self.filesTabBar = nil;
         self.sharesTabBar = nil;
         
+        _Info = nil;
+        _OwnCloud = nil;
+        _UserSetting = nil;
+        _Setting = nil;
+        _Help = nil;
+//        _zhuxiao = [[FMLoginViewController alloc]init];
+        _downAndUpLoadManager = nil;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self skipToLogin];
         });
@@ -635,6 +642,8 @@
             [view removeFromSuperview];
         }
         [self.window removeFromSuperview];
+        self.UserSetting = nil;
+        
         [self reloadLeftMenuIsAdmin:NO];
         FMLoginViewController * vc = [[FMLoginViewController alloc]init];
         _zhuxiao = vc;

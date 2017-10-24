@@ -17,6 +17,10 @@
 @property (nonatomic) id navDelegate;
 
 @property (nonatomic) NSMutableArray * dataSource;
+@property (weak, nonatomic) IBOutlet UIButton *backButton;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *urlLabel;
 
 @end
 
@@ -24,29 +28,43 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = UICOLOR_RGB(0xe2e2e2);
-//    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.title = @"用户管理";
     self.navigationController.navigationBar.translucent = NO;
     [self createNavbtn];
-    self.usersTableView.backgroundColor = UICOLOR_RGB(0xe2e2e2);
+    [self getData];
+    [self displayInfomation];
+    [self registerTableView];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+//    self.navDelegate = self.navigationController.interactivePopGestureRecognizer.delegate;
+//    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
+    [self.navigationController setNavigationBarHidden:YES];
+    [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
+
+//    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"back"] andSEL:@selector(backbtnClick:)];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+      [super viewWillDisappear:animated];
+    
+//    self.navigationController.interactivePopGestureRecognizer.delegate = self.navDelegate;
+}
+
+- (void)registerTableView{
     [self.usersTableView registerNib:[UINib nibWithNibName:NSStringFromClass([FMUserSettingCell class]) bundle:nil] forCellReuseIdentifier:NSStringFromClass([FMUserSettingCell class])];
     self.usersTableView.tableFooterView = [UIView new];
 }
 
--(void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-//    self.navDelegate = self.navigationController.interactivePopGestureRecognizer.delegate;
-//    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
-    [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
-    [self getData];
-//    [self addLeftBarButtonWithImage:[UIImage imageNamed:@"back"] andSEL:@selector(backbtnClick:)];
+- (void)displayInfomation{
+     FMUserLoginInfo *userInfo = [FMDBControl findUserLoginInfo:DEF_UUID];
+    _nameLabel.text = userInfo.userName;
+    _typeLabel.text = userInfo.bonjour_name;
+    _urlLabel.text = userInfo.sn_address;
 }
 
--(void)viewWillDisappear:(BOOL)animated{
-//    self.navigationController.interactivePopGestureRecognizer.delegate = self.navDelegate;
-}
-
--(void)getData{
+- (void)getData{
     FMAsyncUsersAPI * usersApi = [FMAsyncUsersAPI new];
 //    NSArray *userData = [FMDBControl getAllUserLoginInfo];
 //    NSLog(@"%@",userData);
@@ -71,6 +89,7 @@
 //            dispatch_async(dispatch_get_main_queue(), ^{
 //                [self.usersTableView reloadData];
 //            });
+    [SXLoadingView showProgressHUD:@"正在加载..."];
     [usersApi startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
         NSLog(@"%@",request.responseJsonObject);
         NSArray * userArr;
@@ -92,7 +111,9 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.usersTableView reloadData];
         });
+        [SXLoadingView hideProgressHUD];
     } failure:^(__kindof JYBaseRequest *request) {
+        [SXLoadingView hideProgressHUD];
         NSLog(@"%@",request.error);
         NSLog(@"失败");
     }];
@@ -126,7 +147,7 @@
 //    [finishBtn setTitle:@"完成" forState:UIControlStateNormal];
 //    UIBarButtonItem * item2 = [[UIBarButtonItem alloc]initWithCustomView:finishBtn];
 //    self.navigationItem.rightBarButtonItem = item2;
-    
+    [_backButton setEnlargeEdgeWithTop:5 right:5 bottom:5 left:5];
 }
 
 - (IBAction)addBtnClick:(id)sender {
@@ -150,6 +171,10 @@
     cell.state = UserSettingCellStateNormal;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
+}
+- (IBAction)backButtonClick:(UIButton *)sender {
+    [self.navigationController setNavigationBarHidden:NO];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{

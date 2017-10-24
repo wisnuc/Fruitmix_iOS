@@ -100,7 +100,7 @@
         make.right.equalTo(_cancelBtn.mas_left).offset(-3);
         make.height.equalTo(@2);
     }];
-    
+    [_cancelBtn setEnlargeEdgeWithTop:5 right:10 bottom:5 left:5];
 }
 
 - (UIButton *)cancelBtn{

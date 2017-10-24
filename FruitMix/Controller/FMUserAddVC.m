@@ -13,6 +13,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *userNameTF;
 @property (weak, nonatomic) IBOutlet UITextField *passwordTF;
 @property (weak, nonatomic) IBOutlet UITextField *doubleCheckTF;
+@property (weak, nonatomic) IBOutlet UIButton *backButton;
 
 @property (nonatomic) id navDelegate;
 
@@ -23,9 +24,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    [_backButton setEnlargeEdgeWithTop:5 right:5 bottom:5 left:5];
     self.userNameTF.returnKeyType = UIReturnKeyDone;
     self.userNameTF.delegate = self;
     self.passwordTF.returnKeyType = UIReturnKeyDone;
+    self.passwordTF.delegate = self;
+    self.doubleCheckTF.delegate = self;
     self.doubleCheckTF.returnKeyType = UIReturnKeyDone;
 }
 
@@ -37,11 +41,13 @@
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:YES];
     self.navDelegate = self.navigationController.interactivePopGestureRecognizer.delegate;
     self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
 }
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
+    [self.navigationController setNavigationBarHidden:YES];
     self.navigationController.interactivePopGestureRecognizer.delegate = self.navDelegate;
 }
 
@@ -84,7 +90,19 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-     [textField resignFirstResponder];
+    [textField resignFirstResponder];
+    
+    NSTimeInterval animationDuration = 0.30f;
+    
+    [UIView beginAnimations:@"ResizeForKeyboard" context:nil];
+    
+    [UIView setAnimationDuration:animationDuration];
+    
+    CGRect rect = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
+    
+    self.view.frame = rect;
+    
+    [UIView commitAnimations];
     return YES;
 }
 -(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
@@ -100,9 +118,67 @@
     return YES;
 }
 
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+
+{
+    
+    NSLog(@"textFieldDidBeginEditing");
+    
+    CGRect frame = textField.frame;
+    
+    CGFloat heights = self.view.frame.size.height;
+    
+    // 当前点击textfield的坐标的Y值 + 当前点击textFiled的高度 - （屏幕高度- 键盘高度 - 键盘上tabbar高度）
+    
+    // 在这一部 就是了一个 当前textfile的的最大Y值 和 键盘的最全高度的差值，用来计算整个view的偏移量
+    
+    int offset = frame.origin.y + 42- ( heights - 216.0-35.0);//键盘高度216
+    
+    NSTimeInterval animationDuration = 0.30f;
+    
+    [UIView beginAnimations:@"ResizeForKeyBoard" context:nil];
+    
+    [UIView setAnimationDuration:animationDuration];
+    
+    float width = self.view.frame.size.width;
+    
+    float height = self.view.frame.size.height;
+    
+    if(offset > 0)
+        
+    {
+        
+        CGRect rect = CGRectMake(0.0f, -offset,width,height);
+        
+        self.view.frame = rect;
+        
+    }
+    
+    [UIView commitAnimations];
+    
+}
+
+- (IBAction)backButtonClick:(UIButton *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self.view endEditing:YES];
+    NSTimeInterval animationDuration = 0.30f;
+    
+    [UIView beginAnimations:@"ResizeForKeyboard" context:nil];
+    
+    [UIView setAnimationDuration:animationDuration];
+    
+    CGRect rect = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
+    
+    self.view.frame = rect;
+    
+    [UIView commitAnimations];
+    
 }
+
+
 
 @end

@@ -143,7 +143,8 @@
         info.uuid = _user.uuid;
         //        info.deviceId = [PhotoManager getUUID];
         info.jwt_token = token;
-        info.bonjour_name = _service.hostName;
+        info.bonjour_name = _service.name;
+        info.sn_address = _service.displayPath;
 //           NSLog(@"%@",_service.hostName);
         [FMDBControl addUserLoginInfo:info];
 //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);

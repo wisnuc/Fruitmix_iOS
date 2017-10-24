@@ -22,6 +22,8 @@
 #import "FMGetUsersAPI.h"
 #import "ChooseAlertView.h"
 #import "FMCloudUserTableViewCell.h"
+#import "GetStaionInfoAPI.h"
+#import "GetSystemInformationAPI.h"
 
 #define kCount 3
 @interface FMLoginViewController ()
@@ -148,7 +150,6 @@ WXApiDelegate
         if (_browser.discoveredServers.count == 0) {
              [SXLoadingView hideProgressHUD];
         }
-        
     });
 }
 
@@ -193,25 +194,53 @@ WXApiDelegate
 - (void)findIpToCheck:(NSString *)addressString andService:(NSNetService *)service{
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
     NSLog(@"%@", urlString);
-    FMSerachService * ser = [FMSerachService new];
-    
-    ser.path = urlString;
-    ser.name = service.name;
-    ser.type = service.type;
-    ser.displayPath = addressString;
-    ser.hostName = service.hostName;
-    _expandCell = ser;
-    BOOL isNew = YES;
-    for (FMSerachService * s in _dataSource) {
-        if (IsEquallString(s.path, ser.path)) {
-            isNew = NO;
-            break;
+      FMSerachService * ser = [FMSerachService new];
+    [[GetStaionInfoAPI apiWithServicePath:urlString]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//        MyNSLog(@"%@",request.responseJsonObject);
+        NSDictionary *rootDic =  request.responseJsonObject;
+        NSString *nameString = [rootDic objectForKey:@"name"];
+        if (nameString.length == 0) {
+            nameString = @"闻上盒子";
         }
-    }
-    if (isNew) {
-        [_dataSource addObject:ser];
-        [self refreshDatasource];
-    }
+        
+        [[GetSystemInformationAPI apiWithServicePath:urlString]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
+//            MyNSLog(@"%@",request.responseJsonObject);
+            NSDictionary *rootDic =request.responseJsonObject;
+            NSDictionary *dic = [rootDic objectForKey:@"ws215i"];
+            NSString *type;
+            if (dic) {
+                type = @"WS215i";
+            }else{
+                type = @"虚拟机";
+            }
+            ser.name = nameString;
+            ser.path = urlString;
+            ser.type = type;
+//            MyNSLog(@"%@",service.type);
+            ser.displayPath = addressString;
+            ser.hostName = service.hostName;
+            _expandCell = ser;
+            BOOL isNew = YES;
+            for (FMSerachService * s in _dataSource) {
+                if (IsEquallString(s.path, ser.path)) {
+                    isNew = NO;
+                    break;
+                }
+            }
+            if (isNew) {
+                [_dataSource addObject:ser];
+                [self refreshDatasource];
+            }
+        } failure:^(__kindof JYBaseRequest *request) {
+            
+        }];
+  
+    } failure:^(__kindof JYBaseRequest *request) {
+        
+    }];
+    
+   
+   
 }
 
 - (void)refreshDatasource{
@@ -384,7 +413,11 @@ WXApiDelegate
 //        _stationScrollView.backgroundColor = UICOLOR_RGB(0x0288d1);
 //     
 //    }
-    _stationTypeLabel.text = ser.name;
+   
+    _stationTypeLabel.text = ser.type;
+    if ([ser.type isEqualToString:@"虚拟机"]) {
+         _stationLogoImageView.image = [UIImage imageNamed:@"virtual_machine"];
+    }
     _stationNameLabel.text = ser.name;
      _stationIpLabel.text = ser.displayPath;
       [self viewOfSeaching:NO];
@@ -743,10 +776,10 @@ WXApiDelegate
 #pragma mark ScrollView delegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    if (scrollView == self.stationScrollView) {
+    if (scrollView == self.stationScrollView &&scrollView.contentOffset.x > JYSCREEN_WIDTH/2) {
         
-    if (scrollView.contentOffset.x > JYSCREEN_WIDTH/22) {
-    int page = scrollView.contentOffset.x/CGRectGetWidth(self.view.frame);
+//    if () {
+    int page = scrollView.contentOffset.x/JYSCREEN_WIDTH;
     _stationPageControl.currentPage = page;
     FMSerachService *ser = _tempDataSource[page];
     _userDataSource = ser.users;
@@ -758,14 +791,23 @@ WXApiDelegate
 //        _stationCardView.backgroundColor =  UICOLOR_RGB(0x03a9f4);
 //        _stationScrollView.backgroundColor = UICOLOR_RGB(0x0288d1);
 //    }
-    [_userListTableViwe reloadData];
-    }
+//        MyNSLog(@"%f",scrollView.contentOffset.x);
+//        if (scrollView.contentOffset.x == JYSCREEN_WIDTH *page) {
+       
+//        }
+//    }
    
 //    if (_stationPageControl.currentPage) {
 //        _stationPageControl.transform=CGAffineTransformScale(CGAffineTransformIdentity, 2, 2);
     }
 }
 
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+     if (scrollView == self.stationScrollView) {
+      [_userListTableViwe reloadData];
+     }
+}
 
 #pragma mark tableView datasource
 

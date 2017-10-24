@@ -20,6 +20,17 @@
 		1FD575DE1F7B4CFB0074824F /* FMBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575DD1F7B4CFB0074824F /* FMBaseModel.m */; };
 		1FD575E11F7B4D700074824F /* CloudLoginModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575E01F7B4D700074824F /* CloudLoginModel.m */; };
 		1FD575E41F7B50190074824F /* FMCloudUserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575E31F7B50190074824F /* FMCloudUserModel.m */; };
+		1FE114D11F9DDB1800CBC08E /* GetStaionInfoAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE114D01F9DDB1800CBC08E /* GetStaionInfoAPI.m */; };
+		1FE114D41F9E02DE00CBC08E /* GetSystemInformationAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE114D31F9E02DE00CBC08E /* GetSystemInformationAPI.m */; };
+		1FE114D81F9EDDA400CBC08E /* virtual_machine@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114D51F9EDDA300CBC08E /* virtual_machine@2x.png */; };
+		1FE114D91F9EDDA400CBC08E /* virtual_machine@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114D61F9EDDA300CBC08E /* virtual_machine@3x.png */; };
+		1FE114DA1F9EDDA400CBC08E /* virtual_machine.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114D71F9EDDA400CBC08E /* virtual_machine.png */; };
+		1FE114E11F9F26BC00CBC08E /* person@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114DB1F9F26B700CBC08E /* person@2x.png */; };
+		1FE114E21F9F26BC00CBC08E /* ic_person@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114DC1F9F26B700CBC08E /* ic_person@2x.png */; };
+		1FE114E31F9F26BC00CBC08E /* ic_person@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114DD1F9F26B800CBC08E /* ic_person@3x.png */; };
+		1FE114E41F9F26BC00CBC08E /* ic_person.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114DE1F9F26B900CBC08E /* ic_person.png */; };
+		1FE114E51F9F26BC00CBC08E /* person@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114DF1F9F26BA00CBC08E /* person@3x.png */; };
+		1FE114E61F9F26BC00CBC08E /* person.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FE114E01F9F26BB00CBC08E /* person.png */; };
 		9C5EC04E1F441B120075B228 /* eye.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04B1F441B120075B228 /* eye.png */; };
 		9C5EC04F1F441B120075B228 /* eye@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04C1F441B120075B228 /* eye@2x.png */; };
 		9C5EC0501F441B120075B228 /* eye@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C5EC04D1F441B120075B228 /* eye@3x.png */; };
@@ -795,6 +806,19 @@
 		1FD575E01F7B4D700074824F /* CloudLoginModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloudLoginModel.m; sourceTree = "<group>"; };
 		1FD575E21F7B50190074824F /* FMCloudUserModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMCloudUserModel.h; sourceTree = "<group>"; };
 		1FD575E31F7B50190074824F /* FMCloudUserModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMCloudUserModel.m; sourceTree = "<group>"; };
+		1FE114CF1F9DDB1800CBC08E /* GetStaionInfoAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetStaionInfoAPI.h; sourceTree = "<group>"; };
+		1FE114D01F9DDB1800CBC08E /* GetStaionInfoAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GetStaionInfoAPI.m; sourceTree = "<group>"; };
+		1FE114D21F9E02DE00CBC08E /* GetSystemInformationAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetSystemInformationAPI.h; sourceTree = "<group>"; };
+		1FE114D31F9E02DE00CBC08E /* GetSystemInformationAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GetSystemInformationAPI.m; sourceTree = "<group>"; };
+		1FE114D51F9EDDA300CBC08E /* virtual_machine@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "virtual_machine@2x.png"; sourceTree = "<group>"; };
+		1FE114D61F9EDDA300CBC08E /* virtual_machine@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "virtual_machine@3x.png"; sourceTree = "<group>"; };
+		1FE114D71F9EDDA400CBC08E /* virtual_machine.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = virtual_machine.png; sourceTree = "<group>"; };
+		1FE114DB1F9F26B700CBC08E /* person@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "person@2x.png"; sourceTree = "<group>"; };
+		1FE114DC1F9F26B700CBC08E /* ic_person@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_person@2x.png"; sourceTree = "<group>"; };
+		1FE114DD1F9F26B800CBC08E /* ic_person@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_person@3x.png"; sourceTree = "<group>"; };
+		1FE114DE1F9F26B900CBC08E /* ic_person.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_person.png; sourceTree = "<group>"; };
+		1FE114DF1F9F26BA00CBC08E /* person@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "person@3x.png"; sourceTree = "<group>"; };
+		1FE114E01F9F26BB00CBC08E /* person.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = person.png; sourceTree = "<group>"; };
 		4CC670F9EC1A5FD6F3B7DDE4 /* libPods-FruitMix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FruitMix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C5EC04B1F441B120075B228 /* eye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eye.png; sourceTree = "<group>"; };
 		9C5EC04C1F441B120075B228 /* eye@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye@2x.png"; sourceTree = "<group>"; };
@@ -1959,6 +1983,10 @@
 			children = (
 				1FD575D51F7A78B10074824F /* GetStationAPI.h */,
 				1FD575D61F7A78B10074824F /* GetStationAPI.m */,
+				1FE114CF1F9DDB1800CBC08E /* GetStaionInfoAPI.h */,
+				1FE114D01F9DDB1800CBC08E /* GetStaionInfoAPI.m */,
+				1FE114D21F9E02DE00CBC08E /* GetSystemInformationAPI.h */,
+				1FE114D31F9E02DE00CBC08E /* GetSystemInformationAPI.m */,
 			);
 			name = Station;
 			sourceTree = "<group>";
@@ -4122,6 +4150,9 @@
 		C1F44A581D12B26D00A8FD34 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				1FE114D71F9EDDA400CBC08E /* virtual_machine.png */,
+				1FE114D51F9EDDA300CBC08E /* virtual_machine@2x.png */,
+				1FE114D61F9EDDA300CBC08E /* virtual_machine@3x.png */,
 				9C5EC0511F441B1D0075B228 /* eye_off.png */,
 				9C5EC0521F441B1D0075B228 /* eye_off@2x.png */,
 				9C5EC0531F441B1D0075B228 /* eye_off@3x.png */,
@@ -4162,6 +4193,12 @@
 				C1F44A5C1D12B27800A8FD34 /* Arrow.png */,
 				C1F44A5D1D12B27800A8FD34 /* Arrow@2x.png */,
 				C1F44A5E1D12B27800A8FD34 /* Arrow@3x.png */,
+				1FE114DE1F9F26B900CBC08E /* ic_person.png */,
+				1FE114DC1F9F26B700CBC08E /* ic_person@2x.png */,
+				1FE114DD1F9F26B800CBC08E /* ic_person@3x.png */,
+				1FE114E01F9F26BB00CBC08E /* person.png */,
+				1FE114DB1F9F26B700CBC08E /* person@2x.png */,
+				1FE114DF1F9F26BA00CBC08E /* person@3x.png */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -4970,6 +5007,7 @@
 				9CCACEB91F2F1B9200E84801 /* menu_select@3x.png in Resources */,
 				C17615D81D0D2A8200FDFE1B /* check-box_select.png in Resources */,
 				C1A959491CBB3F9D007A1DC9 /* good_red.png in Resources */,
+				1FE114E41F9F26BC00CBC08E /* ic_person.png in Resources */,
 				C158C49E1DDE97430073A342 /* help.png in Resources */,
 				C19DDE341CE04F0E00E958D1 /* lock_line@3x.png in Resources */,
 				C1009B4E1DFE8BB6006ADA84 /* ic_https@3x.png in Resources */,
@@ -4994,6 +5032,7 @@
 				C179704C1CD372F0002B7EAA /* praise_solid_select.png in Resources */,
 				C19DDE561CE050C700E958D1 /* recommend.png in Resources */,
 				C11FE8A51DED75C0008F73D8 /* back@3x.png in Resources */,
+				1FE114D81F9EDDA400CBC08E /* virtual_machine@2x.png in Resources */,
 				C1A959471CBB3F9D007A1DC9 /* good_red_select@2x.png in Resources */,
 				C1009B521DFE8BB6006ADA84 /* ic_mode_edit_18pt.png in Resources */,
 				F6F259251E2DC7260074F521 /* all@2x.png in Resources */,
@@ -5003,6 +5042,7 @@
 				C1955F871DB4C68A00B4A057 /* check_circle.png in Resources */,
 				C15C9BBC1D7EC59D00CD8225 /* LCActionSheet.bundle in Resources */,
 				9CCACE7C1F2EDC4900E84801 /* unselected.png in Resources */,
+				1FE114E11F9F26BC00CBC08E /* person@2x.png in Resources */,
 				C11A27211D2D0E410033764F /* comment_share@2x.png in Resources */,
 				9CCACE891F2F030600E84801 /* photo_plus_close@2x.png in Resources */,
 				9CCACEEA1F2F2B9A00E84801 /* back_grayhighlight.png in Resources */,
@@ -5145,6 +5185,7 @@
 				C1009B5B1DFEA738006ADA84 /* FMChangePwdVC.xib in Resources */,
 				F607BA141E5FDBDF0040D64F /* ic_delete@2x.png in Resources */,
 				9CE379671F42E0F400CC2F05 /* LoginTableViewCell.xib in Resources */,
+				1FE114E61F9F26BC00CBC08E /* person.png in Resources */,
 				1F3B69811F7CD504009A7FFA /* ChooseAlertView.xib in Resources */,
 				C1A959CE1CBB7F96007A1DC9 /* share_red@3x.png in Resources */,
 				C17970531CD372F0002B7EAA /* send@2x.png in Resources */,
@@ -5167,6 +5208,7 @@
 				C1F44A9E1D14079700A8FD34 /* img_bg.jpg in Resources */,
 				C11A27401D2E87100033764F /* album_share@2x.png in Resources */,
 				C10C082D1CF57A12007EEBD3 /* date_bg@3x.png in Resources */,
+				1FE114E21F9F26BC00CBC08E /* ic_person@2x.png in Resources */,
 				C17615BE1D07E2CA00FDFE1B /* mask-layer_share.png in Resources */,
 				C1009B4D1DFE8BB6006ADA84 /* ic_https@2x.png in Resources */,
 				9CCACECC1F2F272400E84801 /* set.png in Resources */,
@@ -5177,6 +5219,7 @@
 				C11FE94B1DEED38C008F73D8 /* hard.png in Resources */,
 				F6FBFE051E53F01D003CD8CB /* ic_arrow_drop_down@3x.png in Resources */,
 				C17615BA1D07E23B00FDFE1B /* share_photo@3x.png in Resources */,
+				1FE114E51F9F26BC00CBC08E /* person@3x.png in Resources */,
 				F6F259501E2E02D20074F521 /* open_in.png in Resources */,
 				C11FE94A1DEED38C008F73D8 /* hard_select@3x.png in Resources */,
 				9CCACEC31F2F1F9500E84801 /* more.png in Resources */,
@@ -5204,6 +5247,7 @@
 				C11FE9291DEED298008F73D8 /* photo-album@3x.png in Resources */,
 				9CE3794E1F4291DF00CC2F05 /* logo@3x.png in Resources */,
 				9CE3794D1F4291DF00CC2F05 /* logo@2x.png in Resources */,
+				1FE114DA1F9EDDA400CBC08E /* virtual_machine.png in Resources */,
 				9CCACF051F31B92E00E84801 /* download@3x.png in Resources */,
 				F6F259331E2DE8DB0074F521 /* no_photo@3x.png in Resources */,
 				C17615F91D0EAD3100FDFE1B /* photo_placeholder.png in Resources */,
@@ -5226,6 +5270,7 @@
 				C16A2BEA1CC4F3C000AB4A7C /* nav_left_close.png in Resources */,
 				C1A959C81CBB7F96007A1DC9 /* pic_线型@3x.png in Resources */,
 				C17615BF1D07E2CA00FDFE1B /* mask-layer_share@2x.png in Resources */,
+				1FE114D91F9EDDA400CBC08E /* virtual_machine@3x.png in Resources */,
 				C1F44A601D12B27800A8FD34 /* Arrow_down@2x.png in Resources */,
 				C179704B1CD372F0002B7EAA /* praise_line@3x.png in Resources */,
 				C19136361CC8BE4A008BAB93 /* IDMPhotoBrowser.bundle in Resources */,
@@ -5262,6 +5307,7 @@
 				C19136341CC8BE4A008BAB93 /* IDMPBLocalizations.bundle in Resources */,
 				C17615771D01826600FDFE1B /* praise_share.png in Resources */,
 				F659314B1C97DE1900AD10D1 /* Main.storyboard in Resources */,
+				1FE114E31F9F26BC00CBC08E /* ic_person@3x.png in Resources */,
 				C152132D1CB671B100EF61CF /* hiragino.otf in Resources */,
 				C1F44A701D12B2BD00A8FD34 /* del_user@3x.png in Resources */,
 				C1F44AAB1D152F6500A8FD34 /* FMUserSettingCell.xib in Resources */,
@@ -5390,6 +5436,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1F44A4A1D12A88000A8FD34 /* RATreeView+RATreeNodeCollectionControllerDataSource.m in Sources */,
+				1FE114D11F9DDB1800CBC08E /* GetStaionInfoAPI.m in Sources */,
 				C152130A1CB360C300EF61CF /* FMPhotosViewController.m in Sources */,
 				C1133B011D5DB98200D6370F /* MGSwipeTableCell.m in Sources */,
 				C1B98B871E12145700CF7762 /* FMFileUploadInfo.m in Sources */,
@@ -5566,6 +5613,7 @@
 				C19A3CDD1D9A24A600D81503 /* FMDeleteShareAPI.m in Sources */,
 				C1E89B6B1CD211DF00E8E493 /* GCDAsyncUdpSocket.m in Sources */,
 				C1FB83ED1DBF029A00D09541 /* APAddressBook.m in Sources */,
+				1FE114D41F9E02DE00CBC08E /* GetSystemInformationAPI.m in Sources */,
 				C19136331CC8BE4A008BAB93 /* IDMCaptionView.m in Sources */,
 				C1880E851D1F94BA001CB99D /* FMQuickUploader.m in Sources */,
 				C1A95A441CBCF920007A1DC9 /* FMShareLikeView.m in Sources */,
