@@ -120,7 +120,6 @@
     dbSet.isLoading = YES;
      dbSet.degistIsLoading = YES;
     dispatch_async([FMUtil setterDefaultQueue], ^{
-    
         PhotoManager * manager = [PhotoManager shareManager];
         [manager getAllPHAssetAndCompleteBlock:^(NSArray<PHAsset *> *result) {
             __block NSArray * result2 = result;//创建插入对象
@@ -170,7 +169,7 @@
                         for (FMLocalPhoto * photo  in result) {
                             [hadArr addObject:photo.localIdentifier];
                         }
-                        
+            
                         NSMutableArray * addArr = [NSMutableArray arrayWithCapacity:0];
                         for (FMLocalPhoto * photo in photoArr) {
                             if(![hadArr containsObject:photo.localIdentifier]){
@@ -190,7 +189,6 @@
                             //后台 计算 degist
                             dbSet.isLoading = NO;
                             [PhotoManager calculateDigestWhenPhotoHaveNotCompleteBlock:^(NSArray *arr) {
-                             
                              dbSet.degistIsLoading = NO;
                             [[NSNotificationCenter defaultCenter]postNotificationName:@"calculateDigestComplete" object:nil];
 //                                BOOL switchOn = SWITHCHON_BOOL

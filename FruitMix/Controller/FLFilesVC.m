@@ -71,6 +71,8 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 
 @property (nonatomic) BOOL shouldDownload;
 
+@property (nonatomic, assign) BOOL isSelect;
+
 @end
 
 @implementation FLFilesVC
@@ -356,6 +358,9 @@ NSInteger filesNameSort(id file1, id file2, void *context)
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.isSelect == false) {
+        self.isSelect = true;
+        [self performSelector:@selector(repeatDelay) withObject:nil afterDelay:0.5f];
     FLFilesModel * model = self.dataSource.dataSource[indexPath.row];
     if (![model.type isEqualToString:@"file"]){
         FLSecondFilesVC * vc = [FLSecondFilesVC new];
@@ -504,12 +509,15 @@ NSInteger filesNameSort(id file1, id file2, void *context)
                 //                [alertVc addAction:confirm];
                 //                [self presentViewController:alertVc animated:YES completion:^{
                 //                }];
+                }
             }
         }
     }
 }
 
-
+- (void)repeatDelay{
+    self.isSelect = false;
+}
 
 -(void)downloadModel:(TYDownloadModel *)downloadModel didChangeState:(TYDownloadState)state filePath:(NSString *)filePath error:(NSError *)error{
    

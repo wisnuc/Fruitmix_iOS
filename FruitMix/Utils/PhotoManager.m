@@ -817,6 +817,8 @@ BOOL shouldUpload = NO;
                         [weakSelf uploadImages:_uploadarray success:^(NSArray *arr) {
 
                         } failure:^{
+                            
+                            
                         }];
                         }else if (_uploadarray.count ==0) {
 //                    if (!_reachabilityTimer) {
@@ -964,7 +966,7 @@ BOOL shouldUpload = NO;
 //    }
 }
 
-- (void)uploadImage:(NSString *)photoHash success:(void (^)(NSString *url))success failure:(void (^)(void))failure{
+- (void)uploadImage:(NSString *)photoHash success:(void (^)(NSString *url))success failure:(void (^)())failure{
     
     _start = CFAbsoluteTimeGetCurrent();
 //     MyNSLog(@"每张上传照片开始时间：%f",_start);
@@ -1038,7 +1040,7 @@ BOOL shouldUpload = NO;
 //typedef void(^successBlock)(NSString *url);
 //    successBlock = success;
 //    dispatch_async([FMUtil setterBackGroundQueue], ^{
-         __weak FMUploadFileAPI *weakUploadFileAPI = [FMUploadFileAPI shareManager] ;
+//         __weak FMUploadFileAPI *weakUploadFileAPI = [FMUploadFileAPI shareManager] ;
         [PhotoManager getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
    
             if (filePath) {
@@ -1080,7 +1082,7 @@ BOOL shouldUpload = NO;
                                               }
                                               if (arr.count >0) {
                                                
-                                                  [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                                                  [FMUploadFileAPI uploadDirEntryWithFilePath:filePath Name:@"" success:^(NSURLSessionDataTask *task, id responseObject) {
                                                       NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                                                       
                                                       [weak_self uploadComplete:(rep.statusCode == 200)
@@ -1100,7 +1102,7 @@ BOOL shouldUpload = NO;
 
                                               }else{
 //
-                                                          [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                                                  [FMUploadFileAPI uploadDirEntryWithFilePath:filePath Name:@"" success:^(NSURLSessionDataTask *task, id responseObject) {
                                                               NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                                                               
                                                               [weak_self uploadComplete:(rep.statusCode == 200)
@@ -1142,7 +1144,7 @@ BOOL shouldUpload = NO;
                   }];
                 }else{
                      if (switchOn &&_canUpload && shouldUpload) {
-                                [FMUploadFileAPI uploadDirEntryWithFilePath:filePath success:^(NSURLSessionDataTask *task, id responseObject) {
+                         [FMUploadFileAPI uploadDirEntryWithFilePath:filePath Name:@"" success:^(NSURLSessionDataTask *task, id responseObject) {
                                     MyNSLog(@"上传照片Hash%@",hashStr);
                                 NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
                                 [weak_self uploadComplete:(rep.statusCode == 200)
@@ -1153,7 +1155,28 @@ BOOL shouldUpload = NO;
                                                   Failure:failure];
                  
                             } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                                  [self errorActionWithTask:task HashString:hashStr];
+//                                NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+//                                if(errorData.length >0){
+//                                    NSMutableArray *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+//
+//                                    NSDictionary *errorRootDic = serializedData[0];
+//                                    NSDictionary *errorDic = errorRootDic[@"error"];
+//                                    NSString *code = errorDic[@"code"];
+//                                    if ([code isEqualToString:@"EEXIST"]) {
+//                                         MyNSLog (@"上传照片error======>%@",serializedData);
+//                                        [weak_self uploadComplete:false
+//                                                        andSha256:hashStr
+//                                                     withFilePath:filePath
+//                                                         andAsset:asset
+//                                                  andSuccessBlock:success
+//                                                          Failure:failure];
+//                                    }else{
+//                                         [self errorActionWithTask:task HashString:hashStr];
+//                                    }
+//
+//                                }else{
+                                    [self errorActionWithTask:task HashString:hashStr];
+//                                }
 
                             } otherFailure:^(NSString *null) {
                                 [self removeNullWithString:null filePathHash:hashStr];
@@ -1258,6 +1281,10 @@ BOOL shouldUpload = NO;
             
      
     }else{ //失败
+//        FMUploadHelper *uploadHelper = [FMUploadHelper sharedInstance];
+//        __weak typeof(uploadHelper) weakHelper = uploadHelper;
+//        __weak typeof(self) weakSelf = self;
+//       [weakSelf uploadImage:_uploadarray[0] success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
         [self saveUploadArrayWithHash:sha256Str];
         if (failure) failure();
     }
@@ -1408,14 +1435,16 @@ BOOL startCalculate = YES;
                         block(PATH_IMAGE_FILE);
                     });
                 }else{
+                    startCalculate = YES;
                     block(nil);
-                      startCalculate = YES;
+                    
                 }
             }];
         }
     }else{
+        startCalculate = YES;
         block(nil);
-         startCalculate = YES;
+        
     }
     }
 }
@@ -1449,7 +1478,7 @@ BOOL startCalculate = YES;
 //                    if ([exestr isEqualToString:@"IMG_9999.JPG"]) {
 //                        MyNSLog(@"==🍄==Hash>>>%@  filpath>>>%@",localDegist,filePath);
 //                    }
-                    if (localDegist) {
+//                    if (localDegist) {
                         NSDate *modificationDate2 = [dic valueForKey:@"NSFileModificationDate"];
                         if ([modificationDate isEqualToDate:modificationDate2]) {
                             [FMFileManagerInstance removeFileAtPath:filePath];
@@ -1463,20 +1492,21 @@ BOOL startCalculate = YES;
                                 if (block) block(YES,localDegist);
                                 
                             }];
-                        }else{
-                            NSString * localDegist2 = [FileHash sha256HashOfFileAtPath:filePath];
-                            [FMFileManagerInstance removeFileAtPath:filePath];
-                            FMDTUpdateCommand * ucmd = [[FMDBSet shared].photo createUpdateCommand];
-                            [ucmd fieldWithKey:@"degist" val:localDegist2];
-                            [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
-                            [ucmd saveChangesInBackground:^{
-                                [[FMLocalPhotoStore shareStore] addDigestToStore:localDegist andLocalId:localId];
-                                
-                                //                        [[NSNotificationCenter defaultCenter]postNotificationName:FM_CALCULATE_HASH_SUCCESS_NOTIFY object:@{asset.localIdentifier:localDegist}];
-                                if (block) block(YES,localDegist);
-                                }];
-                        }
-                        
+//                        }
+//                        else{
+//                            NSString * localDegist2 = [FileHash sha256HashOfFileAtPath:filePath];
+//                            [FMFileManagerInstance removeFileAtPath:filePath];
+//                            FMDTUpdateCommand * ucmd = [[FMDBSet shared].photo createUpdateCommand];
+//                            [ucmd fieldWithKey:@"degist" val:localDegist2];
+//                            [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
+//                            [ucmd saveChangesInBackground:^{
+//                                [[FMLocalPhotoStore shareStore] addDigestToStore:localDegist andLocalId:localId];
+//
+//                                //                        [[NSNotificationCenter defaultCenter]postNotificationName:FM_CALCULATE_HASH_SUCCESS_NOTIFY object:@{asset.localIdentifier:localDegist}];
+//                                if (block) block(YES,localDegist);
+//                                }];
+//                        }
+//
                    
                     }else
                         if (block) block(NO,nil);
@@ -1500,11 +1530,11 @@ static NSInteger s = 0;
         }
     }else {
             if (switchOn &&_canUpload && shouldUpload) {
-                dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
-                dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+//                dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
+//                dispatch_after(delayTime, dispatch_get_main_queue(), ^{
 //                    [PhotoManager shareManager].canUpload = YES;
                     [self saveUploadArrayWithHash:hashStr];
-                });
+//                });
             }
     }   
  }

@@ -93,6 +93,7 @@
         FMMediaAPI * api = [FMMediaAPI new];
         [api startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
             [weak_self analysisPhotos:request.responseJsonObject];
+               _isLoadFinish = true;
 //            [weak_self siftPhotos];
 //            NSLog(@"respose👌: %@ ",request.responseJsonObject);
         } failure:^(__kindof JYBaseRequest *request) {
@@ -102,7 +103,7 @@
     });
 }
 
--(void)analysisPhotos:(id)response{
+- (void)analysisPhotos:(id)response{
     NSArray * userArr ;
     if ([response isKindOfClass:[NSArray class]]) {
       userArr = response;
@@ -144,10 +145,10 @@
                 }
               }
                 [self initPhotosIsRefrash];
-                _isLoadFinish = true;
+             
             }else{
                [self initPhotosIsRefrash];
-                _isLoadFinish = true;
+
             }
         }
         
@@ -160,7 +161,7 @@
 }
 
 -(void)initPhotosIsRefrash{
-    @synchronized (self) {
+//    @synchronized (self) {
         @weaky(self);
         NSCondition *condition = [[NSCondition alloc] init];
         [condition lock];
@@ -184,7 +185,7 @@
         }];
         [condition wait];
         [condition unlock];
-    }
+//    }
 }
 
 -(void)sequencePhotosAndCompleteBlock:(void(^)())block{

@@ -131,9 +131,8 @@ NSInteger imageUploadCount = 0;
 
 + (void)getDirectoriesForPhotoCompleteBlock:(void(^)(BOOL successful))completeBlock{
     @weaky(self)
-
     [FMUploadFileAPI getDirEntryWithUUId:DRIVE_UUID success:^(NSURLSessionDataTask *task, id responseObject) {
-        NSLog(@"🍄%@",responseObject);
+//        NSLog(@"🍄%@",responseObject);
         NSArray * arr ;
         if (!KISCLOUD) {
             NSDictionary * dic = responseObject;
@@ -249,7 +248,7 @@ NSInteger imageUploadCount = 0;
 BOOL startUpload = YES;
 CFAbsoluteTime  end;
 CFAbsoluteTime  start;
-+ (void)uploadDirEntryWithFilePath:(NSString *)filePath
++ (void)uploadDirEntryWithFilePath:(NSString *)filePath Name:(NSString *)name
                            success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure{
     @weaky(self)
@@ -278,6 +277,12 @@ CFAbsoluteTime  start;
     NSString *urlString;
     NSMutableDictionary * mutableDic = [NSMutableDictionary dictionaryWithCapacity:0];
     if (KISCLOUD) {
+        NSString *uplaodName;
+        if (name.length>0) {
+            uplaodName = name;
+        }else{
+            uplaodName = exestr;
+        }
         urlString = [NSString stringWithFormat:@"%@stations/%@/pipe",[JYRequestConfig sharedConfig].baseURL,KSTATIONID];
         NSString *requestUrl = [NSString stringWithFormat:@"/drives/%@/dirs/%@/entries",DRIVE_UUID,PHOTO_ENTRY_UUID];
         NSString *resource =[requestUrl base64EncodedString] ;
@@ -289,7 +294,7 @@ CFAbsoluteTime  start;
         NSMutableDictionary *manifestDic  = [NSMutableDictionary dictionaryWithCapacity:0];
         [manifestDic setObject:@"newfile" forKey:@"op"];
         [manifestDic setObject:@"POST" forKey:@"method"];
-        [manifestDic setObject:exestr forKey:@"toName"];
+        [manifestDic setObject:uplaodName forKey:@"toName"];
         [manifestDic setObject:resource forKey:@"resource"];
         [manifestDic setObject:hashString forKey:@"sha256"];
         [manifestDic setObject:@(sizeNumber) forKey:@"size"];
@@ -371,7 +376,14 @@ CFAbsoluteTime  start;
                     NSString *jsonString =  [[NSString alloc] initWithData:jsonData  encoding:NSUTF8StringEncoding];
   
                     if (data.length>0) {
-                        [formData appendPartWithFileData:data name:exestr fileName:jsonString mimeType:@"image/jpeg"];
+                        NSString *uplaodName;
+                        if (name.length>0) {
+                            uplaodName = name;
+                        }else{
+                            uplaodName = exestr;
+                        }
+                        [formData appendPartWithFileData:data name:uplaodName fileName:jsonString mimeType:@"image/jpeg"];
+                        
                     }else{
                        
                         otherFailure(@"null");
@@ -394,15 +406,45 @@ CFAbsoluteTime  start;
 //        NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
         NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
         if(errorData.length >0){
-            NSDictionary *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
-            NSLog(@"error--%@",serializedData);
+            NSMutableArray *serializedData = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+            
+            NSDictionary *errorRootDic = serializedData[0];
+            NSDictionary *errorDic = errorRootDic[@"error"];
+            NSString *code = errorDic[@"code"];
+            if ([code isEqualToString:@"EEXIST"]) {
+                NSString *formatString = [filePath pathExtension];
+                NSString *uploadName = [NSString stringWithFormat:@"%@.%@",hashString,formatString];
+                MyNSLog(@"%@",uploadName);
+                  startUpload = YES;
+                [FMUploadFileAPI uploadDirEntryWithFilePath:filePath Name:uploadName success:^(NSURLSessionDataTask *task, id responseObject) {
+                    MyNSLog(@"上传请求成功,POST返回成功");
+                    
+                    end = CFAbsoluteTimeGetCurrent();
+                    MyNSLog(@"🌶上传照片请求返回时间%f",end - start);
+                    success(task,responseObject);
+                    startUpload = YES;
+                } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                     failure(task,error);
+                     startUpload = YES;
+                } otherFailure:^(NSString *null) {
+                    otherFailure(@"null");
+                    startUpload = YES;
+                }];
+            }else{
+                  failure(task,error);
+                 startUpload = YES;
+            }
+//            NSLog(@"error--%@",serializedData);
             MyNSLog (@"上传照片error======>%@",serializedData);
+        }else{
+              failure(task,error);
+             startUpload = YES;
         }
-          MyNSLog (@"上传照片error======>%@",error);
+//          MyNSLog (@"上传照片error======>%@",error);
 //       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-        failure(task,error);
-         startUpload = YES;
+       
+       
     }];
         
     }

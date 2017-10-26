@@ -97,7 +97,9 @@
         [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:avatarUrl] options:SDWebImageDownloaderHighPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             
         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+             dispatch_async(dispatch_get_main_queue(), ^{
             self.userHeaderIV.image = [self imageCirclewithImage:image];
+             });
 //            MyNSLog(@"%@",NSStringFromCGSize(image.size))  ;
         }];
     }
@@ -268,8 +270,8 @@
                     }
 //
 
-                NSSet *localPhotoHashArrSet = [NSSet setWithArray:array];
-                NSMutableArray * arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];
+                    NSSet *localPhotoHashArrSet = [NSSet setWithArray:array];
+                    NSMutableArray *arr = [NSMutableArray arrayWithArray:[localPhotoHashArrSet allObjects]];
                     NSNumber *number = [NSNumber numberWithUnsignedInteger:arr.count];
                     if (number) {
                         _allCount = number;
@@ -430,7 +432,7 @@
 //                                    });
                                 } failure:^(NSURLSessionDataTask *task, NSError *error) {
                                     NSHTTPURLResponse * rep = (NSHTTPURLResponse *)task.response;
-                                    MyNSLog(@"%ld",(long)rep.statusCode);
+                                    MyNSLog(@"%@",error);
                                     if (rep.statusCode &&rep.statusCode== 404) {
                                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PHOTO_ENTRY_UUID_STR];
                                         if ([NSThread isMainThread]) {

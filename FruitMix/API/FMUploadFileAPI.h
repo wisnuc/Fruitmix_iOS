@@ -23,9 +23,9 @@
     failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
 
 + (long long)fileSizeAtPath:(NSString*) filePath;
-+ (void)uploadDirEntryWithFilePath:(NSString *)filePath
-                           success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
-                           failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure;
++ (void)uploadDirEntryWithFilePath:(NSString *)filePath Name:(NSString *)name
+                             success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
+                             failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure;
 + (void)creatPhotoMainFatherDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
 + (NSString *)JSONString:(NSString *)aString;
 + (void)creatPhotoDirEntryCompleteBlock:(void(^)(BOOL successful))completeBlock;
