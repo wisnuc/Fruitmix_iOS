@@ -66,13 +66,16 @@
 
 -(void)anySwitch{
     if (_switchOn) {
-        if (![PhotoManager shareManager].canUpload) {
-           [PhotoManager shareManager].canUpload = YES;
-        }
+//        if (![PhotoManager shareManager].canUpload) {
+//           [PhotoManager shareManager].canUpload = YES;
+//        }
+            [[FMPhotoManager defaultManager] start];
     }else{
-        if ([PhotoManager shareManager].canUpload) {
-           [PhotoManager shareManager].canUpload = NO;
-        }
+//        if ([PhotoManager shareManager].canUpload) {
+//           [PhotoManager shareManager].canUpload = NO;
+//
+//        }
+            [[FMPhotoManager defaultManager] stop];
     }
     
 }
@@ -274,14 +277,16 @@ else
     if([PhotoManager shareManager].netStatus == FMNetStatusWWAN ){
         if (switchBtn.isOn) {
             MyNSLog(@"备份开关开启");
-            if (![PhotoManager shareManager].canUpload) {
-                 [PhotoManager shareManager].canUpload = YES;
-            }
+//            if (![PhotoManager shareManager].canUpload) {
+//                 [PhotoManager shareManager].canUpload = YES;
+//            }
+                [[FMPhotoManager defaultManager] start];
         }else{
             MyNSLog(@"备份开关关闭");
-            if ([PhotoManager shareManager].canUpload) {
-            [PhotoManager shareManager].canUpload = NO;
-            }
+//            if ([PhotoManager shareManager].canUpload) {
+//            [PhotoManager shareManager].canUpload = NO;
+//            }
+                [[FMPhotoManager defaultManager] stop];
         }
     }
 }
@@ -297,7 +302,8 @@ else
    
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] synchronize];
-             [PhotoManager shareManager].canUpload = YES;
+//             [PhotoManager shareManager].canUpload = YES;
+        [[FMPhotoManager defaultManager] start];
         _switchOn = YES;
     }else{
         MyNSLog(@"备份开关关闭");
@@ -307,7 +313,8 @@ else
          _switchOn = NO;
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:KSWITHCHON];
         [[NSUserDefaults standardUserDefaults] synchronize];
-          [PhotoManager shareManager].canUpload = NO;
+//          [PhotoManager shareManager].canUpload = NO;
+         [[FMPhotoManager defaultManager] stop];
 //        }
     }
 //    [self.settingTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:100];
@@ -317,10 +324,11 @@ else
        _tag = 1;
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:KSWITHCHON];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    if ([PhotoManager shareManager].canUpload) {
-        [PhotoManager shareManager].canUpload = NO;
-        
-    }
+//    if ([PhotoManager shareManager].canUpload) {
+//        [PhotoManager shareManager].canUpload = NO;
+//
+//    }
+     [[FMPhotoManager defaultManager] stop];
     MyNSLog(@"备份开关关闭");
     
 }
@@ -329,9 +337,10 @@ else
        _tag = 1;
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KSWITHCHON];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    if (![PhotoManager shareManager].canUpload) {
-        [PhotoManager shareManager].canUpload = YES;
-    }
+//    if (![PhotoManager shareManager].canUpload) {
+//        [PhotoManager shareManager].canUpload = YES;
+//    }
+        [[FMPhotoManager defaultManager] start];
     MyNSLog(@"备份开关开启");
 }
 

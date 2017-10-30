@@ -599,6 +599,7 @@
         NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
         [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
         [[PhotoManager shareManager] cleanUploadTask];
+        [[FMPhotoManager  defaultManager] destroy];
         [[TYDownLoadDataManager manager] cleanTask];
      //        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"addCountNumber"];
 
@@ -722,10 +723,13 @@
     BOOL switchOn = SWITHCHON_BOOL;
     NSString *token = DEF_Token;
     if (token.length>0) {
+       
         if (switchOn) {
-            [PhotoManager shareManager].canUpload = YES;
+             [[FMPhotoManager defaultManager] start];
+//            [PhotoManager shareManager].canUpload = YES;
         }else{
-            [PhotoManager shareManager].canUpload = NO;
+            [[FMPhotoManager defaultManager] stop];
+//            [PhotoManager shareManager].canUpload = NO;
         }
     }
 }

@@ -54,6 +54,8 @@ typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
 
 + (void)getImageDataWithPHAsset:(PHAsset *)asset andCompleteBlock:(void(^)(NSString * filePath))block;
 
++ (void)_getImageDataWithPHAsset:(PHAsset *)asset andCompleteBlock:(void(^)(NSString * filePath))block;
+
 //检查网络 判断是否上传
 +(void)checkNetwork;
 /**

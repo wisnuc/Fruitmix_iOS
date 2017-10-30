@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F370D8E1FA308930016838D /* UploadWokingModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F370D8D1FA308930016838D /* UploadWokingModel.m */; };
 		1F3B697F1F7CD4EB009A7FFA /* ChooseAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3B697E1F7CD4EB009A7FFA /* ChooseAlertView.m */; };
 		1F3B69811F7CD504009A7FFA /* ChooseAlertView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3B69801F7CD504009A7FFA /* ChooseAlertView.xib */; };
 		1F3B69851F7D0444009A7FFA /* FMCloudUserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3B69831F7D0444009A7FFA /* FMCloudUserTableViewCell.m */; };
 		1F3B69861F7D0444009A7FFA /* FMCloudUserTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3B69841F7D0444009A7FFA /* FMCloudUserTableViewCell.xib */; };
+		1F3ED9071FA1C5E7009BF03A /* FMPhotoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3ED9051FA1C5E6009BF03A /* FMPhotoManager.m */; };
 		1FD575BF1F78A2330074824F /* NSString+Validate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575BE1F78A2330074824F /* NSString+Validate.m */; };
 		1FD575C21F791FBF0074824F /* FLGetDirveEntryAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C11F791FBF0074824F /* FLGetDirveEntryAPI.m */; };
 		1FD575C81F79FF650074824F /* FLUploadFilesAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FD575C71F79FF650074824F /* FLUploadFilesAPI.m */; };
@@ -782,12 +784,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1F370D8C1FA308930016838D /* UploadWokingModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UploadWokingModel.h; sourceTree = "<group>"; };
+		1F370D8D1FA308930016838D /* UploadWokingModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UploadWokingModel.m; sourceTree = "<group>"; };
 		1F3B697D1F7CD4EB009A7FFA /* ChooseAlertView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChooseAlertView.h; sourceTree = "<group>"; };
 		1F3B697E1F7CD4EB009A7FFA /* ChooseAlertView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooseAlertView.m; sourceTree = "<group>"; };
 		1F3B69801F7CD504009A7FFA /* ChooseAlertView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChooseAlertView.xib; sourceTree = "<group>"; };
 		1F3B69821F7D0444009A7FFA /* FMCloudUserTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMCloudUserTableViewCell.h; sourceTree = "<group>"; };
 		1F3B69831F7D0444009A7FFA /* FMCloudUserTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMCloudUserTableViewCell.m; sourceTree = "<group>"; };
 		1F3B69841F7D0444009A7FFA /* FMCloudUserTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FMCloudUserTableViewCell.xib; sourceTree = "<group>"; };
+		1F3ED9051FA1C5E6009BF03A /* FMPhotoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMPhotoManager.m; sourceTree = "<group>"; };
+		1F3ED9061FA1C5E7009BF03A /* FMPhotoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMPhotoManager.h; sourceTree = "<group>"; };
 		1FD575BD1F78A2330074824F /* NSString+Validate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Validate.h"; sourceTree = "<group>"; };
 		1FD575BE1F78A2330074824F /* NSString+Validate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Validate.m"; sourceTree = "<group>"; };
 		1FD575C01F791FBF0074824F /* FLGetDirveEntryAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FLGetDirveEntryAPI.h; sourceTree = "<group>"; };
@@ -3757,6 +3763,10 @@
 				C1880E7B1D1F92E6001CB99D /* UploadUtils */,
 				C191360F1CC77FF3008BAB93 /* PhotoManager.h */,
 				C19136101CC77FF3008BAB93 /* PhotoManager.m */,
+				1F3ED9061FA1C5E7009BF03A /* FMPhotoManager.h */,
+				1F3ED9051FA1C5E6009BF03A /* FMPhotoManager.m */,
+				1F370D8C1FA308930016838D /* UploadWokingModel.h */,
+				1F370D8D1FA308930016838D /* UploadWokingModel.m */,
 			);
 			name = PhotoManager;
 			sourceTree = "<group>";
@@ -5565,6 +5575,7 @@
 				C1C39CB91CF6FDE600E120D8 /* FMGetCommentsAPI.m in Sources */,
 				C1991E4B1DE43F8500F63EBE /* NSURLSession+TYCorrectedResumeData.m in Sources */,
 				C15C9B9B1D76C80B00CD8225 /* FLFilesVC.m in Sources */,
+				1F370D8E1FA308930016838D /* UploadWokingModel.m in Sources */,
 				C17615A71D06E63700FDFE1B /* FMSerachService.m in Sources */,
 				C1B513011DAA2D8700F0E480 /* FLShareModel.m in Sources */,
 				C158C4A31DDEA4120073A342 /* UIApplication+JYTopVC.m in Sources */,
@@ -5756,6 +5767,7 @@
 				F65931A11C9934E800AD10D1 /* CocoaSecurity.m in Sources */,
 				F616AEBE1E5142E60052CB81 /* FMSyncLogs.m in Sources */,
 				C1E8F33D1CAE5AE000E1F1FC /* JYNetEngine.m in Sources */,
+				1F3ED9071FA1C5E7009BF03A /* FMPhotoManager.m in Sources */,
 				C1FB84031DBF42A600D09541 /* FLCreateFolderAPI.m in Sources */,
 				9CE379451F417C2E00CC2F05 /* FMMessagesComposerTextView.m in Sources */,
 				C1E89B6A1CD211DF00E8E493 /* GCDAsyncSocket.m in Sources */,

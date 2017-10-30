@@ -102,6 +102,7 @@ fprintf(stderr,"[--%s--]:[%s]:[line %d行] %s\n --------------—--------------�
 #import "SXLoadingView.h"
 #import "JYNetworkerHeader.h"
 #import "PhotoManager.h"
+#import "FMPhotoManager.h"
 #import "BRPlaceholderTextView.h"
 #import "NSDate+JYDate.h"
 #import "FileHash.h"
@@ -163,7 +164,7 @@ fprintf(stderr,"[--%s--]:[%s]:[line %d行] %s\n --------------—--------------�
 #import "FMOwnerSetAPI.h"//属于自己的
 #import "FMGetAfterShareAPI.h"//时间点之后的share数据
 #import "FMAsyncUsersAPI.h"
-
+#import "FMUploadFileAPI.h"
 
 //DB
 #import "FMDBSet.h"

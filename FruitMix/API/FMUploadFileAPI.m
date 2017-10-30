@@ -251,9 +251,8 @@ CFAbsoluteTime  start;
 + (void)uploadDirEntryWithFilePath:(NSString *)filePath Name:(NSString *)name
                            success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                            failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure otherFailure:(void (^)(NSString *null))otherFailure{
-    @weaky(self)
+    
     if (startUpload) {
-
     startUpload = NO;
     MyNSLog(@"==========================开始上传==============================");
     NSString * hashString = [FileHash sha256HashOfFileAtPath:filePath];
@@ -308,7 +307,7 @@ CFAbsoluteTime  start;
         mutableDic = nil;
          [manager.requestSerializer setValue:[NSString stringWithFormat:@"JWT %@",DEF_Token] forHTTPHeaderField:@"Authorization"];
     }
-     MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
+//     MyNSLog (@"上传照片POST请求：URL======>%@\n上传照片照片名======>%@\n Hash======>%@\n",urlString,exestr,hashString);
 //    [[FLUploadFilesAPI apiWithPhotoUUID:PHOTO_ENTRY_UUID PhotoName:exestr Hash:hashString Size:sizeNumber]startWithFromDataBlock:^(id<AFMultipartFormData> formData) {
 //        @autoreleasepool {
 //        NSData *data = [[NSData alloc] initWithContentsOfFile:filePath options:0 error:NULL];
@@ -347,7 +346,6 @@ CFAbsoluteTime  start;
 //        }
 //        MyNSLog (@"上传照片error======>%@",request.error);
 //    }];
-//
 
     start = CFAbsoluteTimeGetCurrent();
     [manager POST:urlString parameters:mutableDic constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
@@ -385,7 +383,6 @@ CFAbsoluteTime  start;
                         [formData appendPartWithFileData:data name:uplaodName fileName:jsonString mimeType:@"image/jpeg"];
                         
                     }else{
-                       
                         otherFailure(@"null");
                           startUpload = YES;
                     }
@@ -398,8 +395,9 @@ CFAbsoluteTime  start;
        
         end = CFAbsoluteTimeGetCurrent();
      MyNSLog(@"🌶上传照片请求返回时间%f",end - start);
+         startUpload = YES;
         success(task,responseObject);
-        startUpload = YES;
+       
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         end = CFAbsoluteTimeGetCurrent();
         MyNSLog(@"🌶上传照片请求返回时间%f",end - start);
@@ -421,24 +419,28 @@ CFAbsoluteTime  start;
                     
                     end = CFAbsoluteTimeGetCurrent();
                     MyNSLog(@"🌶上传照片请求返回时间%f",end - start);
-                    success(task,responseObject);
-                    startUpload = YES;
-                } failure:^(NSURLSessionDataTask *task, NSError *error) {
-                     failure(task,error);
                      startUpload = YES;
+                    success(task,responseObject);
+                   
+                } failure:^(NSURLSessionDataTask *task, NSError *error) {
+                      startUpload = YES;
+                     failure(task,error);
+                   
                 } otherFailure:^(NSString *null) {
                     otherFailure(@"null");
                     startUpload = YES;
                 }];
             }else{
-                  failure(task,error);
                  startUpload = YES;
+                  failure(task,error);
+                
             }
 //            NSLog(@"error--%@",serializedData);
             MyNSLog (@"上传照片error======>%@",serializedData);
         }else{
-              failure(task,error);
              startUpload = YES;
+              failure(task,error);
+            
         }
 //          MyNSLog (@"上传照片error======>%@",error);
 //       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -893,18 +895,18 @@ CFAbsoluteTime  start;
 }
 + (void)getPhotoUUIDWithBlock:(void(^)(BOOL successful))completeBlock{
     [FMUploadFileAPI  getDriveInfoCompleteBlock:^(BOOL successful) {
-    if (successful) {
-    [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
         if (successful) {
-            [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+            [FMUploadFileAPI getDirectoriesForPhotoCompleteBlock:^(BOOL successful) {
                 if (successful) {
-                    completeBlock(YES);
+                    [FMUploadFileAPI creatPhotoDirEntryCompleteBlock:^(BOOL successful) {
+                        if (successful) {
+                            completeBlock(YES);
+                        }
+                    }];
                 }
             }];
         }
     }];
-    }
-}];
 
 }
 
