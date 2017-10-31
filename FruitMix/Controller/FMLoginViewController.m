@@ -195,6 +195,7 @@ WXApiDelegate
     NSString* urlString = [NSString stringWithFormat:@"http://%@:3000/", addressString];
     NSLog(@"%@", urlString);
       FMSerachService * ser = [FMSerachService new];
+     RACSubject *subject = [RACSubject subject];
     [[GetStaionInfoAPI apiWithServicePath:urlString]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
 //        MyNSLog(@"%@",request.responseJsonObject);
         NSDictionary *rootDic =  request.responseJsonObject;
@@ -202,9 +203,14 @@ WXApiDelegate
         if (nameString.length == 0) {
             nameString = @"闻上盒子";
         }
+         [subject sendNext:nameString];
+    } failure:^(__kindof JYBaseRequest *request) {
         
+    }];
+    
+    [subject subscribeNext:^(id x) {
         [[GetSystemInformationAPI apiWithServicePath:urlString]startWithCompletionBlockWithSuccess:^(__kindof JYBaseRequest *request) {
-//            MyNSLog(@"%@",request.responseJsonObject);
+            //            MyNSLog(@"%@",request.responseJsonObject);
             NSDictionary *rootDic =request.responseJsonObject;
             NSDictionary *dic = [rootDic objectForKey:@"ws215i"];
             NSString *type;
@@ -213,10 +219,10 @@ WXApiDelegate
             }else{
                 type = @"虚拟机";
             }
-            ser.name = nameString;
+            ser.name = x;
             ser.path = urlString;
             ser.type = type;
-//            MyNSLog(@"%@",service.type);
+            //            MyNSLog(@"%@",service.type);
             ser.displayPath = addressString;
             ser.hostName = service.hostName;
             _expandCell = ser;
@@ -234,12 +240,8 @@ WXApiDelegate
         } failure:^(__kindof JYBaseRequest *request) {
             
         }];
-  
-    } failure:^(__kindof JYBaseRequest *request) {
         
     }];
-    
-   
    
 }
 
@@ -424,7 +426,6 @@ WXApiDelegate
 }
 
 - (void)applicationWillResignActive:(NSNotification*)notification {
-    _browser = nil;
     [self.userListTableViwe reloadData];
 }
 

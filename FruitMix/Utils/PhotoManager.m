@@ -553,7 +553,7 @@ NSString * JY_UUID() {
                  NSLog(@"无网络");
                  network = NO;
                  change = YES;
-                 shouldUpload = NO;
+                 [[FMPhotoManager defaultManager]stop];
                  break;
              }
              case AFNetworkReachabilityStatusReachableViaWiFi:
@@ -565,10 +565,10 @@ NSString * JY_UUID() {
                  [[NSNotificationCenter defaultCenter] postNotificationName:FM_NET_STATUS_WIFI_NOTIFY object:nil];
                  NSLog(@"WiFi网络");
                  if (!network) {
-                     if (![PhotoManager shareManager].isUploading ) {
+//                     if (![PhotoManager shareManager].isUploading ) {
                          if(IsEquallString(USER_SHOULD_SYNC_PHOTO, DEF_UUID)){
-                            [PhotoManager shareManager].canUpload = YES;
-                         }
+                             [[FMPhotoManager defaultManager]start];
+//                         }
                      }
 
                  }

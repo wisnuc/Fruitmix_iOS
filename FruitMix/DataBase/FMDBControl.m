@@ -269,19 +269,15 @@
 
 +(void)getDBAllLocalPhotosWithCompleteBlock:(selectComplete)block{
     __weak id weakSelf = self;
-    dispatch_async([FMUtil setterDefaultQueue], ^{
+//    dispatch_async([FMUtil setterDefaultQueue], ^{
         FMDBSet * dbSet = [FMDBSet shared];
         if (dbSet.degistIsLoading) {
             //如果 数据库正在同步照片库 等两秒
-//            dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0/*延迟执行时间*/ * NSEC_PER_SEC));
-//            dispatch_after(delayTime, dispatch_get_main_queue(), ^{
-//                [weakSelf getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
-//                }];
-             dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block afterDelay:2];
-                 });
-//            });
-        
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_global_queue(0, 0), ^{
+                if ([self respondsToSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:)]) {
+                    [self performSelector:@selector(getDBAllLocalPhotosWithCompleteBlock:) withObject:block];
+                }
+            });
 //            [weakSelf  performSelectorInBackground:@selector(getDBAllLocalPhotosWithCompleteBlock:)  withObject:block];
         }else{
             FMDTSelectCommand *cmd = [dbSet.photo createSelectCommand];
@@ -290,7 +286,7 @@
                 block(arr);
             });
         }
-    });
+//    });
 }
 
 +(void)deletePhotoWithArray:(NSArray *)photoArr{

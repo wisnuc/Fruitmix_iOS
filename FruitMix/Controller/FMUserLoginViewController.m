@@ -150,6 +150,9 @@
 //     NSLog(@"%@",[FMDBControl findUserLoginInfo:_user.uuid]);
     });
     //组装UI
+    MyAppDelegate.leftMenu = nil;
+    [MyAppDelegate initLeftMenu];
+    
     if (def_token.length == 0 ) {
         UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否自动备份该手机的照片至WISNUC服务器" preferredStyle:UIAlertControllerStyleAlert];
         // 2.添加取消按钮，block中存放点击了“取消”按钮要执行的操作
@@ -184,12 +187,9 @@
     [MyAppDelegate.sharesTabBar setSelectedIndex:0];
     MyAppDelegate.filesTabBar = nil;
     [MyAppDelegate resetDatasource];
-    MyAppDelegate.leftMenu = nil;
 
-    [MyAppDelegate initLeftMenu];
     [UIApplication sharedApplication].keyWindow.rootViewController = MyAppDelegate.sharesTabBar;
 }
-
 
 #pragma mark - 验证手机号
 +(BOOL)checkForMobilePhoneNo:(NSString *)mobilePhone{

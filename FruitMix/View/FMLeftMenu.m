@@ -25,6 +25,7 @@
 @property (strong, nonatomic) FMUserLoginInfo *userInfo;
 @property (strong, nonatomic) UIProgressView *backUpProgressView;
 @property (strong, nonatomic) UILabel *progressLabel;
+@property (nonatomic)RACSubject *subject;
 @end
 
 @implementation FMLeftMenu
@@ -32,7 +33,7 @@
 -(void)awakeFromNib{
    
     [super awakeFromNib];
-    
+     _subject= [RACSubject subject];
 //    self.userHeaderIV.layer.cornerRadius = self.userHeaderIV.frame.size.width/2;
 //    self.userHeaderIV.backgroundColor = [UIColor blackColor];
     _settingTabelView.delegate = self;
@@ -118,9 +119,9 @@
     }];
 
     NSNotificationCenter *notiCenter = [NSNotificationCenter defaultCenter];
-    [notiCenter addObserver:self selector:@selector(receiveNotification:) name:@"backUpProgressChange" object:nil];
+    [notiCenter addObserver:self selector:@selector(getAllPhotoCount) name:@"backUpProgressChange" object:nil];
     [notiCenter addObserver:self selector:@selector(receiveNotificationForPhotoChange:) name:@"photoChange" object:nil];
-    [notiCenter addObserver:self selector:@selector(receiveNotificationForUploadOverNoti:) name:@"uploadOverNoti" object:nil];
+    [notiCenter addObserver:self selector:@selector(getAllPhoto) name:@"uploadOverNoti" object:nil];
     [notiCenter addObserver:self selector:@selector(synchronizeStationPhoto) name:@"synchronizeStationPhoto" object:nil];
 
 
@@ -159,13 +160,23 @@
 }
 
 - (void)getAllPhoto{
+   __block NSInteger i = 0;
       __weak typeof(self) weakSelf = self;
+     RACReplaySubject *replaySubject = [RACReplaySubject subject];
     [self getPhotoUUIDWithComplete:^(BOOL successful) {
-        [[FMPhotoManager defaultManager] readyCompleteBlock:^(BOOL sccuss) {
-            [weakSelf getAllPhotoCount];
-        }];
+        i++;
+        
+        [replaySubject sendNext:@(i)];
     }];
-   
+    
+    [replaySubject subscribeNext:^(id x) {
+        if ([x integerValue] ==1) {
+            [[FMPhotoManager defaultManager] readyCompleteBlock:^(BOOL sccuss) {
+                [weakSelf getAllPhotoCount];
+            }];
+             MyNSLog(@"第一个订阅者%@",x);
+        }
+    }];
 }
 
 -(instancetype)initWithCoder:(NSCoder *)aDecoder{
@@ -271,13 +282,36 @@
 }
 
 - (void)getAllPhotoCount{
-   
+    if ([NSThread isMainThread] ) {
+           [self changeCount];
+    }else{
         dispatch_async(dispatch_get_main_queue(), ^{
-           FMPhotoManager *manage = [FMPhotoManager defaultManager];
-            self.progressLabel.text = [NSString stringWithFormat:@"%lu/%lu",(unsigned long)manage.hashwaitingQueue.count,(unsigned long)manage.hashwaitingQueue.count];
+            [self changeCount];
         });
-  
+    }
+    
 }
+
+
+- (void)changeCount{
+    FMPhotoManager *manage = [FMPhotoManager defaultManager];
+    self.progressLabel.text = [NSString stringWithFormat:@"%lu/%lu",
+                               (unsigned long)manage.hashwaitingQueue.count-(unsigned long)manage.uploadingQueue.count,
+                               (unsigned long)manage.hashwaitingQueue.count];
+    
+    float backUp = (float)(manage.hashwaitingQueue.count-manage.uploadingQueue.count)/(float)manage.hashwaitingQueue.count;
+    NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:backUp afterPoint:2]]];
+    NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
+    NSDecimalNumber *mutiplyDecimal;
+    if ([progressDecimalNumber compare:[NSDecimalNumber zero]] == NSOrderedSame || [[NSDecimalNumber notANumber] isEqualToNumber:progressDecimalNumber]) {
+        mutiplyDecimal = [NSDecimalNumber zero];
+    }else{
+        mutiplyDecimal = [progressDecimalNumber decimalNumberByMultiplyingBy:decimalNumber];
+    }
+    self.backUpProgressView.progress = backUp;
+    self.backupLabel.text = [NSString stringWithFormat:@"已备份%@%%",mutiplyDecimal];
+}
+
 //- (void)getAllPhotoCount{
 //    @weaky(self)
 //    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{

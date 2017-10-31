@@ -37,6 +37,8 @@
 
 @property (nonatomic) NSOperationQueue *scheduleQueue;
 
+@property (nonatomic,weak) NSTimer *reachabilityTimer;
+
 @end
 
 
@@ -64,12 +66,14 @@
         _uploadLimitCount = 1;
         _workingModel = [[UploadWokingModel alloc]init];
         _isStoped = false;
+        _isReady = false;
     }
     return self;
 }
 
 - (void)loadDataCompleteBlock:(void(^)(BOOL))callback
 {
+    MyNSLog(@"%lu",(unsigned long)_hashwaitingQueue.count);
     [FMDBControl getDBAllLocalPhotosWithCompleteBlock:^(NSArray<FMLocalPhoto *> *result) {
         FMLocalPhotoStore * store = [FMLocalPhotoStore shareStore];
         for (FMLocalPhoto *photo in result) {
@@ -83,8 +87,9 @@
             }
         }
         callback(true);
-        //        MyNSLog(@"%@",_hashwaitingQueue);
+    MyNSLog(@"%lu",(unsigned long)_hashwaitingQueue.count);
     }];
+
 }
 
 - (void)loadNetDataCompleteBlock:(void(^)(BOOL))callback
@@ -124,6 +129,11 @@
         _workingModel.hashWorkingQueue = [NSMutableArray arrayWithArray:self.hashWorkingQueue];
     }
     
+//    if (_reachabilityTimer) {
+//        [_reachabilityTimer invalidate];
+//        _reachabilityTimer = nil;
+//    }
+    
      @weaky(self)
    __block RACDisposable *handler = [RACObserve(self.workingModel, hashWorkingQueue) subscribeNext:^(id x) {
 //       if (_scheduleQueue) {
@@ -133,8 +143,10 @@
            [handler dispose];
            return;
        }
+       
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             MyNSLog(@"%@", [NSThread currentThread]);
+         
             if (self.workingModel.hashWorkingQueue.count == 0) {
                 if (_uploadingQueue.count>0) {
                     NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:
@@ -142,7 +154,7 @@
                     NSArray *resultArray = [_uploadingQueue objectsAtIndexes:indexes];
                     [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] addObjectsFromArray:resultArray];
                     [_uploadingQueue removeObjectsAtIndexes:indexes];
-                    MyNSLog(@"%@",_workingModel.hashWorkingQueue);
+//                    MyNSLog(@"%@",_uploadingQueue);
                 }else if(_uploadingQueue.count == 0 &&_uploadErrorQueue.count>0){
                     NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:
                                            NSMakeRange(0,_uploadLimitCount)];
@@ -150,6 +162,13 @@
                     [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] addObjectsFromArray:resultArray];
                     [_uploadErrorQueue removeObjectsAtIndexes:indexes];
                     MyNSLog(@"%@",_workingModel.hashWorkingQueue);
+                }else if (_uploadingQueue.count == 0 &&_uploadErrorQueue.count==0 &&self.workingModel.hashWorkingQueue.count == 0){
+                     [weak_self stop];
+                    if (!_reachabilityTimer) {
+
+                        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(reStart) userInfo:nil repeats:YES];
+                        [[NSRunLoop currentRunLoop]run];
+                    }
                 }
             }else if(_workingModel.hashWorkingQueue.count == _uploadLimitCount){
                 for (FMAsset *asset in _workingModel.hashWorkingQueue) {
@@ -157,11 +176,32 @@
                         [weak_self uplodingWithFilePath:filePath CompleteBlock:^(NSError *error, NSString *hash) {
                             if (error) {
                                 [self.uploadErrorQueue addObject:asset];
+                                if (self.workingModel.hashWorkingQueue) {
+                         
+                                    [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
+                                }
                                 MyNSLog(@"🌶");
                             }else{
                                 MyNSLog(@"上传成功");
-                                [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
-                                [self.uploadedQueue addObject:asset];
+                                if (self.workingModel.hashWorkingQueue) {
+                                   [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
+                                }
+                                
+                                [[NSNotificationCenter defaultCenter]postNotificationName:@"backUpProgressChange" object:nil];
+                                if (self.uploadedQueue) {
+                                    [self.uploadedQueue addObject:asset];
+                                }
+                              
+                                if(_uploadingQueue != nil && _uploadErrorQueue!=nil &&self.workingModel.hashWorkingQueue !=nil
+                                   && _uploadingQueue.count == 0 &&_uploadErrorQueue.count==0 &&self.workingModel.hashWorkingQueue.count == 0){
+                                    MyNSLog(@"全部上传完成");
+                                    [weak_self stop];
+                            
+                                    if (!_reachabilityTimer) {
+                                        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(reStart) userInfo:nil repeats:YES];
+                                         [[NSRunLoop currentRunLoop]run];
+                                    }
+                                }
                             }
                         }];
                     }];
@@ -170,15 +210,27 @@
 //        }];
         });
 //        [_scheduleQueue addOperation:operation];
-        MyNSLog(@"%@",x);
+//        MyNSLog(@"%@",x);
     }];
 //    [self.workingModel addObserver:self forKeyPath:@"hashWorkingQueue" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld|NSKeyValueObservingOptionInitial|NSKeyValueObservingOptionPrior context:nil];
 }
 
 - (void)readyCompleteBlock:(void(^)(BOOL))callback{
+//    MyNSLog(@"%@,%@,%@,%@,%@,%@,%@,%@", _uploadingQueue ,
+//            _hashwaitingQueue ,
+//            _hashWorkingQueue ,
+//            _workingModel.hashWorkingQueue ,
+//            _hashWorkingQueue ,
+//            _hashwaitingNetQueue ,
+//            _uploadErrorQueue ,
+//            _uploadedQueue);
      @weaky(self)
     if (!_startQueue) {
         _startQueue = [[NSOperationQueue alloc] init];
+    }
+    if (_isReady) {
+        callback(YES);
+        return;
     }
     [self.hashwaitingNetQueue removeAllObjects];
     [self.hashwaitingQueue removeAllObjects];
@@ -188,16 +240,18 @@
                 [subscriber sendNext:@"2"];
             }];
             return [RACDisposable disposableWithBlock:^{
-                //            MyNSLog(@"默认信号发送完毕被取消");
+        
             }];
         }];
         
         RACSignal* loaclPhotoSignal=[RACSignal createSignal:^RACDisposable *(id subscriber) {
+            
             [weak_self loadDataCompleteBlock:^(BOOL succeed) {
+                
                 [subscriber sendNext:@"1"];
             }];
             return [RACDisposable disposableWithBlock:^{
-                //                MyNSLog(@"默认信号发送完毕被取消");
+            
             }];
         }];
         
@@ -210,10 +264,10 @@
                 }
             }
             [weak_self putUploadingQueue:arrForUpload completeBlock:callback];
-            //        MyNSLog(@"%@",x);
         }];
     }];
     [_startQueue addOperation:operation];
+
 }
 
 - (void)start
@@ -225,14 +279,20 @@
 //        return;
 //    }
    
-    if (_isReady) {
-      [weakSelf schedule];
-        return;
-    }
+//    if (_isReady) {
+//      [weakSelf schedule];
+//        return;
+//    }
     
-    [self readyCompleteBlock:^(BOOL complete) {
+    if (_isReady) {
        [weakSelf schedule];
-    }];
+    }else{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_global_queue(0, 0), ^{
+            if ([self respondsToSelector:@selector(start)]) {
+                [self performSelector:@selector(start) withObject:nil];
+            }
+        });
+    }
 }
 
 - (void)stop
@@ -241,24 +301,48 @@
         [_startQueue cancelAllOperations];
         _startQueue = nil;
     }
-    [_uploadingQueue removeAllObjects];
-    [_hashwaitingQueue removeAllObjects];
-    [_hashWorkingQueue removeAllObjects];
-    [_workingModel.hashWorkingQueue removeAllObjects];
-    [_hashwaitingNetQueue removeAllObjects];
+//    [_uploadingQueue removeAllObjects];
+//    [_hashwaitingQueue removeAllObjects];
+//    [_hashWorkingQueue removeAllObjects];
+//    [_workingModel.hashWorkingQueue removeAllObjects];
+//    [_hashwaitingNetQueue removeAllObjects];
     _isStoped = true;
-   [self schedule];
+    [self schedule];
+    if (_reachabilityTimer) {
+        [_reachabilityTimer invalidate];
+        _reachabilityTimer = nil;
+    }
+   
 }
 
 - (void)destroy
 {
-    [self stop];
-     _startQueue = nil;
-    [_uploadingQueue removeAllObjects];
-    [_hashwaitingQueue removeAllObjects];
-    [_hashWorkingQueue removeAllObjects];
+    _isReady = false;
+    _uploadingQueue = nil;
+    _hashwaitingQueue = nil;
+    _hashWorkingQueue = nil;
+     _hashwaitingNetQueue = nil;
+     _uploadErrorQueue = nil;
+    _uploadedQueue = nil;
+//    [_uploadingQueue removeAllObjects];
+//    [_hashwaitingQueue removeAllObjects];
+//    [_hashWorkingQueue removeAllObjects];
     [_workingModel.hashWorkingQueue removeAllObjects];
-    [_hashwaitingNetQueue removeAllObjects];
+    _workingModel.hashWorkingQueue = nil;
+//    [_hashwaitingNetQueue removeAllObjects];
+//    [_uploadErrorQueue removeAllObjects];
+//    [_uploadedQueue removeAllObjects];
+}
+
+- (void)reStart{
+    if (_reachabilityTimer) {
+        [_reachabilityTimer invalidate];
+        _reachabilityTimer = nil;
+    }
+//    @weaky(self)
+    [self destroy];
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"uploadOverNoti" object:nil];
+    [self start];
 }
 
 - (void)uplodingWithFilePath:(NSString *)filePath CompleteBlock:(void(^)(NSError *, NSString *))callback{

@@ -126,11 +126,12 @@
                 if (dbSet.degistIsLoading) {
                      [_imageArr addObjectsFromArray:photoArr];
                 }else{
-            
+                    NSMutableArray *imageMutableArray = [NSMutableArray arrayWithArray:_imageArr];
+                    NSArray *imageArray = [NSArray arrayWithArray:imageMutableArray];
                 for (IDMPhoto * photo  in photoArr) {
                     __block BOOL isExist = NO;
 //                    MyNSLog(@"%@",[NSDictionary superclass]);
-                    [_imageArr enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [imageArray enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                         if (![photo isKindOfClass:[NSMutableDictionary class]] &&![obj   isKindOfClass:[NSMutableDictionary class]] && ![photo isKindOfClass:[NSMutableArray class]] &&![obj   isKindOfClass:[NSMutableArray class]]) {
                             if ([[obj getPhotoHash] isEqual:[photo getPhotoHash]]) {//数组中已经存在该对象
                                 *stop = YES;

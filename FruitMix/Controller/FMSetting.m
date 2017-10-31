@@ -33,7 +33,7 @@
     self.displayProgress = NO;
     [self createNavbtn];
     [self setSwitch];
-    [self anySwitch];
+//    [self anySwitch];
 
     if (_switchOn) {
         MyNSLog(@"备份开关开启");
