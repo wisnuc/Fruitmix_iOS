@@ -129,10 +129,10 @@
         _workingModel.hashWorkingQueue = [NSMutableArray arrayWithArray:self.hashWorkingQueue];
     }
     
-//    if (_reachabilityTimer) {
-//        [_reachabilityTimer invalidate];
-//        _reachabilityTimer = nil;
-//    }
+    if (_reachabilityTimer) {
+        [_reachabilityTimer invalidate];
+        _reachabilityTimer = nil;
+    }
     
      @weaky(self)
    __block RACDisposable *handler = [RACObserve(self.workingModel, hashWorkingQueue) subscribeNext:^(id x) {
@@ -165,7 +165,6 @@
                 }else if (_uploadingQueue.count == 0 &&_uploadErrorQueue.count==0 &&self.workingModel.hashWorkingQueue.count == 0){
                      [weak_self stop];
                     if (!_reachabilityTimer) {
-
                         _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(reStart) userInfo:nil repeats:YES];
                         [[NSRunLoop currentRunLoop]run];
                     }
