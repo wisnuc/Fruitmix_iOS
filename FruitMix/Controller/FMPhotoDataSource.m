@@ -71,8 +71,10 @@
                 asset.createtime = photo.createDate;
                 
                 if (asset.degist.length)
-                    [_localphotoDigest addObject:asset.degist];
-                [arr addObject:asset];
+                    if (![_localphotoDigest containsObject:asset.degist]) {
+                         [_localphotoDigest addObject:asset.degist];
+                         [arr addObject:asset];
+                    }
             }
             self.imageArr = arr;
             [self sequencePhotosAndCompleteBlock:^{
@@ -132,6 +134,7 @@
                     __block BOOL isExist = NO;
 //                    MyNSLog(@"%@",[NSDictionary superclass]);
                     [imageArray enumerateObjectsUsingBlock:^(IDMPhoto * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//                        MyNSLog(@"%@",[obj getPhotoHash]);
                         if (![photo isKindOfClass:[NSMutableDictionary class]] &&![obj   isKindOfClass:[NSMutableDictionary class]] && ![photo isKindOfClass:[NSMutableArray class]] &&![obj   isKindOfClass:[NSMutableArray class]]) {
                             if ([[obj getPhotoHash] isEqual:[photo getPhotoHash]]) {//数组中已经存在该对象
                                 *stop = YES;

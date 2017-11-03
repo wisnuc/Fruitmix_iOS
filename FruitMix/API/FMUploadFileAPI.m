@@ -365,8 +365,9 @@ CFAbsoluteTime  start;
                     if (data.length>0) {
                         [formData appendPartWithFileData:data name:exestr fileName:exestr mimeType:@"image/jpeg"];
                     }else{
-                        otherFailure(@"null");
                         startUpload = YES;
+                        otherFailure(@"null");
+                        
                     }
                 }else{
                     NSDictionary *dic = @{@"size":@(sizeNumber),@"sha256":hashString};
@@ -411,7 +412,10 @@ CFAbsoluteTime  start;
             NSString *code = errorDic[@"code"];
             if ([code isEqualToString:@"EEXIST"]) {
                 NSString *formatString = [filePath pathExtension];
-                NSString *uploadName = [NSString stringWithFormat:@"%@.%@",hashString,formatString];
+                NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+                NSTimeInterval a=[date timeIntervalSince1970];
+                NSString *fileNameString =[NSString stringWithFormat:@"%0.f", a];
+                NSString *uploadName = [NSString stringWithFormat:@"%@.%@",fileNameString,formatString];
                 MyNSLog(@"%@",uploadName);
                   startUpload = YES;
                 [FMUploadFileAPI uploadDirEntryWithFilePath:filePath Name:uploadName success:^(NSURLSessionDataTask *task, id responseObject) {
@@ -427,8 +431,8 @@ CFAbsoluteTime  start;
                      failure(task,error);
                    
                 } otherFailure:^(NSString *null) {
+                     startUpload = YES;
                     otherFailure(@"null");
-                    startUpload = YES;
                 }];
             }else{
                  startUpload = YES;
@@ -444,8 +448,6 @@ CFAbsoluteTime  start;
         }
 //          MyNSLog (@"上传照片error======>%@",error);
 //       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-       
        
     }];
         

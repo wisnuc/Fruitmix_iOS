@@ -170,7 +170,7 @@
     }];
     
     [replaySubject subscribeNext:^(id x) {
-        if ([x integerValue] ==1) {
+        if ([x integerValue] == 1) {
             [[FMPhotoManager defaultManager] readyCompleteBlock:^(BOOL sccuss) {
                 [weakSelf getAllPhotoCount];
             }];
@@ -296,10 +296,10 @@
 - (void)changeCount{
     FMPhotoManager *manage = [FMPhotoManager defaultManager];
     self.progressLabel.text = [NSString stringWithFormat:@"%lu/%lu",
-                               (unsigned long)manage.hashwaitingQueue.count-(unsigned long)manage.uploadingQueue.count,
-                               (unsigned long)manage.hashwaitingQueue.count];
+                               (unsigned long)manage.hashwaitingQueue.count-(unsigned long)manage.uploadingQueue.count - (unsigned long)manage.uploadErrorQueue.count,
+                               (unsigned long)manage.hashwaitingQueue.count ];
     
-    float backUp = (float)(manage.hashwaitingQueue.count-manage.uploadingQueue.count)/(float)manage.hashwaitingQueue.count;
+    float backUp = (float)(manage.hashwaitingQueue.count-manage.uploadingQueue.count - manage.uploadErrorQueue.count)/(float)manage.hashwaitingQueue.count;
     NSDecimalNumber *progressDecimalNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%@",[self notRounding:backUp afterPoint:2]]];
     NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:@"100"];
     NSDecimalNumber *mutiplyDecimal;
@@ -914,7 +914,7 @@
 }
 
 - (void)getUserInfo{
-    MyNSLog(@"%@",DEF_UUID);
+//    MyNSLog(@"%@",DEF_UUID);
   _userInfo = [FMDBControl findUserLoginInfo:DEF_UUID];
 //    NSMutableArray * arr = [FMGetUserInfo getUsersInfo];
 //    for (FMUserLoginInfo * info in arr) {

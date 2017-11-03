@@ -1463,8 +1463,8 @@ BOOL startCalculate = YES;
     if (asset) {
         [weak_self _getImageDataWithPHAsset:asset andCompleteBlock:^(NSString *filePath) {
             if (filePath) {
-               NSString * exestr = [filePath lastPathComponent];
-             
+//               NSString * exestr = [filePath lastPathComponent];
+//
                NSDictionary *dic  = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
                NSDate *modificationDate = [dic valueForKey:@"NSFileModificationDate"];
                 dispatch_async([FMUtil setterLowQueue], ^{
@@ -1483,8 +1483,15 @@ BOOL startCalculate = YES;
                         if ([modificationDate isEqualToDate:modificationDate2]) {
                             [FMFileManagerInstance removeFileAtPath:filePath];
                             FMDTUpdateCommand * ucmd = [[FMDBSet shared].photo createUpdateCommand];
-                            [ucmd fieldWithKey:@"degist" val:localDegist];
-                            [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
+                            if (localDegist.length>0) {
+                                [ucmd fieldWithKey:@"degist" val:localDegist];
+                                [ucmd where:@"localIdentifier" equalTo:asset.localIdentifier];
+                            }else{
+                                 [self performSelectorInBackground:@selector(calculateDigestWithLocalId: andCompleteBlock:)  withObject:block];
+                                return ;
+//
+                            }
+                           
                             [ucmd saveChangesInBackground:^{
                                 [[FMLocalPhotoStore shareStore] addDigestToStore:localDegist andLocalId:localId];
                                 

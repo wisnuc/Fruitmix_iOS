@@ -48,11 +48,10 @@
 @end
 
 @implementation FMPhotoManager
-
+static FMPhotoManager * manager = nil;
+static dispatch_once_t onceToken;
 + (instancetype)defaultManager
 {
-    static FMPhotoManager * manager = nil;
-    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc]init];
     });
@@ -133,16 +132,27 @@
         [_reachabilityTimer invalidate];
         _reachabilityTimer = nil;
     }
-    
+  
      @weaky(self)
-   __block RACDisposable *handler = [RACObserve(self.workingModel, hashWorkingQueue) subscribeNext:^(id x) {
+
+    NSMutableArray * stopArray = [NSMutableArray arrayWithObject:@"stop"];
+       if (_isStoped) {
+           _workingModel.hashWorkingQueue = stopArray;
+       }
+//    __block RACDisposable *handler =
+    [[RACObserve(self.workingModel, hashWorkingQueue)
+      takeUntilBlock:^BOOL(id x) {
+        MyNSLog(@"%@", [NSThread currentThread]);
+        return [x isEqualToArray:stopArray];
+    }]
+    subscribeNext:^(id x) {
 //       if (_scheduleQueue) {
 //           return ;
 //       }
-       if (_isStoped) {
-           [handler dispose];
-           return;
-       }
+//       if (_isStoped) {
+//           [handler dispose];
+//           return;
+//       }
        
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             MyNSLog(@"%@", [NSThread currentThread]);
@@ -152,35 +162,57 @@
                     NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:
                                            NSMakeRange(0,_uploadLimitCount)];
                     NSArray *resultArray = [_uploadingQueue objectsAtIndexes:indexes];
-                    [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] addObjectsFromArray:resultArray];
-                    [_uploadingQueue removeObjectsAtIndexes:indexes];
-//                    MyNSLog(@"%@",_uploadingQueue);
+                    if (self.workingModel.hashWorkingQueue) {
+                        [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] addObjectsFromArray:resultArray];
+                        [_uploadingQueue removeObjectsAtIndexes:indexes];
+                    }
+                    MyNSLog(@"%lu",(unsigned long)_uploadingQueue.count);
                 }else if(_uploadingQueue.count == 0 &&_uploadErrorQueue.count>0){
                     NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:
                                            NSMakeRange(0,_uploadLimitCount)];
                     NSArray *resultArray = [_uploadErrorQueue objectsAtIndexes:indexes];
-                    [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] addObjectsFromArray:resultArray];
-                    [_uploadErrorQueue removeObjectsAtIndexes:indexes];
+                    if (self.workingModel.hashWorkingQueue) {
+                        [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] addObjectsFromArray:resultArray];
+                        [_uploadErrorQueue removeObjectsAtIndexes:indexes];
+                    }
                     MyNSLog(@"%@",_workingModel.hashWorkingQueue);
-                }else if (_uploadingQueue.count == 0 &&_uploadErrorQueue.count==0 &&self.workingModel.hashWorkingQueue.count == 0){
+                }else if (_uploadingQueue != nil && _uploadErrorQueue!=nil &&self.workingModel.hashWorkingQueue !=nil
+                          && _uploadingQueue.count == 0 && _uploadErrorQueue.count==0 && self.workingModel.hashWorkingQueue.count == 0){
                      [weak_self stop];
                     if (!_reachabilityTimer) {
-                        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(reStart) userInfo:nil repeats:YES];
-                        [[NSRunLoop currentRunLoop]run];
+                        if ([NSThread isMainThread] ) {
+                             [weak_self timerStart];
+                        }else{
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                             [weak_self timerStart];
+                            });
+                        }
+//                         [[NSRunLoop  currentRunLoop] addTimer:_reachabilityTimer forMode:NSDefaultRunLoopMode];
+//                        [[NSRunLoop currentRunLoop]run];
                     }
                 }
-            }else if(_workingModel.hashWorkingQueue.count == _uploadLimitCount){
+            }else if(_workingModel.hashWorkingQueue && (_workingModel.hashWorkingQueue.count == _uploadLimitCount)){
                 for (FMAsset *asset in _workingModel.hashWorkingQueue) {
+                    if ([asset  isKindOfClass:[NSString class]]) {
+                        break;
+                    }
                     [PhotoManager getImageDataWithPHAsset:asset.asset andCompleteBlock:^(NSString *filePath) {
                         [weak_self uplodingWithFilePath:filePath CompleteBlock:^(NSError *error, NSString *hash) {
                             if (error) {
-                                [self.uploadErrorQueue addObject:asset];
+                                    [self.uploadErrorQueue addObject:asset];
                                 if (self.workingModel.hashWorkingQueue) {
-                         
                                     [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
                                 }
-                                MyNSLog(@"🌶");
+//                                [[NSNotificationCenter defaultCenter]postNotificationName:@"backUpProgressChange" object:nil];
+                                MyNSLog(@"🌶%@",error);
                             }else{
+                                if ([hash isEqualToString:@"null"]) {
+                                    [self.uploadErrorQueue addObject:asset];
+                                    if (self.workingModel.hashWorkingQueue) {
+                                        [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
+                                    }
+                                    return ;
+                                }
                                 MyNSLog(@"上传成功");
                                 if (self.workingModel.hashWorkingQueue) {
                                    [[self.workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
@@ -195,10 +227,12 @@
                                    && _uploadingQueue.count == 0 &&_uploadErrorQueue.count==0 &&self.workingModel.hashWorkingQueue.count == 0){
                                     MyNSLog(@"全部上传完成");
                                     [weak_self stop];
-                            
-                                    if (!_reachabilityTimer) {
-                                        _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(reStart) userInfo:nil repeats:YES];
-                                         [[NSRunLoop currentRunLoop]run];
+                                    if ([NSThread isMainThread] ) {
+                                        [weak_self timerStart];
+                                    }else{
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        [weak_self timerStart];
+                                    });
                                     }
                                 }
                             }
@@ -214,15 +248,12 @@
 //    [self.workingModel addObserver:self forKeyPath:@"hashWorkingQueue" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld|NSKeyValueObservingOptionInitial|NSKeyValueObservingOptionPrior context:nil];
 }
 
+- (void)timerStart{
+     _reachabilityTimer = [NSTimer scheduledTimerWithTimeInterval:180 target:self selector:@selector(reStart) userInfo:nil repeats:YES];
+}
+
 - (void)readyCompleteBlock:(void(^)(BOOL))callback{
-//    MyNSLog(@"%@,%@,%@,%@,%@,%@,%@,%@", _uploadingQueue ,
-//            _hashwaitingQueue ,
-//            _hashWorkingQueue ,
-//            _workingModel.hashWorkingQueue ,
-//            _hashWorkingQueue ,
-//            _hashwaitingNetQueue ,
-//            _uploadErrorQueue ,
-//            _uploadedQueue);
+
      @weaky(self)
     if (!_startQueue) {
         _startQueue = [[NSOperationQueue alloc] init];
@@ -258,7 +289,7 @@
         NSMutableArray *arrForUpload = [NSMutableArray arrayWithCapacity:0];
         [zipSignal subscribeNext:^(id x) {
             for (FMAsset *asset in _hashwaitingQueue) {
-                if (![self.hashwaitingNetQueue containsObject:asset.sha256]) {
+                if (![self.hashwaitingNetQueue containsObject:asset.sha256] && ![arrForUpload containsObject:asset]) {
                     [arrForUpload addObject:asset];
                 }
             }
@@ -296,17 +327,25 @@
 
 - (void)stop
 {
+    _isStoped = true;
+    if (_workingModel.hashWorkingQueue) {
+        [[_workingModel mutableArrayValueForKey:@"hashWorkingQueue"] removeAllObjects];
+    }
+    _workingModel.hashWorkingQueue = nil;
+    [self schedule];
     if (_startQueue) {
         [_startQueue cancelAllOperations];
         _startQueue = nil;
     }
+    
 //    [_uploadingQueue removeAllObjects];
 //    [_hashwaitingQueue removeAllObjects];
 //    [_hashWorkingQueue removeAllObjects];
 //    [_workingModel.hashWorkingQueue removeAllObjects];
 //    [_hashwaitingNetQueue removeAllObjects];
-    _isStoped = true;
-    [self schedule];
+    
+    MyNSLog(@"%@",_workingModel.hashWorkingQueue);
+   
     if (_reachabilityTimer) {
         [_reachabilityTimer invalidate];
         _reachabilityTimer = nil;
@@ -328,6 +367,9 @@
 //    [_hashWorkingQueue removeAllObjects];
     [_workingModel.hashWorkingQueue removeAllObjects];
     _workingModel.hashWorkingQueue = nil;
+    manager = nil;
+    onceToken = 0;
+  
 //    [_hashwaitingNetQueue removeAllObjects];
 //    [_uploadErrorQueue removeAllObjects];
 //    [_uploadedQueue removeAllObjects];
@@ -339,9 +381,10 @@
         _reachabilityTimer = nil;
     }
 //    @weaky(self)
+//    [self stop];
     [self destroy];
     [[NSNotificationCenter defaultCenter]postNotificationName:@"uploadOverNoti" object:nil];
-    [self start];
+    [[FMPhotoManager defaultManager] start];
 }
 
 - (void)uplodingWithFilePath:(NSString *)filePath CompleteBlock:(void(^)(NSError *, NSString *))callback{
@@ -353,7 +396,7 @@
         hashString = [FileHash sha256HashOfFileAtPath:filePath];
         callback(error,hashString);
     } otherFailure:^(NSString *null) {
-        
+        callback(nil,@"null");
     }];
 }
 
@@ -363,7 +406,7 @@
 }
 
 - (void)putUploadingQueue:(NSMutableArray<FMAsset *> *)uploadingQueue completeBlock:(void(^)(BOOL))callback{
-    NSMutableArray * imageArr = [NSMutableArray arrayWithArray:uploadingQueue];
+    NSMutableArray * imageArr = [NSMutableArray arrayWithCapacity:0];
     for (FMAsset *asset  in uploadingQueue) {
         __block BOOL isExist = NO;
         //                    MyNSLog(@"%@",[NSDictionary superclass]);
@@ -379,10 +422,13 @@
     }
     
     self.uploadingQueue = imageArr;
+    
     _isReady = true;
     callback(YES);
- 
-    //    MyNSLog(@"%lu",(unsigned long)imageArr.count);
+//    [_uploadingQueue enumerateObjectsUsingBlock:^(FMAsset * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//        MyNSLog(@"%@",obj.sha256);
+//    }];
+//    MyNSLog(@"%@",self.uploadingQueue);
 }
 
 - (void)dealloc{
@@ -422,6 +468,12 @@
         _uploadedQueue= [NSMutableArray<FMAsset *> arrayWithCapacity:0];
     }
     return _uploadedQueue;
+}
+- (NSMutableArray<FMAsset *> *)uploadErrorQueue{
+    if (!_uploadErrorQueue) {
+        _uploadErrorQueue= [NSMutableArray<FMAsset *> arrayWithCapacity:0];
+    }
+    return _uploadErrorQueue;
 }
 @end
 

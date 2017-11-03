@@ -95,12 +95,14 @@ WXApiDelegate
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_reachabilityTimer invalidate];
     _reachabilityTimer = nil;
+    _browser.delegate = nil;
     [_browser stopServer];
 }
 
 -(void)dealloc{
     [_reachabilityTimer invalidate];
     _reachabilityTimer = nil;
+    _browser.delegate = nil;
     [_browser stopServer];
 }
 

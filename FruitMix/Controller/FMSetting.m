@@ -328,7 +328,7 @@ else
 //        [PhotoManager shareManager].canUpload = NO;
 //
 //    }
-     [[FMPhotoManager defaultManager] stop];
+//     [[FMPhotoManager defaultManager] stop];
     MyNSLog(@"备份开关关闭");
     
 }
