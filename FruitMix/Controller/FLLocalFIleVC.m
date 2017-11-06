@@ -208,7 +208,7 @@
         return @"已下载";
 }
 
--(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+-(CGFloat)tableView:(UITableView *)tableView heightForscrollViewDidScrollInSection:(NSInteger)section{
     return 30;
 }
 
